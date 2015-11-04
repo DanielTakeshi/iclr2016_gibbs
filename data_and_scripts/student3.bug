@@ -1,0 +1,34 @@
+# I hope this will work. ~Daniel Seita.
+# EDIT: Yes, it seems to work for generating samples from a fixed CPT. 
+# Note: if I want to assume a variable is fixed, I change the "student-data.R" file, and I get rid
+# of the "p.variable_name" variable, along with the node in the "model" scope.
+# Be careful: I've already checked to make sure that "grade" is organized correctly here.
+
+var
+  intelligence[N], difficulty[N], sat[N], grade[N], letter[N],
+  p.intelligence[2], p.difficulty[2], p.sat[2,2], p.grade[2,2,3], p.letter[3,2],
+  # theta.intelligence[2], theta.difficulty[2], theta.sat[2,2], theta.grade[2,2,3], theta.letter[N,3,2],
+  alpha.letter[3,2], alpha.intelligence[2], alpha.difficulty[2], alpha.sat[2,2], alpha.grade[2,2,3]
+
+model {
+
+  # This should run N independent Gibbs chains, each of which has different "fixed" values.
+  p.letter[1,] ~ ddirich( alpha.letter[1,] )
+  p.letter[2,] ~ ddirich( alpha.letter[2,] )
+  p.letter[3,] ~ ddirich( alpha.letter[3,] )
+  p.intelligence[] ~ ddirich(alpha.intelligence[])
+  p.difficulty[] ~ ddirich(alpha.difficulty[])
+  p.sat[1,] ~ ddirich(alpha.sat[1,])
+  p.sat[2,] ~ ddirich(alpha.sat[2,])
+  p.grade[1,1,] ~ ddirich(alpha.grade[1,1,])
+  p.grade[1,2,] ~ ddirich(alpha.grade[1,2,])
+  p.grade[2,1,] ~ ddirich(alpha.grade[2,1,])
+  p.grade[2,2,] ~ ddirich(alpha.grade[2,2,])
+  for (i in 1:N) {
+    intelligence[i] ~ dcat(p.intelligence[])
+    difficulty[i] ~ dcat(p.difficulty[])
+    sat[i] ~ dcat(p.sat[intelligence[i],])
+    grade[i] ~ dcat(p.grade[intelligence[i],difficulty[i],])
+    letter[i] ~ dcat(p.letter[grade[i],])
+  }
+}

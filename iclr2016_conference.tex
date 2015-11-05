@@ -171,7 +171,8 @@ which models $m$ copies of the distribution tied to the same set of parameters $
 our case forms the set of Bayesian network CPTs. It is known that this new distribution $Q$ is up to
 a constant factor equal to a \emph{power} of the original distribution, so $Q(\Theta \mid X) \propto
 (P(\Theta \mid X))^m$. Thus, it has the same optima, including the global optimum, but its peaks are
-considerably sharpened.
+considerably sharpened. Also, as $m$ increases, SAME approaches
+Expectation-Maximization~\citep{EMpaper}.
 
 \textbf{Ideally, I think the first three sections should take up the first three full pages
 (roughly). But they have to be clean, and we really shouldn't explain Bayesian networks too much.}
@@ -182,43 +183,49 @@ considerably sharpened.
 \section{Implementation of SAME Gibbs Sampling}\label{sec:implementation}
 
 \begin{figure}[t]
-\begin{center}
-%\framebox[4.0in]{$\;$}
-\fbox{\rule[-.5cm]{0cm}{4cm} \rule[-.5cm]{4cm}{0cm}}
-\end{center}
-\caption{\textbf{TODO I honestly think it would be great to have a nice (short, fat) visualization
-of SAME/BIDMach, but I need to figure out how to draw that.}}
+\centering
+\includegraphics[width=0.8\textwidth]{fig_BIDMach_flow_DRAFT}
+\caption{\textbf{TODO I think having a short, fat BIDMach visualization would be great, but it needs
+to be publication quality.} This is a visualization of our Gibbs sampler. It takes in sparse data,
+replicates it using SAME (with $m=4$ here), samples them (using the same set of CPTs), then uses
+those samples, along with the prior and the current CPT to estimate the new CPT.}
 \label{fig:BIDMach}
 \end{figure}
 
-We implement the Gibbs sampler using BIDMach~\citep{bidmach}. We will describe mainly our
-contributions, deferring the other BIDMach details to that paper. It uses mini-batch updates, so
-only that mini-batch, plus extra data matrices necessary for information, mapping, etc., are needed
-to store in memory.
+Figure~\ref{fig:BIDMach} shows a visualization of how our Gibbs sampler works. It is implemented and
+integrated as part of the open-source BIDMach library~\citep{bidmach} for machine learning. Our
+Gibbs sampler expects a data matrix, where typically, rows represent variables and columns represent
+cases. BIDMach divides data into ``mini-batches'' and iterates through batches sequentially, and
+going through all mini-batches is considered one full pass over the data.
 
-We use a matrix caching scheme to re-use memory, which is scarce on GPUs. We use matrix
-multiplication to cleverly perform a variety of tasks.
+For each mini-batch, our sampler will form $m$ copies of the data, where $m$ is the SAME parameter,
+and where the known data is kept the same across all copies. Then, it performs Gibbs sampling to
+fill in the unknown values in each copy of the mini-batch using the same set of CPTs.  These sampled
+results are combined with an adjustable Dirichlet prior and (if desired) the current
+CPT\footnote{This would be useful if one wanted to do a moving average'' update of the CPT. Also,
+the use of the Dirichlet prior tends to be more important when the data is sparse, since it
+``smooths'' the CPTs.} to form a set of discrete counts that we then sample from to estimate the
+updated CPT. We then proceed to the next mini-batch of data and peform Gibbs sampling on that using
+the new CPT. To preserve samples across all runs, each time we finish a mini-batch, we store the
+sampled results in memory. Then, during the next \emph{pass} over the data (i.e., after having gone
+through all the mini-batches) we start the Gibbs sampling process from data that we load from
+memory.
 
-In~\citep{SAME2015}, they found that multinomial sampling was one of the bottlenecks. To counter
-this, we use a highly efficient matrix multiplication method to sample multinomial random variables
-in parallel.
+There are many ways that we optimize the sampler to maximize throughput on one computer and to avoid
+memory allocation errors. First, our sampler is GPU accelerated and takes advantage of parallelism
+in SIMD hardware by implementing the sampling process using matrix operations. In fact,
+in~\citep{SAME2015}, they found that multinomial sampling was one of the bottlenecks, but we
+implement multinomial sampling using straightforward matrix operations.
 
-In our implementation, SAME replicates the data matrix for each mini-batch. If memory on the GPU is
-scarce, one can simply decrease the batch size to take in less of the data at once. Note also that
-as $m$ increases, SAME approaches Expectation-Maximization~\citep{EMpaper}.
+Since memory on GPUs are scarce, we use a matrix caching strategy to reuse memory for same-sized
+matrices. This is also the reason why we use mini-batch updates, since the updates are all of the
+same size and so the matrices that result from a mini-batch have the same container and thus we
+re-use their memory slots\footnote{This does not generally apply to the very last mini-batch, but
+that last batch would not cost too much in extra memory, and one can even ignore it if needed}. The
+settings we use are customizable, so one can reduce the mini-batch size to reduce the memory
+footprint. One needs to do this step to perform SAME sampling with high $m$, since more replication
+takes up more memory.
 
-At the end of each mini-batch over the data, we accumulate counts and then combine this with a
-Dirichlet prior to sample updated CPTs. The Dirichlet prior is more useful when the data is sparser
-and we have less to work on.
-
-Figure~\ref{fig:BIDMach} shows a visualization of how our Gibbs sampler works.
-
-\textbf{Describe more on how we optimize, including parallelism and (important!) SAME sampling!}
-
-\textbf{Also, don't forget to discuss which parts of the code are bottlenecks, and how we stopped
-that.}
-
-\textbf{Wouldn't it make sense to have a nice figure that describes the workflow?}
 
 
 

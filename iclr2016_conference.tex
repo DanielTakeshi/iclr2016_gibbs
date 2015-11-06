@@ -134,7 +134,8 @@ The problem of Bayesian inference for graphical models is old and well-studied, 
 we refer the reader to textbooks (e.g., see~\citet{Koller2009} for a broad background) and survey
 papers (e.g., see~\citet{Wainwright2008} for a discussion on variational inference as an alternative
 to MCMC methods). \textbf{Daniel: I would like to have a survey paper that actually compares Gibbs
-sampling versus other methods.}
+sampling versus other methods. I think this paragraph should be longer, and the introduction
+slightly condensed.}
 
 Gibbs sampling is also relatively old and well-studied, but it has recently been getting more
 attention as the research community explores efforts to improve speed and scalability. The Gibbs
@@ -186,8 +187,8 @@ considerably sharpened. Also, as $m$ increases, SAME approaches
 Expectation-Maximization~\citep{EMpaper}.
 
 \textbf{Daniel: Ideally, I think the first three sections should take up the first three full pages
-(roughly, but not more). But they have to be clean, and we really shouldn't explain Bayesian
-networks too much.}
+(roughly, but not more). Then section 4 (the implementation) is on page 4 (and includes the
+figure/visualization). Pages 5 through 8 are for experimental results and conclusions.}
 
 
 
@@ -200,69 +201,60 @@ networks too much.}
 \caption{\textbf{Daniel: I think having a short, fat BIDMach visualization would be great, but it needs
 to be publication quality. The above is ``too tall.''} This is a visualization of our Gibbs sampler.
 It takes in sparse data, replicates it using SAME (with $m=4$ here), samples them (using the same
-set of CPTs), then uses those samples, along with the prior and the current CPT to estimate the new
-CPT.}
+set of CPTs), then uses those samples (with a prior and the current CPT) to get the new CPT.}
 \label{fig:BIDMach}
 \end{figure}
 
 Figure~\ref{fig:BIDMach} shows a visualization of how our Gibbs sampler works. It is implemented and
 integrated as part of the open-source BIDMach library~\citep{bidmach} for machine learning. Our
-Gibbs sampler expects a data matrix, where typically, rows represent variables and columns represent
-cases. BIDMach divides data into ``mini-batches'' and iterates through batches sequentially, and
-going through all mini-batches is considered one full pass over the data.
+Gibbs sampler expects a data matrix, with rows representing variables and columns representing
+cases. BIDMach divides data into ``mini-batches'' to which it iterates sequentially to update
+parameters. Going through all mini-batches is considered one full pass over the data.
 
-For each mini-batch, our sampler will form $m$ copies of the data, where $m$ is the SAME parameter,
-and where the known data is kept the same across all copies. Then, it performs Gibbs sampling to
-fill in the unknown values in each copy of the mini-batch using the same set of CPTs.  These sampled
+One of our main contributions is introducing a Gibbs sampler augmented with SAME sampling.
+Consequently, if $m$ is the SAME parameter, for each mini-batch our sampler forms $m$ copies of the
+data.  The known data is kept the same across all copies. Then, it performs Gibbs sampling to fill
+in the unknown values in each copy of the mini-batch using the same set of CPTs.  These sampled
 results are combined with an adjustable Dirichlet prior and (if desired) the current
-CPT\footnote{This would be useful if one wanted to do a moving average'' update of the CPT. Also,
+CPT\footnote{This would be useful if one wanted to do a moving average update of the CPT. Also,
 the use of the Dirichlet prior tends to be more important when the data is sparse, since it
 ``smooths'' the CPTs.} to form a set of discrete counts that we then sample from to estimate the
-updated CPT. We then proceed to the next mini-batch of data and peform Gibbs sampling on that using
-the new CPT. To preserve samples across all runs, each time we finish a mini-batch, we store the
-sampled results in memory. Then, during the next \emph{pass} over the data (i.e., after having gone
-through all the mini-batches) we start the Gibbs sampling process from data that we load from
-memory.
+updated CPT. To preserve samples across all runs, each time the sampler processes a mini-batch, it
+stores the sampled results in memory. Then, during the next \emph{pass} over the data (i.e., after
+having gone through all the mini-batches) it starts the Gibbs sampling process from that stored
+data. It is possible to skip the first few samples (the standard \emph{burn-in} period) and
+also to only update the parameters every $N^{\rm th}$ iteration to reduce correlated samples.
 
-There are many ways that we optimize the sampler to maximize throughput on one computer and to avoid
-memory allocation errors. First, our sampler is GPU accelerated and takes advantage of parallelism
-in SIMD hardware by implementing the sampling process using matrix operations. In fact,
-in~\citep{SAME2015}, they found that multinomial sampling was one of the bottlenecks, but we
-implement multinomial sampling using straightforward matrix operations.
+There are many ways in which we optimize the sampler to maximize throughput on one computer and to
+avoid excess memory allocation. First, our sampler is GPU accelerated and takes advantage of
+parallelism in modern hardware by implementing the sampling process using matrix operations. Since
+memory is scarce on GPUs (3-12 GB is typical), we use a matrix caching strategy to reuse memory for
+same-sized matrices.  This is also the reason why BIDMach uses mini-batch updates, since the
+corresponding matrices would be of the same size, and thus it re-uses their memory
+slots\footnote{This does not generally apply to the very last mini-batch, but that last batch would
+not cost too much in extra memory, and one can even ignore it if needed.}. The settings we use are
+customizable, so one can reduce the mini-batch size to reduce the memory footprint. One needs to do
+this step to perform SAME sampling with high $m$, since more replication takes up more memory.
 
-Since memory on GPUs are scarce, we use a matrix caching strategy to reuse memory for same-sized
-matrices. This is also the reason why we use mini-batch updates, since the updates are all of the
-same size and so the matrices that result from a mini-batch have the same container and thus we
-re-use their memory slots\footnote{This does not generally apply to the very last mini-batch, but
-that last batch would not cost too much in extra memory, and one can even ignore it if needed}. The
-settings we use are customizable, so one can reduce the mini-batch size to reduce the memory
-footprint. One needs to do this step to perform SAME sampling with high $m$, since more replication
-takes up more memory.
+As briefly mentioned in Section~\ref{sec:related_work}, we further parallelize Gibbs sampling in an
+exact manner by using chromatic sampling. One property of Bayesian networks is that $u, v \in
+\mathcal{V}$ are independent conditioning on a set of variables $\mathcal{C}$ if $\mathcal{C}$
+includes at least one variable on every path connecting $u$ and $v$ in $\tilde{\mathcal{G}}$, which
+is the \emph{moralized graph} of the network (i.e., the graph formed by connecting parents and
+dropping edge orientations). That is, vertex set $\mathcal{C}$ separates the dependency between $u$
+and $v$.
 
-\textbf{TODO Integrate this!}
-
-Early attempts at speeding up Gibbs sampling explored extents to which it could be parallelized.
-Gibbs sampling is a sequential algorithm and cannot be completely parallelized, but it is possible
-to exploit conditional independence assumptions to perform certain sampling steps simultaneously.
-The idea is to apply graph coloring to the moralized graph  $\tilde{\mathcal{G}}$ of the network.
-One property of Bayesian networks is that $u, v \in \mathcal{V}$ are independent conditioning on a
-set of variables $\mathcal{C}$ if $\mathcal{C}$ includes at least one variable on every path
-connecting $u$ and $v$ in $\tilde{\mathcal{G}}$. That is, vertex set $\mathcal{C}$ separates the
-dependency between $u$ and $v$.
-
-Assume there is a $k$-coloring of $\tilde{\mathcal{G}}$ such that each vertex is assigned one of $k$
+Suppose there is a $k$-coloring of $\tilde{\mathcal{G}}$ such that each vertex is assigned one of $k$
 colors and adjacent vertices have different colors. Denote $\mathcal{V}_c$ the set of variables
-assigned color $c$ where $1 \leq c \leq k$. One can sample sequentially from $\mathcal{V}_1$
-to $\mathcal{V}_k$, where within each color group, it samples all the variables in parallel. This
+assigned color $c$ where $1 \leq c \leq k$. One can sample sequentially from $\mathcal{V}_1$ to
+$\mathcal{V}_k$, where within each color group, it samples all the variables in parallel. This
 parallel sampler corresponds exactly to the execution of a sequential scan Gibbs sampler for some
-permutation over the variables~\citep{Gonzalez2011}. That is, the algorithm will converge to the
-desired distribution because (intuitively) variables within one color group are independent to each
-other given all the other variables. Finding the optimal coloring of a graph is NP-complete in
-general, but efficient heuristics for balanced graph coloring perform well in many real word
-problems.
+permutation over the variables and will converge to the desired distribution because variables
+within one color group are independent to each other given all the other variables. Finding the
+optimal coloring of a graph is NP-complete in general, but efficient heuristics for balanced graph
+coloring perform well in many problems.
 
-\textbf{Actually, the above really should be in Section 4! Then I have to think about what
-appropriate related work would be like.}
+
 
 
 
@@ -271,11 +263,10 @@ appropriate related work would be like.}
 We test our Gibbs sampler on one synthetic and one real dataset.  We compare our Gibbs sampler with
 JAGS~\citep{JAGS2003}, which is the most popular and efficient tool for Bayesian inference. JAGS is
 the fairest comparison to our sampler because it uses Gibbs sampling as the primary inference
-algorithm. There are alternative ways of estimating CPTs, but most of them (e.g., STAN, Bayes Net
-Toolbox) lack the support of efficient inference of discrete models, and are not included in the
-benchmarks.
+algorithm. There are alternative ways of estimating CPTs, but most of them (e.g., Bayes Net Toolbox)
+lack the support of efficient inference of discrete models.
 
-Our sampler and JAGS are evaluated on a PC equipped with a single 4-core CPU (Intel Core i7-3667U)
+We evaluate our sampler and JAGS on a PC equipped with a single 4-core CPU (Intel Core i7-3667U)
 and a dual-core GPU (Nvidia GTX-690). Only one core of GPU is used in the benchmark. We also use
 Intel VTune Amplifier to profile each program and measure the flops performance. VTune is very power
 tool: It allows user to attach any running process and monitor the all the hardware instructions

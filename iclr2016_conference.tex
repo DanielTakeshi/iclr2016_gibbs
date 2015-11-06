@@ -3,7 +3,7 @@
 \usepackage{hyperref,algorithm,algpseudocode,array,tabularx,multirow,caption,subcaption,amsfonts,url,verbatim,enumitem,amsmath,graphicx}
 \usepackage{url}
 
-\title{Fast Parallel SAME Gibbs Sampling on \\ General Discrete Graphical Models}
+\title{Fast Parallel SAME Gibbs Sampling on \\ General Discrete Bayesian Networks}
 
 \author{Daniel Seita, Haoyu Chen \& John Canny \\
 Computer Science Division \\
@@ -38,19 +38,16 @@ Berkeley, CS 94720, USA \\
 \maketitle
 
 \begin{abstract}
-A fundamental task in machine learning and other fields is to perform inference on graphical model
-parameters. Since exact inference takes exponential time, it is common to use an approximate
-inference algorithm such as Gibbs sampling. Nonetheless, Gibbs sampling can still be intractable for
-Bayesian Networks with just a few hundred discrete random variables, which severely restricts the
-range of problems to which it can work. We show that by implementing a highly optimized,
-parallelized Gibbs sampler, it is possible to apply Gibbs sampling to a much larger range of
-problems, including those with datasets that do not fit in RAM. Our Gibbs sampler is
-GPU-accelerated, replicates samples to decrease convergence time while not costing extra time
-due to integration with modern hardware, and can be run just one computer with high-end GPUs. Our
-benchmarks show that it is multiple orders of magnitude faster than the state of the art without
-sacrificing accuracy. The throughput seems to be at the maximum theoretical value, and all
-indications are that the sampler will scale up according to advances in hardware. \textbf{TODO I
-will fix this abstract later according to what will appear in the rest of the paper.}
+A fundamental task in machine learning and other fields is to perform inference on Bayesian
+networks. Since exact inference takes exponential time, it is common to use an approximate inference
+algorithm such as Gibbs sampling, but this can still be intractable for graphical models with just a
+few hundred discrete random variables. In this paper, we address this problem by presenting our
+highly optimized Gibbs sampling implementation, which we believe to be the fastest Gibbs sampler
+available. Our Gibbs sampler is GPU-accelerated, heavily parallelized, and replicates data to
+decrease convergence time while reaching higher quality parameter estimates. Experiments on both
+synthetic and real data show that our Gibbs sampler is orders of magnitude faster than JAGS without
+sacrificing accuracy. Our ultimate objective is to introduce the Gibbs sampler to researchers in
+many fields to expand their range of feasible machine learning problems.
 \end{abstract}
 
 
@@ -58,90 +55,93 @@ will fix this abstract later according to what will appear in the rest of the pa
 
 \section{Introduction}\label{sec:intro}
 
-In many machine learning applications, one has a distribution $P(X \mid \Theta)$ where $X$
-represents observed data and $\Theta$ are the model parameters. One generally wants to optimize over
-$\Theta$ according to what would best fit the data (e.g., log likelihood). A common way to formulate
-a machine learning problem is to use a Bayesian network, which are a natural tool to represent
-complicated engineering problems and offer advantages such as intuitiveness and modularity.
+In many machine learning applications, one has a distribution $P(X,Z \mid \Theta)$ where $X$ is
+observed data, $Z$ is hidden (latent) data, and $\Theta$ are the model parameters. The goal is
+generally to find an optimal $\Theta$ with respect to $X$, while marginalizing out $Z$. To represent
+these problems, it is common to use graphical models, which combine probability theory and graph
+theory to present a robust formalism for probabilistic inference. A Bayesian network is a graphical
+model defined by a directed acyclic graph $\mathcal{G} = (\mathcal{V}, \mathcal{E})$ and a set of
+conditional probability tables (CPTs). Each CPT represents a local probability distribution $\Pr(X_i
+\mid X_{\pi_i})$ where $X_i$ is a random variable, and $X_{\pi_i}$ represents its set of parent
+nodes (variables) in the graph. We denote the full set of CPTs as $\Theta$.
 
-A Bayesian network is defined by a directed acyclic graph (DAG) $\mathcal{G} = (\mathcal{V},
-\mathcal{E})$ and a set of local parameters represented $\Theta$. Our focus will be on
-\emph{discrete} Bayesian networks, so $\Theta$ represents a set of conditional probability tables
-(CPTs), where $\theta_{X_v \mid \pi_v} = \log \Pr(X_v \mid \pi_v)$ with $X_v$ a variable, and
-$\pi_v$ the \emph{set} of parents of $X_v$ (the use of logs here is to simplify future mathematical
-notation).
+In this paper, our focus is on the problem of estimating the parameters of Bayesian networks with
+discrete random variables based on partially observed data $\mathcal{D} = \{\xi_1, \ldots, \xi_m\}$,
+with $\xi_i$ is an $n$-dimensional vector with assignments to the $n$ variables of the graph, or
+``N/A'' to indicate missing data. We assume that the structure of our Bayesian network --- its nodes
+and edges --- is known in advance. This type of problem often arises in practice because it is
+easier to elicit graph structure from human experts than it is to get numerical
+parameters~\citep{koller2009}. Furthermore, it is often unrealistic to expect our data $\mathcal{D}$
+to be completely observed, as data might be missing due to errors (e.g., human oversights) or
+deliberate omissions.
 
-The vertices $\mathcal{V}$ in DAG $\mathcal{G}$ represents variables and edge set $\mathcal{E}$
-encodes direct dependencies between those variables.  Here we use $X_{*}$ to denote random
-variable(s) that correspond to the subscript $*$, where $*$ can either be a node $v \in \mathcal{V}$
-or a set of nodes $\mathcal{C} \subseteq \mathcal{V}$. Given $\mathcal{G}$ and $\Theta$, the joint
-distribution of the graph is uniquely determined by,
+Well-known strategies for parameter estimation include Expectation-Maximization~\citep{EMpaper} and
+variations of gradient ascent~\citep{Thiesson95}. In general, parameter estimation using these
+methods requires running probabilistic inference over the missing data, which tends to be the
+limiting factor since  exact inference using the junction tree algorithm takes exponential time. It
+is therefore common to use approximate inference procedures.  One way is to perform Markov Chain
+Monte Carlo (MCMC) simulation, where one constructs a Markov chain whose state is the assignment to
+all unobserved variables, such that the stationary distribution of the chain is posterior
+probability over these variables.
 
-\begin{equation}\label{eq:log_prob}
-\log P(X_{\mathcal{V}}) = \sum\limits_{v \in \mathcal{V}} \log P(X_v | \pi_v) = \sum\limits_{v \in \mathcal{V}} \theta_{X_v | \pi_v}.
-\end{equation}
-
-The inference problem is to find the distribution of unobserved variables given partial observations
-for a network $(\mathcal{G}, \Theta)$. This also a key step of estimating $\Theta$ when the
-parameter is unknown (using EM algorithm). Here we apply Gibbs sampling because exact inference
-(junction tree) is usually intractable. Gibbs sampling~\citep{Geman1984} is a special case of MCMC
-simulation. It works by stepping through each unobserved variable of $X_{\mathcal{V}}$ and sampling
-from its full conditionals (given the full configuration of the graph except the current variable to
-be sampled).
+Gibbs sampling~\citep{Geman1984} is a special case of MCMC simulation, which for each iteration $t$,
+goes through each variables and samples from their full conditionals based on the values already
+sampled: $\Pr(X_i^{(t)} \mid X_1^{(t)}, \ldots, X_{i-1}^{(t)}, X_{i+1}^{(t-1)}, \ldots,
+X_n^{(t-1)})$. We will also want to be able to sample for $\Theta$, which we can do once all the
+missing data has been assigned. We use a Dirichlet prior.  \textbf{Daniel: I need to improve this
+paragraph}.
 
 While Gibbs sampling is commonly used in machine learning, it is perhaps not known primarily for its
-speed or scalability. We implement a semi-parallel Gibbs sampler for inference in general discrete
-Bayesian networks, and the novelty is that
+speed or scalability \textbf{Daniel: citation needed}. In a recent result,~\citet{SAME2015} showed
+that by combining State Augmented Monte Carlo (SAME) sampling~\citep{SAME2002} with Gibbs sampling,
+they were able to get fast, high quality parameter estimates for discrete graphical models, but they
+only applied it to two specific types of models that do not have mutual dependencies between
+discrete states.
+
+In this paper, we build upon that result by implementing a general purpose SAME Gibbs sampler to
+work on discrete Bayesian networks that generally have dependencies between discrete states. To be
+precise, the novelty and aspects of our Gibbs sampler is that
 
 \begin{itemize}[noitemsep]
+    \item our sampler uses an adjustable SAME parameter to replicate data, causing the Gibbs
+    sampler converge faster and to higher-quality MAP or ML parameter estimates by reducing the
+    excess variance introduced from standard Gibbs sampling.
     \item we exploit advances in GPUs to run the samplers via GPUs, and thus the sampler can scale
-    up to problems with hundreds of random variables
-    \item it uses State Augmented Monte Carlo (SAME) sampling~\cite{SAME2002} to converge faster and
-    to higher-quality parameter estimates 
+    up to problems with hundreds of random variables.
     \item the sampler is run on only one computer (maximizing its throughput), thus avoiding the
-    need to work though complicated distributed systems
+    need to work though complicated distributed systems.
     \item it is open source as part of the BIDMach
     library\footnote{\url{https://github.com/BIDData/BIDMach}} and comes with various diagnostic
     tools. Furthermore, the mini-batch updating nature of BIDMach means we could run our Gibbs
     sampler on data too large to fit in RAM.
 \end{itemize}
 
-We have applied our Gibbs sampler to problems large numbers of variables or cases (``samples''), and
-show that our sampler converges to correct estimates and is substantially faster than the state of
-the art. Our ultimate goal, therefore, is to show that GPU-accelerated, SAME Gibbs sampling can be
-the method of choice for general graphical model inference.
-
-\textbf{TODO This introduction needs a lot of work. I think I will write some concepts from textbook
-summaries (e.g., Daphne Koller 2009, Kevin Murphy 2012) so that I can give an accurate high-level
-idea of what happens in machine learning. That way, the introduction will rely less on introducing
-Bayesian networks (which should be known to the reviewers). Also, we might want to emphasize that
-the sampler works with missing data. If the data is known, we would just use counts, which is
-boring.}
-
-
+In addition to introducing our Gibbs sampler to researchers, we argue int his paper that Gibbs
+sampling can be competitive with or superior to the fastest special purpose inference algorithms
+(for Bayesian inference) with the addition of SAME sampling. \textbf{Daniel: it might be worth
+re-emphasizing the dual nature of this contribution more often.}
 
 
 \section{Related Work}\label{sec:related_work}
 
-Early attempts at speeding up Gibbs sampling explored extents to which it could be parallelized.
-Gibbs sampling is a sequential algorithm and cannot be completely parallelized, but it is possible
-to exploit conditional independence assumptions to perform certain sampling steps simultaneously.
-The idea is to apply graph coloring to the moralized graph  $\tilde{\mathcal{G}}$ of the network.
-One property of Bayesian networks is that $u, v \in \mathcal{V}$ are independent conditioning on a
-set of variables $\mathcal{C}$ if $\mathcal{C}$ includes at least one variable on every path
-connecting $u$ and $v$ in $\tilde{\mathcal{G}}$. That is, vertex set $\mathcal{C}$ separates the
-dependency between $u$ and $v$.
+\textbf{Daniel: this section is a major work in progress. I want this to focus on *newer* references
+from standard AI conferences. I might also need a survey paper to compare Gibbs sampling with other
+Bayesian inference algorithms.}
 
-Assume there is a $k$-coloring of $\tilde{\mathcal{G}}$ such that each vertex is assigned one of $k$
-colors and adjacent vertices have different colors. Denote $\mathcal{V}_c$ the set of variables
-assigned color $c$ where $1 \leq c \leq k$. One can sample sequentially from $\mathcal{V}_1$
-to $\mathcal{V}_k$, where within each color group, it samples all the variables in parallel. This
-parallel sampler corresponds exactly to the execution of a sequential scan Gibbs sampler for some
-permutation over the variables~\citep{Gonzalez2011}. That is, the algorithm will converge to the
-desired distribution because (intuitively) variables within one color group are independent to each
-other given all the other variables. Finding the optimal coloring of a graph is NP-complete in
-general, but efficient heuristics for balanced graph coloring perform well in many real word
-problems.
+\textbf{Describe one general related work, with at least one new paper to cite. I found two NIPS
+2013 papers that we might be able to cite or connect to this paper:~\citep{Johnson2013}
+and~\cite{Hazan2013}, plus two *2015* papers:~\cite{Tripuraneni2015} and~\cite{DeSa2015}.}
+
+\textbf{Describe Augur~\citep{augur2014} and related work, since that might be useful to connect to
+this paper. This is from NIPS 2014.}
+
+\textbf{Describe another general related work, with at least one new paper to cite. Actually,
+perhaps this part can be about Gibbs sampling in parallel? We have~\cite{Gonzalez2011} to cite,
+obviously, but we also have a new paper I found recently about scaling up Gibbs
+sampling~\cite{Zhang2013}.}
+
+\textbf{Fourth and final related work: the SAME 2015 paper, which we have to be careful not to
+praise too much.}
 
 The most directly related result to this paper is a recent result showing that SAME can be very fast
 for certain problems. In~\citep{SAME2015}, they explored the application of SAME to graphical model
@@ -150,8 +150,7 @@ inference on modern hardware, and showed that combining SAME with factored sampl
 potentially better quality. We build up on that result by implementing a more general-purpose Gibbs
 sampler that can be applied to arbitrary discrete graphical models.
 
-\textbf{TODO need to add a few more references here, and also, I'm not sure if we sufficiently
-differentiate this paper from the SAME 2015 paper.}
+
 
 
 
@@ -175,9 +174,11 @@ considerably sharpened. Also, as $m$ increases, SAME approaches
 Expectation-Maximization~\citep{EMpaper}.
 
 \textbf{Ideally, I think the first three sections should take up the first three full pages
-(roughly). But they have to be clean, and we really shouldn't explain Bayesian networks too much.}
+(roughly, but not more). But they have to be clean, and we really shouldn't explain Bayesian
+networks too much.}
 
-
+\textbf{I also think we might need some stuff John mentioned about reducing variance introduced by
+sampling? Or doesn't that just follow from sharpening the distribution?}
 
 
 \section{Implementation of SAME Gibbs Sampling}\label{sec:implementation}
@@ -226,6 +227,30 @@ settings we use are customizable, so one can reduce the mini-batch size to reduc
 footprint. One needs to do this step to perform SAME sampling with high $m$, since more replication
 takes up more memory.
 
+\textbf{TODO Integrate this!}
+
+Early attempts at speeding up Gibbs sampling explored extents to which it could be parallelized.
+Gibbs sampling is a sequential algorithm and cannot be completely parallelized, but it is possible
+to exploit conditional independence assumptions to perform certain sampling steps simultaneously.
+The idea is to apply graph coloring to the moralized graph  $\tilde{\mathcal{G}}$ of the network.
+One property of Bayesian networks is that $u, v \in \mathcal{V}$ are independent conditioning on a
+set of variables $\mathcal{C}$ if $\mathcal{C}$ includes at least one variable on every path
+connecting $u$ and $v$ in $\tilde{\mathcal{G}}$. That is, vertex set $\mathcal{C}$ separates the
+dependency between $u$ and $v$.
+
+Assume there is a $k$-coloring of $\tilde{\mathcal{G}}$ such that each vertex is assigned one of $k$
+colors and adjacent vertices have different colors. Denote $\mathcal{V}_c$ the set of variables
+assigned color $c$ where $1 \leq c \leq k$. One can sample sequentially from $\mathcal{V}_1$
+to $\mathcal{V}_k$, where within each color group, it samples all the variables in parallel. This
+parallel sampler corresponds exactly to the execution of a sequential scan Gibbs sampler for some
+permutation over the variables~\citep{Gonzalez2011}. That is, the algorithm will converge to the
+desired distribution because (intuitively) variables within one color group are independent to each
+other given all the other variables. Finding the optimal coloring of a graph is NP-complete in
+general, but efficient heuristics for balanced graph coloring perform well in many real word
+problems.
+
+\textbf{Actually, the above really should be in Section 4! Then I have to think about what
+appropriate related work would be like.}
 
 
 
@@ -493,8 +518,21 @@ Berkeley and National Physical Science Consortium Fellowships.
 \clearpage
 \appendix
 
-\textbf{TODO Appendix stuff goes here (if paper exceeds 9 pages)}
+\section{Random Appendix Stuff}
 
+\textbf{I expect that we will use eight pages for text, plus the ninth page for references. Then the
+remaining material (if any) will go here.}
+
+
+
+
+
+
+
+
+
+% Daniel: all of this stuff is older material ...
+\begin{comment}
 \section{Mathematical Details}
 
 Going back to our inference problem, sampling all variables in a color group can be formulated into
@@ -712,7 +750,6 @@ group by Equation \ref{ind}.
 
 % Daniel: I'm leaving this here for now, because this is some extra stuff from Huasha's old write-up
 % that we might use.
-\begin{comment}
 
 We benchmark all the systems on fitting a Bayesian network with a nation-wide examination dataset
 from the Dynamic Learning Maps (DLM) project. The dataset contains the assessment (correct or not)

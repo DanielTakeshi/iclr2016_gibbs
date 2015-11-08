@@ -96,9 +96,9 @@ new $\Theta$.
 While Gibbs sampling is commonly used in machine learning, it is perhaps not known primarily for its
 speed or scalability \textbf{Daniel: citation needed}. In a recent result,~\citet{SAME2015} showed
 that by combining State Augmented Monte Carlo (SAME) sampling~\citep{SAME2002} with Gibbs sampling,
-they were able to get fast, high quality parameter estimates for discrete graphical models, but they
-only applied it to two specific types of models that do not have mutual dependencies between
-discrete states.
+one can get fast, high quality parameter estimates for discrete graphical models, but they only
+applied it to two specific types of models that do not have mutual dependencies between discrete
+states.
 
 In this paper, we build upon that result by implementing a general purpose SAME Gibbs sampler to
 work on discrete Bayesian networks that have dependencies between discrete states. To be precise,
@@ -274,42 +274,43 @@ executed, including both X87 legacy floating point operations and SSE operations
 the use of one computer is deliberate, as it is cheaper and simpler to use as compared to a
 computing cluster.
 
-\textbf{TODO The above is for stout, I think. We need the updated specs for bitter.}
+\textbf{Daniel: The above is for stout, I think. We need the updated specs for bitter, and to change
+the instructions (these are copied from Huasha Zhao).}
 
 \subsection{Synthetically Generated Student Data}\label{ssec:student_data}
 
-% TODO It might be tricky to get the DAG resized correctly so that the figures line up nicely.
 \begin{figure}[t]
   \centering
-  \begin{minipage}{.46\textwidth}
+  \begin{minipage}{.5\textwidth}
     \centering
-    \includegraphics[width=1\textwidth]{fig_student_diagram}
-    \caption{The student data.}
-    \label{fig:student_diagram}
+    \includegraphics[width=1\textwidth]{fig_kl_div_25_50_perc}
+    \caption{Average KL divegence.}
+    \label{fig:kl_divergence}
   \end{minipage}\hfill
     \begin{minipage}{.5\textwidth}
     \centering
-    \includegraphics[width=1\textwidth]{fig_kl_student_50perc}
-    \caption{Average KL divergence.}
+    \fbox{\rule[-.5cm]{0cm}{4cm} \rule[-.5cm]{4cm}{0cm}}
+    \caption{JAGS version.}
     \label{fig:kl_accuracy}
   \end{minipage}
 \end{figure}
 
+\textbf{Daniel: TODO Change the description here since I am removing that 50 variable student DAG
+here. Yeah it is not good to have that.}
+
 We use synthetic data generated from a toy Bayesian network to illustrate proof of correctness and
-other concepts. Figure~\ref{fig:student_diagram} shows the network we are using,
-from~\citet{Koller2009}. The goal is to model a student taking a class, with metrics of skill
-(Intelligence and SAT score), the class difficulty, and the student's resulting grade, which
-subsequently affects the quality of a letter of recommendation.
+other concepts. Our data is from~\citet{Koller2009}. The goal is to model a student taking a class,
+with metrics of skill (Intelligence and SAT score), the class difficulty, and the student's
+resulting grade, which subsequently affects the quality of a letter of recommendation.
 
 To generate the data, we performed direct sampling on a topological ordering of the variables with
 $X_0 = {\rm Intelligence}$, $X_1 = {\rm Difficulty},$ $X_2 = {\rm SAT}$, $X_3 = {\rm Grade}$, and
 $X_4 = {\rm Letter}$. Variable $X_i$ gets sampled according to the values of its parents (if any)
-based on the true distribution from Figure~\ref{fig:student_diagram}. We generated one million
-samples, which means our data is formatted in a $(5\times 10^6)$-dimensional matrix. Then, we
-randomly hid 50\% and 75\% of the data to form two respective datasets. The goal is to use the
-remaining known data, and to use Gibbs sampling, to sample the unknown values, and then those
-determine the next sample of the CPT. The objective is to estimate the resulting set of CPTs to see
-if they match the ones from Figure~\ref{fig:student_diagram}.
+based on the true distribution. We generated one million samples, which means our data is formatted
+in a $(5\times 10^6)$-dimensional matrix. Then, we randomly hid 50\% and 75\% of the data to form
+two respective datasets. The goal is to use the remaining known data, and to use Gibbs sampling, to
+sample the unknown values, and then those determine the next sample of the CPT. The objective is to
+estimate the resulting set of CPTs to see if they match the true ones.
 
 There are several metrics of measuring how well our sampler converges. The one we use is the average
 Kullback-Liebler divergence $KL_{\rm avg}$. For two distributions $p(x)$ and $q(x)$, the
@@ -337,8 +338,9 @@ known in our case). In addition, increasing $m$ results in CPT estimates that mo
 true CPTs, though there are diminishing returns, as the increase from $m=1$ to $m=2$ results in a
 similar performance improvement as an increase from $m=2$ to $m=50$. To put our $KL_{\rm avg}$
 metric in perspective, when $m=50$, the sampler is accurate to the true CPTs by around three
-significant figures. \textbf{TODO: this figure needs the results from the 25\% data, and we need to
-make it cleaner, but otherwise that is the main idea.}
+significant figures. \textbf{Daniel: this figure needs the results from the 25\% data, and we need to
+make it cleaner, but otherwise that is the main idea. This figure needs to show (a) correctness, and
+(b) that higher $m$ leads to better convergence for both sparsity levels. Also, we might}
 
 Next, we evaluate how the SAME parameter $m$ affects the overall runtime of the sampler, since more
 samples means the algorithm runs longer.  Figure~\ref{fig:kl_time} plots the average KL divergence
@@ -370,7 +372,7 @@ Section~\ref{sec:discussion}, we discuss the time-versus-$m$ tradeoff in more de
     \centering
     \fbox{\rule[-.5cm]{0cm}{4cm} \rule[-.5cm]{4cm}{0cm}}
     %\includegraphics[width=1\textwidth]{fig_kl_student_25perc}
-    \caption{Consecutive CPT convergence.}
+    \caption{JAGS version.}
     \label{fig:consecutive_cpts}
   \end{minipage}
 \end{figure}
@@ -456,8 +458,10 @@ We emphasize that in terms of runtime, BIDMach is easily able to run this data. 
 about ten seconds to run Gibbs sampling through this data, whereas JAGS takes hours. In fact, the
 main thing that is holding our algorithm back is the limited memory of GPUs, which means we need to
 shrink the batch size with large $m$. As memory on GPUs becomes cheaper, we will be able to run
-Gibbs sampling and perform graphical model inference on larger datasets. \textbf{Again, we should
-formalize the JAGS comparisons.}
+Gibbs sampling and perform graphical model inference on larger datasets.
+
+\textbf{Again, we should formalize the JAGS comparisons, but for this data, isn't it just a
+comparison of runtime? Do I need a table? Ideally, I would be able to use JAGS to get accuracy...}
 
 
 
@@ -473,7 +477,7 @@ testing with a variety of $m$ values.
 
 % This table will be for SAME stuff
 \begin{table}[t]
-\caption{Sample table title (Perhaps we can list JAGS/BIDMach runtime here?)}
+\caption{\textbf{Placeholder: use this for testing $m$ vs. gflops and runtime?}}
 \label{sample-table}
 \begin{center}
 \begin{tabular}{ll}
@@ -515,242 +519,40 @@ Berkeley and National Physical Science Consortium Fellowships.
 
 
 
-
-
 %% APPENDIX
 \clearpage
 \appendix
 
-\section{Random Appendix Stuff}
-
 \textbf{I expect that we will use eight pages for text, plus the ninth page for references. Then the
 remaining material (if any) will go here.}
 
+\section{Description of Figures (Will Remove in Actual Paper Submission)}
+
+\textbf{I am putting descriptions of how I generated the figures here. In the actual paper, it
+doesn't make sense to have these but I am not sure where else to put it ... it's a lot easier to
+just refer right to the figure here.}
+
+For Figure~\ref{fig:kl_divergence}, I ran the student data with one million students and a batch
+size of 25,000 for SAME parameters 1, 5, and 10. I ran this on \texttt{stout}. For each data, I ran
+it for 100 iterations. Each ``marker'' in the plot represents the AVERAGE over all the $KL_{\rm
+avg}$ metrics, for each mini-batch. Since $1000000/25000=40$, that meant each of the 40 mini-batches
+had the $KL_{\rm avg}$ metric computed, then I averaged them to get one marker. So indeed, the
+x-axis is correct: one marker really does mean one pass over the full data.
+
+If I need to recover all settings, I can check the \texttt{out\_25perc\_01same.txt} and other
+similarly-named files since that captures the BIDMach output.
+
+To me I think it might be more interesting to use FEWER data points since we would see more of a
+clear curve in the plot (well, it's on a log scale but still...). That is easy and I have the code
+base for that in \texttt{iclr2016\_createKLplots.py}, which is what I also used to generate these
+matplotlib images.
 
 
 
 
 
 
-
-
-% Daniel: all of this stuff is older material ...
 \begin{comment}
-\section{Mathematical Details}
-
-Going back to our inference problem, sampling all variables in a color group can be formulated into
-matrix operations. To sample any unobserved $u \in \mathcal{V}$ using Gibbs sampling, we need to
-compute $f_u(X_u = i) = \log P(X_u = i \mid X_{\mathcal{V} \setminus \{u\}})$ for all $i$ in the
-support of $X_u$. Notice that we are using $X_u = i$ as the argument to make it clear what value
-$X_u$ is taking on.
-
-To find $f_u(X_u = i)$, we can evaluate them as follows:
-\begin{equation}\label{eq:parameter}
-f_u(X_u = i) = \theta_{X_u=i \mid \pi_u} + \sum\limits_{v \in \xi_u} \theta_{X_v \mid \pi_v} + C_2,
-\end{equation}
-where $C_2$ is a constant that does not depend on the value (i.e., state) of $X_u$, and $\xi_u$
-denotes the set of children of $X_u$. Because we are sampling from $X_u$, we will assume that all
-other variables $X_{\mathcal{V}\setminus \{u\}}$ are assigned a known value (either from data, or
-from a Gibbs sampling assignment), so for instance, $\pi_u$ in Equation~\ref{eq:parameter} really
-denotes $\{X_{p_1} = k_1, \ldots, X_{p_n} = k_n\}$ where $n$ is the size of $\pi_u$. Furthermore, be
-aware that for the summations, the assumption that $X_u = i$ is embedded in all the $\pi_v$ sets,
-since $X_i \in \pi_v$. For details on the derivation, see Appendix~\ref{app:math}.
-
-Once we have $f_u(X_u = 0), \ldots, f_u(X_u = k)$ for $X_u$, how do we sample from it? We simply
-exponentiate all these terms to get the following vector:
-\[
-\begin{bmatrix}
-\exp \left(\theta_{X_u=0 | \pi_u} + \sum_{v \in \xi_u} \theta_{X_v\mid \pi_v} + C_2\right) \\
-\exp \left(\theta_{X_u=1 | \pi_u} + \sum_{v \in \xi_u} \theta_{X_v\mid \pi_v} + C_2\right) \\
-\cdots \\
-\exp \left(\theta_{X_u=k | \pi_u} + \sum_{v \in \xi_u} \theta_{X_v\mid \pi_v} + C_2\right) 
-\end{bmatrix}
-=
-\begin{bmatrix}
-\exp \left(\theta_{X_u=0 | \pi_u} + \sum_{v \in \xi_u} \theta_{X_v\mid \pi_v}\right) \\
-\exp \left(\theta_{X_u=1 | \pi_u} + \sum_{v \in \xi_u} \theta_{X_v\mid \pi_v}\right) \\
-\cdots \\
-\exp \left(\theta_{X_u=k | \pi_u} + \sum_{v \in \xi_u} \theta_{X_v\mid \pi_v}\right) 
-\end{bmatrix}
-e^{C_2},
-\]
-and dumping the $e^{C_2}$ term gives us the un-normalized probability vector for $X_u$ taking on any
-of its possible values given the value of all other nodes in the graph. It's probably easiest to
-think about sampling from a vector in terms of ranges, so if our probability vector was $[0.4 \quad
-0.5 \quad 0.1]$, then we could sample $X_u$ from a uniform random variable $ x \in [0,1]$. If $x \in
-[0,0.4]$, we assign 0, if $x \in [0.4, 0.4+0.5]$, we assign 1, and if it exceeds $0.9$ we assign 2.
-
-\subsection{Matrix Formulation and Code Details}
-
-Algorithm~\ref{alg:PBI} shows a parallel Bayesian Network inference algorithm that uses matrix
-operations to conduct sampling. It is approximate in the sense that while the general idea is right,
-there are still many special cases or details not covered here for the sake of clarity.
-
-\begin{algorithm}
-\caption{Parallel BayesNet Inference}
-\begin{algorithmic}[1]
-\State $A =$ adjacency matrix of graph $\mathcal{G}$
-\State Initialize the conditional probability table (CPT) with random values, and then normalize
-\State $B =$ local encoding matrix of $\Theta$
-\State $C =$ global offset vector of $\Theta$
-\State Initialize the network $X^1_{\mathcal{V}}$: random for unobserved nodes, fixed for observed nodes
-\For{ $t=1 \to t_{max}$}
-\For{ $c=1 \to k$}
-\State Set $maxStates$ to be the maximum number of states of all variables in $\mathcal{V}_c$.
-\For{ $i=0 \to maxStates-1$}
-\State Set $\mathcal{C}_i$ to be the set of variables that have nonzero probability of attaining $i$.
-\State $Y^i =$ set $(X^t_{\mathcal{C}_i} = i)$ for variables in $X^t_{\mathcal{C}_i}$, random otherwise.
-\State $\phi^i = \text{$\theta$-lookup} (C + B \times Y^i ) $
-\State $A_{\mathcal{C}_i} = (A + I)_{\mathcal{C}_i, \mathcal{C}_i \cup \xi_{\mathcal{C}_i}}$
-\State $P^i = \exp\left(A_{\mathcal{C}_i} \times \phi^i\right)$
-\EndFor
-\State Sample $Z_{\mathcal{V}_c}$ uniformly (from [0,1]) at random
-\State Using $Z_{\mathcal{V}_c}$, and all of the $P^i$ computed earlier, sample $X^{t+1}_{\mathcal{V}_c}$ in parallel
-\State Update the CPT
-\EndFor
-\EndFor
-\end{algorithmic}
-\label{alg:PBI}
-\end{algorithm}
-
-Let's analyze Algorithm~\ref{alg:PBI} carefully. Before we begin the Gibbs sampling iteration, we need
-to do several things:
-
-\begin{itemize}
-    \item We need the adjacency matrix $A$ of the graph. $A$ has a 1 at index $(i,j)$ if there is an
-    edge from node $X_i$ to node $X_j$, and 0 otherwise. Thus, a column of the adjacency matrix at
-    index $j$ will reveal all of $X_j$'s parents.
-    \item We need to set up the conditional probability table (CPT) which can collectively be viewed
-    as $\Theta$. This is internally stored as a single array, where each element corresponds to one
-    instance of a conditional probability, $P(X_i = k_0 \mid X_{p_1} = k_1, \ldots, X_{p_n} = k_n)$,
-    where $X_{p_1}, \ldots, X_{p_n} \in \pi_i$. To enable efficient indexing and lookups, we
-    consider the CPT construction according to a topological ordering of the variables. Thus, if
-    $X_1$ represents the first node, then the CPT starts with $P(X_1 = k \mid \pi_1)$ for all $k$
-    candidates\footnote{Of course, in this case, $\pi_1 = \emptyset$.}. Then once those
-    possibilities have occurred, the table moves on to $P(X_2 = k \mid \pi_2)$, and so on. In other
-    words, each variable $X_i$ occupies a contiguous block in the CPT, where the block is defined by
-    all choices of $P(X_i \mid \pi_i)$ for these variables\footnote{This construction assumes that
-    we have a way of knowing the number of possible states for each variable. This seems like a weak
-    assumption, and if it is not true, then one can resolve this by looking through the entire data
-    to construct the state set for each variable.}.
-    \item For fast lookups, we need the local encoding matrix $B$ of the variables. In our code, we
-    name this matrix \texttt{iproject}. This matrix is designed to take advantage of how we order
-    the variables in the CPT. While it is clear that we order $P(X_i\mid \pi_i)$ based chiefly on
-    the index of $i$, we \emph{also} have to carefully order the CPT based on the \emph{parent}
-    assignments! We choose an assignment where the parent with index closest to the current node of
-    interest gets changed first, and this proceeds recursively until the first parent. This results
-    in \texttt{iproject} being a lower triangular matrix with ones on the diagonal, and for each
-    row, as one ``moves left'' (i.e., the column index becomes smaller) values are either 0 or are
-    multiplicatively increasing compared to the most recent nonzero element. The exact details of
-    this are not too difficult to understand once one has thought through it carefully, but for
-    space reasons we decide to omit our exact construction.
-    \item Also for fast lookups, we need the global offset vector $C$ of the variables. This is a
-    single column vector where $C[i]$ indicates the starting index in the CPT where variable
-    $X_i$ starts its contiguous block. (Or $X_{i+1}$, depending on how one chooses to start one's
-    indexing scheme.)
-\end{itemize}
-
-
-Once the initialization has concluded, we loop through the number of iterations, and within each
-iteration, we loop through the color groups so that we can sample those in parallel. It now remains
-to show how we can efficiently sample one color group.
-
-Suppose we are in a color group specified by the set $\mathcal{V}_c$. In general, the variables in
-this set will not all have the same number of possible states. One might be a binary variable (two
-states), another might have five states, and so on. We set $maxStates$ to be the maximum over all
-the state possibilities of each variable. Then we loop through $i = \{0, 1, \ldots, maxStates-1\}$,
-and for each iteration, we extract a set $\mathcal{C}_i \subseteq \mathcal{V}_c$ of variables that
-can take on state $i$. Since we assume all variables have states $\{0,1,...,k\}$, this means for
-$i=0$ and $i=1$, $\mathcal{C}_i = \mathcal{V}_c$. The reason for doing this is that we define $Y_i$
-to be a column vector\footnote{In reality, this is not usually true, but it is easiest to start out
-by thinking this way.} whose value is $i$ for all nodes in $\mathcal{C}_i$, and it does not make
-sense to assign $i$ to a node that cannot ever obtain that state. Note that $Y^i$ has the same
-number of rows as nodes (thus we use ``row'' and ``node'' interchangeably), so aside from those
-nodes in $\mathcal{C}_i$, the other nodes are assigned randomly.  For a binary random variable, it's
-randomized between 0 and 1, equally distributed. For a ternary, it's randomized between 0, 1, and 2
-equally, and so on.
-
-Once we have $Y^i$s, then we can compute intermediate terms that correspond to model parameters in
-$\Theta$. This involves $C + B\times Y^i$ because this will index into the appropriate spots in the
-CPT. The resulting column vectors $\phi^i$ are such that they will provide the $P(X_u = i \mid
-\pi_u) = \theta_{X_u = i \mid \pi_u}$ parameters for those nodes that can actually attain the state
-$i$. Keep in mind that the values these variables are assigned to is based only on the current
-configuration, which we recall was randomly assigned other than $X_u = i$.
-
-The next step is to compute the actual probability $P(X_u = i \mid X_{\mathcal{V}\setminus \{u\}})$,
-which we computed in Equation~\ref{eq:parameter}. This involves a simple matrix multiplication:
-$A_{\mathcal{C}_i} \times \phi^i$. That matrix multiplication works by summing through terms in a
-row of the first matrix and a column of the second matrix will result in the $\theta_{X_u\mid \pi_u}
-+ \sum_{v\in\xi_{u}} \theta_{X_v\mid \pi_v}$ terms that are familiar to us. Incidentally, we obtain
-$A_{\mathcal{C}_i}$ from $A$ (which in the code is named \texttt{pproject}) by taking only a subset
-of the rows and a subset of the columns, similar to how slicing operations works. It comes from
-$A_{\mathcal{C}_i} = (A + I)_{\mathcal{C}_i, \mathcal{C}_i \cup \xi_{\mathcal{C}_i}}$, which means
-we first start with the dag plus the identity, then extract all rows corresponding to indices of
-this color group satisfying the ``existence of state $i$ requirement,'' then only keep the columns
-corresponding to those nodes, plus their children, which is where we get the $\sum_{v\in \xi_{u}}$
-part. It is also necessary to slice $\phi^i$ to make the matrix multiplication eligible.
-
-At the end of all this, just before moving on to the next color group, we finally sample. For the
-sake of brevity, the sampling process itself is described informally in Algorithm~\ref{alg:PBI}. We
-point out that our sampling, as well as most other procedures in this algorithm, is done in matrix
-operations, which fully utilizes the parallelism provided by the hardware.
-
-In a footnote earlier, we mentioned that $Y^i$ is not actually a column vector in our code. To
-increase parallelism in practice, we instead have matrices we call \texttt{statei} where each column
-is like its own $Y^i$, but the unknown values will be randomly assigned. This allows us to
-effectively sample multiple observations in a single batch. In particular, for the dataset we use,
-these ``multiple observations'' correspond to ``multiple students.''
-
-\section{Derivation of Log Probabilities}\label{app:math}
-
-In this section, we derive Equation~\ref{eq:parameter} to determine $f_u(X_u=i)$. For simplicity, we
-dump the $i$ in the following computation. We assume that $X_u$ is in color group $\mathcal{V}_c$.
-\begin{align}
-f_u(X_u) &= \log P(X_u | X_{\mathcal{V} \setminus \{u\}}) \\
-    &\stackrel{\text{(1)}}{=} \log P(X_u | X_{\mathcal{V} \setminus \mathcal{V}_c}) \\
-    &\stackrel{\text{(2)}}{=} \log P(X_u, X_{\mathcal{V} \setminus \mathcal{V}_c}) + C_1 \\
-    &\stackrel{\text{(3)}}{=} \log \left( \sum\limits_{ \mathcal{V}_c \setminus \{u\}}\prod\limits_{v \in \mathcal{V}} P(X_v | \pi_v) \right) + C_1  \\
-    &\stackrel{\text{(4)}}{=} \log \left( P(X_u | \pi_u) \prod\limits_{v \in \xi_u} P(X_v | \pi_v) \times \sum\limits_{ \mathcal{V}_c \setminus \{u\}}\prod\limits_{v \in \mathcal{V} \setminus (\xi_u \cup \{u\})} P(X_v | \pi_v) \right) + C_1 \\
-    &\stackrel{\text{(5)}}{=} \log P(X_u | \pi_u) + \sum\limits_{v \in \xi_u} \log P(X_v | \pi_v) + C_2 \\
-    &\stackrel{\text{(6)}}{=} \theta_{X_u | \pi_u} + \sum\limits_{v \in \xi_u} \theta_{X_v | \pi_v} + C_2.
-\end{align}
-
-Stage (1) is true by the dependency encoded in the network and the construction of the coloring.
-Stage (2) comes from Bayes' rule, where $C_1$ is a constant that does not depend on the state of
-$X_u$. Stage (3) expands the marginal distribution by definition; we have a joint distribution over
-a subset of the variables, so we must sum out the variables that do not appear in the joint.
-
-Stage (4) is a critical step for the matrix formulation. Let $\xi_u$ be the children set
-of node $u$. By the construction of the graph coloring, a key observation is that
-\begin{align}
-(\{u\} \cup \pi_u \cup \xi_u \cup \pi_{\xi_u}) \cap (\mathcal{V}_c \setminus \{u\}) = \emptyset. 
-\label{ind}
-\end{align}
-That is, node $u$, its parents, its children and the parents of all its children have no intersect
-with any nodes in the color group except $u$ itself. This allows us to take out the term $\log P(X_u
-| \pi_u) \prod\limits_{v \in \xi_u} P(X_v | \pi_v)$ from the summation, and gives us a factorized
-form of the marginal distribution.
-
-Stage (5) rearranges $\log$ and product terms. $C_2 = C_1 + \sum\limits_{ \mathcal{V}_c \setminus
-\{u\}}\prod\limits_{v \in \mathcal{V} \setminus (\xi_u \cup \{u\})} P(X_v | \pi_v)$ which again does
-not depend on $X_u$, and finally (6) plugs in the definition of $\theta$.
-
-Now that we have $f_u(X_u = i)$ for all possible states $i$, it remains to show how to actually
-sample. If $X_u$ were binary, then it would be simple because then we could just evaluate the
-following ratio:
-\begin{equation}
-\alpha_u = {e^{(f_u(0)-f_u(1))}} = {e^{(g_u(0)-g_u(1))}} ,
-\end{equation}\label{alpha}
-where $g_u(X_u) = \theta_{X_u | \pi_u} + \sum\limits_{v \in \xi_u} \theta_{X_v | \pi_v}$ and $C_2$
-is canceled out, which makes sense as it is effectively a normalizing constant. As a sanity check,
-the sampling of $X_u$ does not depend on the assignments of any other variables in the same color
-group by Equation \ref{ind}.
-
-
-
-
-
-
 % Daniel: I'm leaving this here for now, because this is some extra stuff from Huasha's old write-up
 % that we might use.
 

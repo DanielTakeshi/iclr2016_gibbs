@@ -1,0 +1,2089 @@
+Loading /home/seita/BIDMach/lib/bidmach_init.scala...
+import BIDMat.{CMat, CSMat, DMat, Dict, FMat, FND, GMat, GDMat, GIMat, GLMat, GSMat, GSDMat, HMat, IDict, Image, IMat, LMat, Mat, SMat, SBMat, SDMat}
+import BIDMat.MatFunctions._
+import BIDMat.SciFunctions._
+import BIDMat.Solvers._
+import BIDMat.Plotting._
+import BIDMach.Learner
+import BIDMach.models.{FM, GLM, KMeans, KMeansw, LDA, LDAgibbs, Model, NMF, SFA, RandomForest}
+import BIDMach.networks.DNN
+import BIDMach.datasources.{DataSource, MatDS, FilesDS, SFilesDS}
+import BIDMach.mixins.{CosineSim, Perplexity, Top, L1Regularizer, L2Regularizer}
+import BIDMach.updaters.{ADAGrad, Batch, BatchNorm, IncMult, IncNorm, Telescoping}
+import BIDMach.causal.IPTW
+1 CUDA device found, CUDA version 7.0
+
+Loading scripts/bn_test.ssc...
+dag: BIDMat.SMat =
+(   0,   2)   1
+(   1,   2)   1
+(   0,   3)   1
+(   1,   3)   1
+(   4,   5)   1
+(   4,   6)   1
+(   6,   7)   1
+(   2,   8)   1
+  ...  ...  ...
+states: BIDMat.IMat =
+   2
+   2
+   2
+  ..
+data: BIDMat.SMat =
+(   52,    0)    1
+(   53,    0)    1
+(   54,    0)    2
+(   52,    1)    2
+(   53,    1)    1
+(   54,    1)    1
+(  140,    1)    2
+(  141,    1)    2
+   ...   ...   ...
+nn: BIDMach.Learner = Learner(BIDMach.datasources.MatDS@5593de09,BIDMach.models.BayesNet@5ed64cc3,null,BIDMach.updaters.IncNorm@4749c6d9,BIDMach.models.BayesNet$xopts$1@3c9df51f)
+opts: BIDMach.Learner.Options with BIDMach.models.BayesNet.Opts with BIDMach.datasources.MatDS.Opts with BIDMach.updaters.IncNorm.Opts = BIDMach.models.BayesNet$xopts$1@3c9df51f
+opts.npasses: Int = 1000
+opts.useGPU: Boolean = true
+opts.batchSize: Int = 4367
+opts.updateAll: Boolean = true
+Option Name       Type          Value
+===========       ====          =====
+addConstFeat      boolean       false
+autoReset         boolean       true
+batchSize         int           4367
+checkPointFile    String        null
+checkPointInterval  float         0.0
+copiesForSAME     int           1
+cumScore          int           0
+debug             int           0
+debugMem          boolean       false
+dim               int           334
+doubleScore       boolean       false
+evalStep          int           11
+featThreshold     Mat           null
+featType          int           1
+isprob            boolean       false
+npasses           int           1000
+numSamplesBurn    int           0
+nzPerColumn       int           0
+power             float         0.0
+pstep             float         0.01
+putBack           int           1
+resFile           String        null
+sample            float         1.0
+samplingRate      int           1
+sizeMargin        float         3.0
+startBlock        int           8000
+updateAll         boolean       true
+useCache          boolean       true
+useDouble         boolean       false
+useGPU            boolean       true
+warmup            long          0
+randSeed = 10000
+pass= 0
+0.47367  0 KLDiv
+pass= 1
+0.42800  1 KLDiv
+pass= 2
+0.40305  2 KLDiv
+pass= 3
+0.38241  3 KLDiv
+pass= 4
+0.36318  4 KLDiv
+pass= 5
+0.34561  5 KLDiv
+pass= 6
+0.32906  6 KLDiv
+pass= 7
+0.31451  7 KLDiv
+pass= 8
+0.30058  8 KLDiv
+pass= 9
+0.28787  9 KLDiv
+pass=10
+0.27636  10 KLDiv
+pass=11
+0.26571  11 KLDiv
+pass=12
+0.25612  12 KLDiv
+pass=13
+0.24631  13 KLDiv
+pass=14
+0.23767  14 KLDiv
+pass=15
+0.23055  15 KLDiv
+pass=16
+0.22340  16 KLDiv
+pass=17
+0.21748  17 KLDiv
+pass=18
+0.21096  18 KLDiv
+pass=19
+0.20640  19 KLDiv
+pass=20
+0.20197  20 KLDiv
+pass=21
+0.19888  21 KLDiv
+pass=22
+0.19435  22 KLDiv
+pass=23
+0.18935  23 KLDiv
+pass=24
+0.18520  24 KLDiv
+pass=25
+0.18124  25 KLDiv
+pass=26
+0.17865  26 KLDiv
+pass=27
+0.17618  27 KLDiv
+pass=28
+0.17502  28 KLDiv
+pass=29
+0.17342  29 KLDiv
+pass=30
+0.17023  30 KLDiv
+pass=31
+0.16998  31 KLDiv
+pass=32
+0.16775  32 KLDiv
+pass=33
+0.16709  33 KLDiv
+pass=34
+0.16511  34 KLDiv
+pass=35
+0.16381  35 KLDiv
+pass=36
+0.16261  36 KLDiv
+pass=37
+0.16127  37 KLDiv
+pass=38
+0.15739  38 KLDiv
+pass=39
+0.15598  39 KLDiv
+pass=40
+0.15516  40 KLDiv
+pass=41
+0.15338  41 KLDiv
+pass=42
+0.15213  42 KLDiv
+pass=43
+0.15145  43 KLDiv
+pass=44
+0.14966  44 KLDiv
+pass=45
+0.14866  45 KLDiv
+pass=46
+0.14825  46 KLDiv
+pass=47
+0.14688  47 KLDiv
+pass=48
+0.14560  48 KLDiv
+pass=49
+0.14573  49 KLDiv
+pass=50
+0.14372  50 KLDiv
+pass=51
+0.14404  51 KLDiv
+pass=52
+0.14308  52 KLDiv
+pass=53
+0.14297  53 KLDiv
+pass=54
+0.14263  54 KLDiv
+pass=55
+0.14261  55 KLDiv
+pass=56
+0.14215  56 KLDiv
+pass=57
+0.14075  57 KLDiv
+pass=58
+0.14026  58 KLDiv
+pass=59
+0.14140  59 KLDiv
+pass=60
+0.14094  60 KLDiv
+pass=61
+0.13999  61 KLDiv
+pass=62
+0.13955  62 KLDiv
+pass=63
+0.13933  63 KLDiv
+pass=64
+0.14072  64 KLDiv
+pass=65
+0.14012  65 KLDiv
+pass=66
+0.13929  66 KLDiv
+pass=67
+0.14031  67 KLDiv
+pass=68
+0.14178  68 KLDiv
+pass=69
+0.13999  69 KLDiv
+pass=70
+0.13894  70 KLDiv
+pass=71
+0.13854  71 KLDiv
+pass=72
+0.13840  72 KLDiv
+pass=73
+0.13902  73 KLDiv
+pass=74
+0.13889  74 KLDiv
+pass=75
+0.13871  75 KLDiv
+pass=76
+0.13856  76 KLDiv
+pass=77
+0.13729  77 KLDiv
+pass=78
+0.13771  78 KLDiv
+pass=79
+0.13897  79 KLDiv
+pass=80
+0.13853  80 KLDiv
+pass=81
+0.13841  81 KLDiv
+pass=82
+0.13935  82 KLDiv
+pass=83
+0.13914  83 KLDiv
+pass=84
+0.13776  84 KLDiv
+pass=85
+0.13801  85 KLDiv
+pass=86
+0.13788  86 KLDiv
+pass=87
+0.13669  87 KLDiv
+pass=88
+0.13788  88 KLDiv
+pass=89
+0.13711  89 KLDiv
+pass=90
+0.13733  90 KLDiv
+pass=91
+0.13723  91 KLDiv
+pass=92
+0.13759  92 KLDiv
+pass=93
+0.13678  93 KLDiv
+pass=94
+0.13750  94 KLDiv
+pass=95
+0.13985  95 KLDiv
+pass=96
+0.13922  96 KLDiv
+pass=97
+0.14014  97 KLDiv
+pass=98
+0.13903  98 KLDiv
+pass=99
+0.13888  99 KLDiv
+pass=100
+0.14096  100 KLDiv
+pass=101
+0.14076  101 KLDiv
+pass=102
+0.13929  102 KLDiv
+pass=103
+0.13931  103 KLDiv
+pass=104
+0.13886  104 KLDiv
+pass=105
+0.13891  105 KLDiv
+pass=106
+0.13860  106 KLDiv
+pass=107
+0.13806  107 KLDiv
+pass=108
+0.13950  108 KLDiv
+pass=109
+0.14034  109 KLDiv
+pass=110
+0.14083  110 KLDiv
+pass=111
+0.13991  111 KLDiv
+pass=112
+0.14067  112 KLDiv
+pass=113
+0.14049  113 KLDiv
+pass=114
+0.13976  114 KLDiv
+pass=115
+0.13912  115 KLDiv
+pass=116
+0.14026  116 KLDiv
+pass=117
+0.14079  117 KLDiv
+pass=118
+0.13988  118 KLDiv
+pass=119
+0.13991  119 KLDiv
+pass=120
+0.13902  120 KLDiv
+pass=121
+0.14103  121 KLDiv
+pass=122
+0.13984  122 KLDiv
+pass=123
+0.13969  123 KLDiv
+pass=124
+0.13948  124 KLDiv
+pass=125
+0.14039  125 KLDiv
+pass=126
+0.13957  126 KLDiv
+pass=127
+0.13966  127 KLDiv
+pass=128
+0.13935  128 KLDiv
+pass=129
+0.13886  129 KLDiv
+pass=130
+0.13905  130 KLDiv
+pass=131
+0.13868  131 KLDiv
+pass=132
+0.13864  132 KLDiv
+pass=133
+0.13925  133 KLDiv
+pass=134
+0.13929  134 KLDiv
+pass=135
+0.13850  135 KLDiv
+pass=136
+0.13809  136 KLDiv
+pass=137
+0.13892  137 KLDiv
+pass=138
+0.13978  138 KLDiv
+pass=139
+0.13928  139 KLDiv
+pass=140
+0.14101  140 KLDiv
+pass=141
+0.14162  141 KLDiv
+pass=142
+0.14119  142 KLDiv
+pass=143
+0.13954  143 KLDiv
+pass=144
+0.14040  144 KLDiv
+pass=145
+0.14058  145 KLDiv
+pass=146
+0.14036  146 KLDiv
+pass=147
+0.13974  147 KLDiv
+pass=148
+0.14032  148 KLDiv
+pass=149
+0.14115  149 KLDiv
+pass=150
+0.14207  150 KLDiv
+pass=151
+0.14192  151 KLDiv
+pass=152
+0.14184  152 KLDiv
+pass=153
+0.14247  153 KLDiv
+pass=154
+0.14314  154 KLDiv
+pass=155
+0.14179  155 KLDiv
+pass=156
+0.14126  156 KLDiv
+pass=157
+0.14092  157 KLDiv
+pass=158
+0.14144  158 KLDiv
+pass=159
+0.14207  159 KLDiv
+pass=160
+0.14042  160 KLDiv
+pass=161
+0.14204  161 KLDiv
+pass=162
+0.14193  162 KLDiv
+pass=163
+0.14155  163 KLDiv
+pass=164
+0.14239  164 KLDiv
+pass=165
+0.14352  165 KLDiv
+pass=166
+0.14268  166 KLDiv
+pass=167
+0.14326  167 KLDiv
+pass=168
+0.14338  168 KLDiv
+pass=169
+0.14309  169 KLDiv
+pass=170
+0.14258  170 KLDiv
+pass=171
+0.14092  171 KLDiv
+pass=172
+0.14192  172 KLDiv
+pass=173
+0.14243  173 KLDiv
+pass=174
+0.14319  174 KLDiv
+pass=175
+0.14176  175 KLDiv
+pass=176
+0.14192  176 KLDiv
+pass=177
+0.14334  177 KLDiv
+pass=178
+0.14209  178 KLDiv
+pass=179
+0.14186  179 KLDiv
+pass=180
+0.14246  180 KLDiv
+pass=181
+0.14206  181 KLDiv
+pass=182
+0.14110  182 KLDiv
+pass=183
+0.14194  183 KLDiv
+pass=184
+0.14207  184 KLDiv
+pass=185
+0.14199  185 KLDiv
+pass=186
+0.14233  186 KLDiv
+pass=187
+0.14134  187 KLDiv
+pass=188
+0.14178  188 KLDiv
+pass=189
+0.14177  189 KLDiv
+pass=190
+0.14125  190 KLDiv
+pass=191
+0.14173  191 KLDiv
+pass=192
+0.14045  192 KLDiv
+pass=193
+0.13974  193 KLDiv
+pass=194
+0.13989  194 KLDiv
+pass=195
+0.14134  195 KLDiv
+pass=196
+0.14028  196 KLDiv
+pass=197
+0.14067  197 KLDiv
+pass=198
+0.14191  198 KLDiv
+pass=199
+0.14188  199 KLDiv
+pass=200
+0.14293  200 KLDiv
+pass=201
+0.14217  201 KLDiv
+pass=202
+0.14273  202 KLDiv
+pass=203
+0.14232  203 KLDiv
+pass=204
+0.14279  204 KLDiv
+pass=205
+0.14376  205 KLDiv
+pass=206
+0.14223  206 KLDiv
+pass=207
+0.14248  207 KLDiv
+pass=208
+0.14177  208 KLDiv
+pass=209
+0.14183  209 KLDiv
+pass=210
+0.14239  210 KLDiv
+pass=211
+0.14097  211 KLDiv
+pass=212
+0.14062  212 KLDiv
+pass=213
+0.14061  213 KLDiv
+pass=214
+0.13999  214 KLDiv
+pass=215
+0.14083  215 KLDiv
+pass=216
+0.14251  216 KLDiv
+pass=217
+0.14300  217 KLDiv
+pass=218
+0.14424  218 KLDiv
+pass=219
+0.14405  219 KLDiv
+pass=220
+0.14482  220 KLDiv
+pass=221
+0.14474  221 KLDiv
+pass=222
+0.14382  222 KLDiv
+pass=223
+0.14451  223 KLDiv
+pass=224
+0.14488  224 KLDiv
+pass=225
+0.14488  225 KLDiv
+pass=226
+0.14437  226 KLDiv
+pass=227
+0.14232  227 KLDiv
+pass=228
+0.14331  228 KLDiv
+pass=229
+0.14177  229 KLDiv
+pass=230
+0.14167  230 KLDiv
+pass=231
+0.14142  231 KLDiv
+pass=232
+0.14198  232 KLDiv
+pass=233
+0.14213  233 KLDiv
+pass=234
+0.14221  234 KLDiv
+pass=235
+0.14230  235 KLDiv
+pass=236
+0.14407  236 KLDiv
+pass=237
+0.14324  237 KLDiv
+pass=238
+0.14361  238 KLDiv
+pass=239
+0.14307  239 KLDiv
+pass=240
+0.14372  240 KLDiv
+pass=241
+0.14289  241 KLDiv
+pass=242
+0.14196  242 KLDiv
+pass=243
+0.14257  243 KLDiv
+pass=244
+0.14188  244 KLDiv
+pass=245
+0.14403  245 KLDiv
+pass=246
+0.14481  246 KLDiv
+pass=247
+0.14517  247 KLDiv
+pass=248
+0.14560  248 KLDiv
+pass=249
+0.14394  249 KLDiv
+pass=250
+0.14291  250 KLDiv
+pass=251
+0.14374  251 KLDiv
+pass=252
+0.14320  252 KLDiv
+pass=253
+0.14278  253 KLDiv
+pass=254
+0.14290  254 KLDiv
+pass=255
+0.14347  255 KLDiv
+pass=256
+0.14525  256 KLDiv
+pass=257
+0.14511  257 KLDiv
+pass=258
+0.14645  258 KLDiv
+pass=259
+0.14661  259 KLDiv
+pass=260
+0.14576  260 KLDiv
+pass=261
+0.14574  261 KLDiv
+pass=262
+0.14556  262 KLDiv
+pass=263
+0.14623  263 KLDiv
+pass=264
+0.14669  264 KLDiv
+pass=265
+0.14638  265 KLDiv
+pass=266
+0.14551  266 KLDiv
+pass=267
+0.14821  267 KLDiv
+pass=268
+0.14872  268 KLDiv
+pass=269
+0.14855  269 KLDiv
+pass=270
+0.14825  270 KLDiv
+pass=271
+0.14878  271 KLDiv
+pass=272
+0.14885  272 KLDiv
+pass=273
+0.14774  273 KLDiv
+pass=274
+0.14784  274 KLDiv
+pass=275
+0.14870  275 KLDiv
+pass=276
+0.14809  276 KLDiv
+pass=277
+0.14761  277 KLDiv
+pass=278
+0.14867  278 KLDiv
+pass=279
+0.14785  279 KLDiv
+pass=280
+0.14705  280 KLDiv
+pass=281
+0.14713  281 KLDiv
+pass=282
+0.14918  282 KLDiv
+pass=283
+0.14888  283 KLDiv
+pass=284
+0.14923  284 KLDiv
+pass=285
+0.14852  285 KLDiv
+pass=286
+0.14945  286 KLDiv
+pass=287
+0.14933  287 KLDiv
+pass=288
+0.14936  288 KLDiv
+pass=289
+0.14848  289 KLDiv
+pass=290
+0.14946  290 KLDiv
+pass=291
+0.14958  291 KLDiv
+pass=292
+0.14887  292 KLDiv
+pass=293
+0.14746  293 KLDiv
+pass=294
+0.14713  294 KLDiv
+pass=295
+0.14701  295 KLDiv
+pass=296
+0.14699  296 KLDiv
+pass=297
+0.14708  297 KLDiv
+pass=298
+0.14626  298 KLDiv
+pass=299
+0.14624  299 KLDiv
+pass=300
+0.14563  300 KLDiv
+pass=301
+0.14496  301 KLDiv
+pass=302
+0.14383  302 KLDiv
+pass=303
+0.14367  303 KLDiv
+pass=304
+0.14551  304 KLDiv
+pass=305
+0.14550  305 KLDiv
+pass=306
+0.14538  306 KLDiv
+pass=307
+0.14564  307 KLDiv
+pass=308
+0.14569  308 KLDiv
+pass=309
+0.14561  309 KLDiv
+pass=310
+0.14672  310 KLDiv
+pass=311
+0.14505  311 KLDiv
+pass=312
+0.14531  312 KLDiv
+pass=313
+0.14671  313 KLDiv
+pass=314
+0.14644  314 KLDiv
+pass=315
+0.14718  315 KLDiv
+pass=316
+0.14808  316 KLDiv
+pass=317
+0.14816  317 KLDiv
+pass=318
+0.14721  318 KLDiv
+pass=319
+0.14739  319 KLDiv
+pass=320
+0.14679  320 KLDiv
+pass=321
+0.14723  321 KLDiv
+pass=322
+0.14783  322 KLDiv
+pass=323
+0.14677  323 KLDiv
+pass=324
+0.14690  324 KLDiv
+pass=325
+0.14681  325 KLDiv
+pass=326
+0.14515  326 KLDiv
+pass=327
+0.14643  327 KLDiv
+pass=328
+0.14608  328 KLDiv
+pass=329
+0.14553  329 KLDiv
+pass=330
+0.14519  330 KLDiv
+pass=331
+0.14474  331 KLDiv
+pass=332
+0.14477  332 KLDiv
+pass=333
+0.14464  333 KLDiv
+pass=334
+0.14569  334 KLDiv
+pass=335
+0.14541  335 KLDiv
+pass=336
+0.14471  336 KLDiv
+pass=337
+0.14498  337 KLDiv
+pass=338
+0.14423  338 KLDiv
+pass=339
+0.14235  339 KLDiv
+pass=340
+0.14410  340 KLDiv
+pass=341
+0.14478  341 KLDiv
+pass=342
+0.14312  342 KLDiv
+pass=343
+0.14146  343 KLDiv
+pass=344
+0.14095  344 KLDiv
+pass=345
+0.14108  345 KLDiv
+pass=346
+0.14152  346 KLDiv
+pass=347
+0.14151  347 KLDiv
+pass=348
+0.14268  348 KLDiv
+pass=349
+0.14351  349 KLDiv
+pass=350
+0.14373  350 KLDiv
+pass=351
+0.14492  351 KLDiv
+pass=352
+0.14514  352 KLDiv
+pass=353
+0.14509  353 KLDiv
+pass=354
+0.14589  354 KLDiv
+pass=355
+0.14541  355 KLDiv
+pass=356
+0.14605  356 KLDiv
+pass=357
+0.14462  357 KLDiv
+pass=358
+0.14442  358 KLDiv
+pass=359
+0.14395  359 KLDiv
+pass=360
+0.14441  360 KLDiv
+pass=361
+0.14462  361 KLDiv
+pass=362
+0.14435  362 KLDiv
+pass=363
+0.14505  363 KLDiv
+pass=364
+0.14542  364 KLDiv
+pass=365
+0.14550  365 KLDiv
+pass=366
+0.14483  366 KLDiv
+pass=367
+0.14547  367 KLDiv
+pass=368
+0.14547  368 KLDiv
+pass=369
+0.14460  369 KLDiv
+pass=370
+0.14411  370 KLDiv
+pass=371
+0.14475  371 KLDiv
+pass=372
+0.14459  372 KLDiv
+pass=373
+0.14533  373 KLDiv
+pass=374
+0.14469  374 KLDiv
+pass=375
+0.14460  375 KLDiv
+pass=376
+0.14428  376 KLDiv
+pass=377
+0.14342  377 KLDiv
+pass=378
+0.14225  378 KLDiv
+pass=379
+0.14364  379 KLDiv
+pass=380
+0.14385  380 KLDiv
+pass=381
+0.14499  381 KLDiv
+pass=382
+0.14573  382 KLDiv
+pass=383
+0.14562  383 KLDiv
+pass=384
+0.14648  384 KLDiv
+pass=385
+0.14581  385 KLDiv
+pass=386
+0.14670  386 KLDiv
+pass=387
+0.14787  387 KLDiv
+pass=388
+0.14775  388 KLDiv
+pass=389
+0.14692  389 KLDiv
+pass=390
+0.14763  390 KLDiv
+pass=391
+0.14689  391 KLDiv
+pass=392
+0.14709  392 KLDiv
+pass=393
+0.14653  393 KLDiv
+pass=394
+0.14620  394 KLDiv
+pass=395
+0.14694  395 KLDiv
+pass=396
+0.14577  396 KLDiv
+pass=397
+0.14633  397 KLDiv
+pass=398
+0.14628  398 KLDiv
+pass=399
+0.14692  399 KLDiv
+pass=400
+0.14751  400 KLDiv
+pass=401
+0.14825  401 KLDiv
+pass=402
+0.14797  402 KLDiv
+pass=403
+0.14710  403 KLDiv
+pass=404
+0.14777  404 KLDiv
+pass=405
+0.14867  405 KLDiv
+pass=406
+0.14944  406 KLDiv
+pass=407
+0.14942  407 KLDiv
+pass=408
+0.14943  408 KLDiv
+pass=409
+0.15024  409 KLDiv
+pass=410
+0.15241  410 KLDiv
+pass=411
+0.14963  411 KLDiv
+pass=412
+0.14988  412 KLDiv
+pass=413
+0.15009  413 KLDiv
+pass=414
+0.15141  414 KLDiv
+pass=415
+0.14975  415 KLDiv
+pass=416
+0.14895  416 KLDiv
+pass=417
+0.14976  417 KLDiv
+pass=418
+0.15078  418 KLDiv
+pass=419
+0.14993  419 KLDiv
+pass=420
+0.14941  420 KLDiv
+pass=421
+0.14964  421 KLDiv
+pass=422
+0.14910  422 KLDiv
+pass=423
+0.14966  423 KLDiv
+pass=424
+0.14807  424 KLDiv
+pass=425
+0.14849  425 KLDiv
+pass=426
+0.14908  426 KLDiv
+pass=427
+0.14872  427 KLDiv
+pass=428
+0.14883  428 KLDiv
+pass=429
+0.14898  429 KLDiv
+pass=430
+0.14961  430 KLDiv
+pass=431
+0.14922  431 KLDiv
+pass=432
+0.14865  432 KLDiv
+pass=433
+0.15014  433 KLDiv
+pass=434
+0.15042  434 KLDiv
+pass=435
+0.15081  435 KLDiv
+pass=436
+0.14987  436 KLDiv
+pass=437
+0.14897  437 KLDiv
+pass=438
+0.14920  438 KLDiv
+pass=439
+0.14970  439 KLDiv
+pass=440
+0.14961  440 KLDiv
+pass=441
+0.15014  441 KLDiv
+pass=442
+0.14949  442 KLDiv
+pass=443
+0.15018  443 KLDiv
+pass=444
+0.14971  444 KLDiv
+pass=445
+0.15016  445 KLDiv
+pass=446
+0.15013  446 KLDiv
+pass=447
+0.14944  447 KLDiv
+pass=448
+0.14832  448 KLDiv
+pass=449
+0.14793  449 KLDiv
+pass=450
+0.14874  450 KLDiv
+pass=451
+0.14994  451 KLDiv
+pass=452
+0.14919  452 KLDiv
+pass=453
+0.14766  453 KLDiv
+pass=454
+0.14815  454 KLDiv
+pass=455
+0.14886  455 KLDiv
+pass=456
+0.14953  456 KLDiv
+pass=457
+0.15061  457 KLDiv
+pass=458
+0.14860  458 KLDiv
+pass=459
+0.14841  459 KLDiv
+pass=460
+0.15032  460 KLDiv
+pass=461
+0.15102  461 KLDiv
+pass=462
+0.15078  462 KLDiv
+pass=463
+0.15204  463 KLDiv
+pass=464
+0.15291  464 KLDiv
+pass=465
+0.15162  465 KLDiv
+pass=466
+0.15234  466 KLDiv
+pass=467
+0.15119  467 KLDiv
+pass=468
+0.15164  468 KLDiv
+pass=469
+0.15079  469 KLDiv
+pass=470
+0.15104  470 KLDiv
+pass=471
+0.14929  471 KLDiv
+pass=472
+0.14999  472 KLDiv
+pass=473
+0.14949  473 KLDiv
+pass=474
+0.15009  474 KLDiv
+pass=475
+0.14940  475 KLDiv
+pass=476
+0.15006  476 KLDiv
+pass=477
+0.14880  477 KLDiv
+pass=478
+0.14829  478 KLDiv
+pass=479
+0.14869  479 KLDiv
+pass=480
+0.14952  480 KLDiv
+pass=481
+0.14923  481 KLDiv
+pass=482
+0.14946  482 KLDiv
+pass=483
+0.15036  483 KLDiv
+pass=484
+0.15039  484 KLDiv
+pass=485
+0.15043  485 KLDiv
+pass=486
+0.14925  486 KLDiv
+pass=487
+0.14868  487 KLDiv
+pass=488
+0.14912  488 KLDiv
+pass=489
+0.14844  489 KLDiv
+pass=490
+0.14825  490 KLDiv
+pass=491
+0.14793  491 KLDiv
+pass=492
+0.14700  492 KLDiv
+pass=493
+0.14640  493 KLDiv
+pass=494
+0.14499  494 KLDiv
+pass=495
+0.14510  495 KLDiv
+pass=496
+0.14534  496 KLDiv
+pass=497
+0.14581  497 KLDiv
+pass=498
+0.14633  498 KLDiv
+pass=499
+0.14734  499 KLDiv
+pass=500
+0.14754  500 KLDiv
+pass=501
+0.14876  501 KLDiv
+pass=502
+0.14660  502 KLDiv
+pass=503
+0.14620  503 KLDiv
+pass=504
+0.14673  504 KLDiv
+pass=505
+0.14704  505 KLDiv
+pass=506
+0.14823  506 KLDiv
+pass=507
+0.14777  507 KLDiv
+pass=508
+0.14772  508 KLDiv
+pass=509
+0.14793  509 KLDiv
+pass=510
+0.14844  510 KLDiv
+pass=511
+0.14872  511 KLDiv
+pass=512
+0.14806  512 KLDiv
+pass=513
+0.14917  513 KLDiv
+pass=514
+0.14793  514 KLDiv
+pass=515
+0.14727  515 KLDiv
+pass=516
+0.14742  516 KLDiv
+pass=517
+0.14834  517 KLDiv
+pass=518
+0.14845  518 KLDiv
+pass=519
+0.14891  519 KLDiv
+pass=520
+0.14924  520 KLDiv
+pass=521
+0.15100  521 KLDiv
+pass=522
+0.15125  522 KLDiv
+pass=523
+0.15088  523 KLDiv
+pass=524
+0.15030  524 KLDiv
+pass=525
+0.15110  525 KLDiv
+pass=526
+0.15107  526 KLDiv
+pass=527
+0.15024  527 KLDiv
+pass=528
+0.14938  528 KLDiv
+pass=529
+0.15080  529 KLDiv
+pass=530
+0.14939  530 KLDiv
+pass=531
+0.14908  531 KLDiv
+pass=532
+0.14899  532 KLDiv
+pass=533
+0.15041  533 KLDiv
+pass=534
+0.14965  534 KLDiv
+pass=535
+0.15034  535 KLDiv
+pass=536
+0.15068  536 KLDiv
+pass=537
+0.14945  537 KLDiv
+pass=538
+0.14932  538 KLDiv
+pass=539
+0.14936  539 KLDiv
+pass=540
+0.15096  540 KLDiv
+pass=541
+0.15008  541 KLDiv
+pass=542
+0.15190  542 KLDiv
+pass=543
+0.15143  543 KLDiv
+pass=544
+0.15042  544 KLDiv
+pass=545
+0.15019  545 KLDiv
+pass=546
+0.15002  546 KLDiv
+pass=547
+0.15027  547 KLDiv
+pass=548
+0.14811  548 KLDiv
+pass=549
+0.14901  549 KLDiv
+pass=550
+0.14918  550 KLDiv
+pass=551
+0.14816  551 KLDiv
+pass=552
+0.14881  552 KLDiv
+pass=553
+0.14843  553 KLDiv
+pass=554
+0.14744  554 KLDiv
+pass=555
+0.14803  555 KLDiv
+pass=556
+0.14795  556 KLDiv
+pass=557
+0.14849  557 KLDiv
+pass=558
+0.14780  558 KLDiv
+pass=559
+0.14867  559 KLDiv
+pass=560
+0.14859  560 KLDiv
+pass=561
+0.14841  561 KLDiv
+pass=562
+0.14939  562 KLDiv
+pass=563
+0.14742  563 KLDiv
+pass=564
+0.14702  564 KLDiv
+pass=565
+0.14702  565 KLDiv
+pass=566
+0.14655  566 KLDiv
+pass=567
+0.14734  567 KLDiv
+pass=568
+0.14799  568 KLDiv
+pass=569
+0.14742  569 KLDiv
+pass=570
+0.14860  570 KLDiv
+pass=571
+0.14757  571 KLDiv
+pass=572
+0.14759  572 KLDiv
+pass=573
+0.14773  573 KLDiv
+pass=574
+0.14947  574 KLDiv
+pass=575
+0.15027  575 KLDiv
+pass=576
+0.14900  576 KLDiv
+pass=577
+0.14848  577 KLDiv
+pass=578
+0.14866  578 KLDiv
+pass=579
+0.14998  579 KLDiv
+pass=580
+0.14966  580 KLDiv
+pass=581
+0.14922  581 KLDiv
+pass=582
+0.15084  582 KLDiv
+pass=583
+0.15007  583 KLDiv
+pass=584
+0.15110  584 KLDiv
+pass=585
+0.14956  585 KLDiv
+pass=586
+0.14789  586 KLDiv
+pass=587
+0.14702  587 KLDiv
+pass=588
+0.14678  588 KLDiv
+pass=589
+0.14745  589 KLDiv
+pass=590
+0.14479  590 KLDiv
+pass=591
+0.14644  591 KLDiv
+pass=592
+0.14873  592 KLDiv
+pass=593
+0.15002  593 KLDiv
+pass=594
+0.14974  594 KLDiv
+pass=595
+0.14933  595 KLDiv
+pass=596
+0.14903  596 KLDiv
+pass=597
+0.14951  597 KLDiv
+pass=598
+0.14859  598 KLDiv
+pass=599
+0.14967  599 KLDiv
+pass=600
+0.15022  600 KLDiv
+pass=601
+0.14900  601 KLDiv
+pass=602
+0.14912  602 KLDiv
+pass=603
+0.14954  603 KLDiv
+pass=604
+0.14953  604 KLDiv
+pass=605
+0.14931  605 KLDiv
+pass=606
+0.15126  606 KLDiv
+pass=607
+0.15079  607 KLDiv
+pass=608
+0.14956  608 KLDiv
+pass=609
+0.14858  609 KLDiv
+pass=610
+0.14930  610 KLDiv
+pass=611
+0.15006  611 KLDiv
+pass=612
+0.14985  612 KLDiv
+pass=613
+0.15033  613 KLDiv
+pass=614
+0.15025  614 KLDiv
+pass=615
+0.15033  615 KLDiv
+pass=616
+0.15079  616 KLDiv
+pass=617
+0.15152  617 KLDiv
+pass=618
+0.15158  618 KLDiv
+pass=619
+0.15081  619 KLDiv
+pass=620
+0.15117  620 KLDiv
+pass=621
+0.15177  621 KLDiv
+pass=622
+0.15005  622 KLDiv
+pass=623
+0.14935  623 KLDiv
+pass=624
+0.14800  624 KLDiv
+pass=625
+0.14690  625 KLDiv
+pass=626
+0.14818  626 KLDiv
+pass=627
+0.14820  627 KLDiv
+pass=628
+0.14765  628 KLDiv
+pass=629
+0.14783  629 KLDiv
+pass=630
+0.14767  630 KLDiv
+pass=631
+0.14703  631 KLDiv
+pass=632
+0.14646  632 KLDiv
+pass=633
+0.14544  633 KLDiv
+pass=634
+0.14546  634 KLDiv
+pass=635
+0.14599  635 KLDiv
+pass=636
+0.14655  636 KLDiv
+pass=637
+0.14679  637 KLDiv
+pass=638
+0.14526  638 KLDiv
+pass=639
+0.14598  639 KLDiv
+pass=640
+0.14576  640 KLDiv
+pass=641
+0.14627  641 KLDiv
+pass=642
+0.14594  642 KLDiv
+pass=643
+0.14596  643 KLDiv
+pass=644
+0.14826  644 KLDiv
+pass=645
+0.14868  645 KLDiv
+pass=646
+0.14780  646 KLDiv
+pass=647
+0.14944  647 KLDiv
+pass=648
+0.14877  648 KLDiv
+pass=649
+0.14840  649 KLDiv
+pass=650
+0.14940  650 KLDiv
+pass=651
+0.14785  651 KLDiv
+pass=652
+0.14693  652 KLDiv
+pass=653
+0.14796  653 KLDiv
+pass=654
+0.14611  654 KLDiv
+pass=655
+0.14530  655 KLDiv
+pass=656
+0.14640  656 KLDiv
+pass=657
+0.14607  657 KLDiv
+pass=658
+0.14556  658 KLDiv
+pass=659
+0.14530  659 KLDiv
+pass=660
+0.14445  660 KLDiv
+pass=661
+0.14525  661 KLDiv
+pass=662
+0.14522  662 KLDiv
+pass=663
+0.14482  663 KLDiv
+pass=664
+0.14528  664 KLDiv
+pass=665
+0.14560  665 KLDiv
+pass=666
+0.14516  666 KLDiv
+pass=667
+0.14467  667 KLDiv
+pass=668
+0.14462  668 KLDiv
+pass=669
+0.14573  669 KLDiv
+pass=670
+0.14617  670 KLDiv
+pass=671
+0.14447  671 KLDiv
+pass=672
+0.14703  672 KLDiv
+pass=673
+0.14758  673 KLDiv
+pass=674
+0.14792  674 KLDiv
+pass=675
+0.14677  675 KLDiv
+pass=676
+0.14870  676 KLDiv
+pass=677
+0.14731  677 KLDiv
+pass=678
+0.14761  678 KLDiv
+pass=679
+0.14750  679 KLDiv
+pass=680
+0.14626  680 KLDiv
+pass=681
+0.14727  681 KLDiv
+pass=682
+0.14674  682 KLDiv
+pass=683
+0.14659  683 KLDiv
+pass=684
+0.14651  684 KLDiv
+pass=685
+0.14590  685 KLDiv
+pass=686
+0.14427  686 KLDiv
+pass=687
+0.14572  687 KLDiv
+pass=688
+0.14604  688 KLDiv
+pass=689
+0.14556  689 KLDiv
+pass=690
+0.14639  690 KLDiv
+pass=691
+0.14467  691 KLDiv
+pass=692
+0.14484  692 KLDiv
+pass=693
+0.14573  693 KLDiv
+pass=694
+0.14600  694 KLDiv
+pass=695
+0.14850  695 KLDiv
+pass=696
+0.14904  696 KLDiv
+pass=697
+0.14831  697 KLDiv
+pass=698
+0.14817  698 KLDiv
+pass=699
+0.14694  699 KLDiv
+pass=700
+0.14590  700 KLDiv
+pass=701
+0.14669  701 KLDiv
+pass=702
+0.14669  702 KLDiv
+pass=703
+0.14686  703 KLDiv
+pass=704
+0.14675  704 KLDiv
+pass=705
+0.14557  705 KLDiv
+pass=706
+0.14690  706 KLDiv
+pass=707
+0.14623  707 KLDiv
+pass=708
+0.14741  708 KLDiv
+pass=709
+0.14710  709 KLDiv
+pass=710
+0.14739  710 KLDiv
+pass=711
+0.14617  711 KLDiv
+pass=712
+0.14617  712 KLDiv
+pass=713
+0.14760  713 KLDiv
+pass=714
+0.14786  714 KLDiv
+pass=715
+0.14753  715 KLDiv
+pass=716
+0.14738  716 KLDiv
+pass=717
+0.14572  717 KLDiv
+pass=718
+0.14342  718 KLDiv
+pass=719
+0.14711  719 KLDiv
+pass=720
+0.14576  720 KLDiv
+pass=721
+0.14666  721 KLDiv
+pass=722
+0.14741  722 KLDiv
+pass=723
+0.14633  723 KLDiv
+pass=724
+0.14563  724 KLDiv
+pass=725
+0.14601  725 KLDiv
+pass=726
+0.14584  726 KLDiv
+pass=727
+0.14607  727 KLDiv
+pass=728
+0.14713  728 KLDiv
+pass=729
+0.14688  729 KLDiv
+pass=730
+0.14680  730 KLDiv
+pass=731
+0.14659  731 KLDiv
+pass=732
+0.14621  732 KLDiv
+pass=733
+0.14519  733 KLDiv
+pass=734
+0.14618  734 KLDiv
+pass=735
+0.14559  735 KLDiv
+pass=736
+0.14559  736 KLDiv
+pass=737
+0.14575  737 KLDiv
+pass=738
+0.14505  738 KLDiv
+pass=739
+0.14508  739 KLDiv
+pass=740
+0.14555  740 KLDiv
+pass=741
+0.14458  741 KLDiv
+pass=742
+0.14534  742 KLDiv
+pass=743
+0.14533  743 KLDiv
+pass=744
+0.14495  744 KLDiv
+pass=745
+0.14628  745 KLDiv
+pass=746
+0.14657  746 KLDiv
+pass=747
+0.14581  747 KLDiv
+pass=748
+0.14488  748 KLDiv
+pass=749
+0.14457  749 KLDiv
+pass=750
+0.14411  750 KLDiv
+pass=751
+0.14460  751 KLDiv
+pass=752
+0.14576  752 KLDiv
+pass=753
+0.14504  753 KLDiv
+pass=754
+0.14579  754 KLDiv
+pass=755
+0.14578  755 KLDiv
+pass=756
+0.14792  756 KLDiv
+pass=757
+0.14482  757 KLDiv
+pass=758
+0.14490  758 KLDiv
+pass=759
+0.14464  759 KLDiv
+pass=760
+0.14487  760 KLDiv
+pass=761
+0.14357  761 KLDiv
+pass=762
+0.14376  762 KLDiv
+pass=763
+0.14454  763 KLDiv
+pass=764
+0.14582  764 KLDiv
+pass=765
+0.14522  765 KLDiv
+pass=766
+0.14501  766 KLDiv
+pass=767
+0.14492  767 KLDiv
+pass=768
+0.14410  768 KLDiv
+pass=769
+0.14358  769 KLDiv
+pass=770
+0.14474  770 KLDiv
+pass=771
+0.14376  771 KLDiv
+pass=772
+0.14273  772 KLDiv
+pass=773
+0.14105  773 KLDiv
+pass=774
+0.14220  774 KLDiv
+pass=775
+0.14180  775 KLDiv
+pass=776
+0.14266  776 KLDiv
+pass=777
+0.14293  777 KLDiv
+pass=778
+0.14274  778 KLDiv
+pass=779
+0.14310  779 KLDiv
+pass=780
+0.14311  780 KLDiv
+pass=781
+0.14499  781 KLDiv
+pass=782
+0.14464  782 KLDiv
+pass=783
+0.14322  783 KLDiv
+pass=784
+0.14339  784 KLDiv
+pass=785
+0.14238  785 KLDiv
+pass=786
+0.14166  786 KLDiv
+pass=787
+0.14347  787 KLDiv
+pass=788
+0.14301  788 KLDiv
+pass=789
+0.14324  789 KLDiv
+pass=790
+0.14229  790 KLDiv
+pass=791
+0.14412  791 KLDiv
+pass=792
+0.14382  792 KLDiv
+pass=793
+0.14486  793 KLDiv
+pass=794
+0.14279  794 KLDiv
+pass=795
+0.14416  795 KLDiv
+pass=796
+0.14552  796 KLDiv
+pass=797
+0.14446  797 KLDiv
+pass=798
+0.14489  798 KLDiv
+pass=799
+0.14476  799 KLDiv
+pass=800
+0.14475  800 KLDiv
+pass=801
+0.14557  801 KLDiv
+pass=802
+0.14487  802 KLDiv
+pass=803
+0.14506  803 KLDiv
+pass=804
+0.14515  804 KLDiv
+pass=805
+0.14560  805 KLDiv
+pass=806
+0.14635  806 KLDiv
+pass=807
+0.14595  807 KLDiv
+pass=808
+0.14699  808 KLDiv
+pass=809
+0.14650  809 KLDiv
+pass=810
+0.14671  810 KLDiv
+pass=811
+0.14540  811 KLDiv
+pass=812
+0.14654  812 KLDiv
+pass=813
+0.14523  813 KLDiv
+pass=814
+0.14333  814 KLDiv
+pass=815
+0.14238  815 KLDiv
+pass=816
+0.14134  816 KLDiv
+pass=817
+0.13994  817 KLDiv
+pass=818
+0.14074  818 KLDiv
+pass=819
+0.14105  819 KLDiv
+pass=820
+0.14044  820 KLDiv
+pass=821
+0.14047  821 KLDiv
+pass=822
+0.14206  822 KLDiv
+pass=823
+0.14085  823 KLDiv
+pass=824
+0.13982  824 KLDiv
+pass=825
+0.13977  825 KLDiv
+pass=826
+0.13904  826 KLDiv
+pass=827
+0.14032  827 KLDiv
+pass=828
+0.14201  828 KLDiv
+pass=829
+0.14265  829 KLDiv
+pass=830
+0.14439  830 KLDiv
+pass=831
+0.14297  831 KLDiv
+pass=832
+0.14298  832 KLDiv
+pass=833
+0.14306  833 KLDiv
+pass=834
+0.14189  834 KLDiv
+pass=835
+0.14290  835 KLDiv
+pass=836
+0.14249  836 KLDiv
+pass=837
+0.14360  837 KLDiv
+pass=838
+0.14117  838 KLDiv
+pass=839
+0.14216  839 KLDiv
+pass=840
+0.14195  840 KLDiv
+pass=841
+0.14260  841 KLDiv
+pass=842
+0.14323  842 KLDiv
+pass=843
+0.14372  843 KLDiv
+pass=844
+0.14441  844 KLDiv
+pass=845
+0.14342  845 KLDiv
+pass=846
+0.14307  846 KLDiv
+pass=847
+0.14361  847 KLDiv
+pass=848
+0.14395  848 KLDiv
+pass=849
+0.14455  849 KLDiv
+pass=850
+0.14363  850 KLDiv
+pass=851
+0.14439  851 KLDiv
+pass=852
+0.14613  852 KLDiv
+pass=853
+0.14494  853 KLDiv
+pass=854
+0.14447  854 KLDiv
+pass=855
+0.14517  855 KLDiv
+pass=856
+0.14483  856 KLDiv
+pass=857
+0.14373  857 KLDiv
+pass=858
+0.14486  858 KLDiv
+pass=859
+0.14402  859 KLDiv
+pass=860
+0.14518  860 KLDiv
+pass=861
+0.14547  861 KLDiv
+pass=862
+0.14546  862 KLDiv
+pass=863
+0.14556  863 KLDiv
+pass=864
+0.14565  864 KLDiv
+pass=865
+0.14649  865 KLDiv
+pass=866
+0.14677  866 KLDiv
+pass=867
+0.14635  867 KLDiv
+pass=868
+0.14548  868 KLDiv
+pass=869
+0.14445  869 KLDiv
+pass=870
+0.14489  870 KLDiv
+pass=871
+0.14556  871 KLDiv
+pass=872
+0.14648  872 KLDiv
+pass=873
+0.14505  873 KLDiv
+pass=874
+0.14497  874 KLDiv
+pass=875
+0.14512  875 KLDiv
+pass=876
+0.14472  876 KLDiv
+pass=877
+0.14445  877 KLDiv
+pass=878
+0.14337  878 KLDiv
+pass=879
+0.14388  879 KLDiv
+pass=880
+0.14628  880 KLDiv
+pass=881
+0.14719  881 KLDiv
+pass=882
+0.14717  882 KLDiv
+pass=883
+0.14643  883 KLDiv
+pass=884
+0.14720  884 KLDiv
+pass=885
+0.14763  885 KLDiv
+pass=886
+0.14845  886 KLDiv
+pass=887
+0.14809  887 KLDiv
+pass=888
+0.14714  888 KLDiv
+pass=889
+0.14817  889 KLDiv
+pass=890
+0.14897  890 KLDiv
+pass=891
+0.14948  891 KLDiv
+pass=892
+0.15050  892 KLDiv
+pass=893
+0.14965  893 KLDiv
+pass=894
+0.14870  894 KLDiv
+pass=895
+0.14858  895 KLDiv
+pass=896
+0.14874  896 KLDiv
+pass=897
+0.14854  897 KLDiv
+pass=898
+0.14804  898 KLDiv
+pass=899
+0.14983  899 KLDiv
+pass=900
+0.15051  900 KLDiv
+pass=901
+0.15046  901 KLDiv
+pass=902
+0.14934  902 KLDiv
+pass=903
+0.15047  903 KLDiv
+pass=904
+0.14988  904 KLDiv
+pass=905
+0.15137  905 KLDiv
+pass=906
+0.15070  906 KLDiv
+pass=907
+0.15248  907 KLDiv
+pass=908
+0.15136  908 KLDiv
+pass=909
+0.15011  909 KLDiv
+pass=910
+0.15123  910 KLDiv
+pass=911
+0.14952  911 KLDiv
+pass=912
+0.14884  912 KLDiv
+pass=913
+0.14863  913 KLDiv
+pass=914
+0.14796  914 KLDiv
+pass=915
+0.14772  915 KLDiv
+pass=916
+0.14791  916 KLDiv
+pass=917
+0.14682  917 KLDiv
+pass=918
+0.14636  918 KLDiv
+pass=919
+0.14809  919 KLDiv
+pass=920
+0.14673  920 KLDiv
+pass=921
+0.14774  921 KLDiv
+pass=922
+0.14747  922 KLDiv
+pass=923
+0.14866  923 KLDiv
+pass=924
+0.14838  924 KLDiv
+pass=925
+0.14938  925 KLDiv
+pass=926
+0.14799  926 KLDiv
+pass=927
+0.14866  927 KLDiv
+pass=928
+0.14604  928 KLDiv
+pass=929
+0.14681  929 KLDiv
+pass=930
+0.14514  930 KLDiv
+pass=931
+0.14525  931 KLDiv
+pass=932
+0.14581  932 KLDiv
+pass=933
+0.14621  933 KLDiv
+pass=934
+0.14708  934 KLDiv
+pass=935
+0.14783  935 KLDiv
+pass=936
+0.14779  936 KLDiv
+pass=937
+0.14709  937 KLDiv
+pass=938
+0.14830  938 KLDiv
+pass=939
+0.14884  939 KLDiv
+pass=940
+0.14956  940 KLDiv
+pass=941
+0.15007  941 KLDiv
+pass=942
+0.15012  942 KLDiv
+pass=943
+0.15039  943 KLDiv
+pass=944
+0.14955  944 KLDiv
+pass=945
+0.14894  945 KLDiv
+pass=946
+0.14818  946 KLDiv
+pass=947
+0.14699  947 KLDiv
+pass=948
+0.14592  948 KLDiv
+pass=949
+0.14841  949 KLDiv
+pass=950
+0.14810  950 KLDiv
+pass=951
+0.14914  951 KLDiv
+pass=952
+0.14715  952 KLDiv
+pass=953
+0.14809  953 KLDiv
+pass=954
+0.14881  954 KLDiv
+pass=955
+0.14882  955 KLDiv
+pass=956
+0.14753  956 KLDiv
+pass=957
+0.14729  957 KLDiv
+pass=958
+0.14664  958 KLDiv
+pass=959
+0.14769  959 KLDiv
+pass=960
+0.14754  960 KLDiv
+pass=961
+0.14848  961 KLDiv
+pass=962
+0.14857  962 KLDiv
+pass=963
+0.14888  963 KLDiv
+pass=964
+0.15001  964 KLDiv
+pass=965
+0.15018  965 KLDiv
+pass=966
+0.14960  966 KLDiv
+pass=967
+0.15005  967 KLDiv
+pass=968
+0.14880  968 KLDiv
+pass=969
+0.14975  969 KLDiv
+pass=970
+0.14890  970 KLDiv
+pass=971
+0.14746  971 KLDiv
+pass=972
+0.14726  972 KLDiv
+pass=973
+0.14780  973 KLDiv
+pass=974
+0.14697  974 KLDiv
+pass=975
+0.14635  975 KLDiv
+pass=976
+0.14683  976 KLDiv
+pass=977
+0.14659  977 KLDiv
+pass=978
+0.14687  978 KLDiv
+pass=979
+0.14741  979 KLDiv
+pass=980
+0.14777  980 KLDiv
+pass=981
+0.14753  981 KLDiv
+pass=982
+0.14951  982 KLDiv
+pass=983
+0.15057  983 KLDiv
+pass=984
+0.15033  984 KLDiv
+pass=985
+0.15077  985 KLDiv
+pass=986
+0.15029  986 KLDiv
+pass=987
+0.15038  987 KLDiv
+pass=988
+0.15003  988 KLDiv
+pass=989
+0.15081  989 KLDiv
+pass=990
+0.14993  990 KLDiv
+pass=991
+0.14903  991 KLDiv
+pass=992
+0.14784  992 KLDiv
+pass=993
+0.14889  993 KLDiv
+pass=994
+0.14966  994 KLDiv
+pass=995
+0.14927  995 KLDiv
+pass=996
+0.15189  996 KLDiv
+pass=997
+0.15140  997 KLDiv
+pass=998
+0.15117  998 KLDiv
+pass=999
+0.15017  999 KLDiv
+Time=197.2770 secs, gflops=1.06
+java.lang.IndexOutOfBoundsException: 0
+  at scala.collection.mutable.ListBuffer.apply(ListBuffer.scala:126)
+  at BIDMach.Learner$.scores2FMat(Learner.scala:798)
+  at BIDMach.Learner.retrain(Learner.scala:134)
+  at BIDMach.Learner.train(Learner.scala:56)
+  ... 54 elided
+res4: BIDMat.Mat = 0.56190,0.43810,0.46685,0.53315,0.24996,0.75004,0.47266,0.52734,0.70248,0.29752,0.22239,0.77761,0.49655,0.50345,0.45441,0.54558,0.22529,0.77471,0.25482,0.74518,0.57024,0.42976,0.52861,0.47139,0.87440,0.12560,0.27730,0.72270,0.53945,0.46055,0.43752,0.56248,0.56254,0.43746,0.089639,0.91036,0.068747,0.93125,0.34346,0.65654,0.67286,0.32714,0.53970,0.46030,0.99998,2.3989e-05,0.64471,0.35529,0.92042,0.079578,0.27668,0.72332,0.39501,0.60499,0.27780,0.72220,0.34727,0.65273,0.41919,0.58081,0.42162,0.57838,0.48316,0.51684,0.39861,0.60139,0.60668,0.39332,0.41652,0.58348,0.38905,0.61095,0.60677,0.39323,0.37682,0.62318,0.59936,0.40064,0.95259,0.047415,0.35217,0.64783,0.67528,0.32472,0.69315,0.30685,0.90316,0.096843,0.17104,0.82896,0.86915,0.13085,0.99895,0.0010514,0.10170,0.89830,...

@@ -47,16 +47,21 @@ with open('./25PercentFile/m10/kldiv', 'rb') as csvfile:
 x = np.array(x)
 kl_25_10 = x.astype(np.float)
 
+################
+
 plt.figure()
-signals = ['ro--', 'y^--', 'bs--', 'ro-', 'y^-', 'bs-']
-legend_labels = ["25%, m = 1", "25%, m = 5", "25%, m = 10", "50%, m = 1", "50%, m = 5", "50%, m = 10"]
-data = [kl_25_1, kl_25_5, kl_25_10, kl_50_1, kl_50_5, kl_50_10]
+#signals = ['ro--', 'y^--', 'bs--', 'ro-', 'y^-', 'bs-']
+signals = ['r-', 'y-', 'b-']
+#legend_labels = ["25%, m = 1", "25%, m = 5", "25%, m = 10", "50%, m = 1", "50%, m = 5", "50%, m = 10"]
+legend_labels = ["m = 1", "m = 5", "m = 10"]
+#data = [kl_25_1, kl_25_5, kl_25_10, kl_50_1, kl_50_5, kl_50_10]
+data = [kl_50_1, kl_50_5, kl_50_10]
 i = 0
-for i in xrange(6):
+for i in xrange(3):
     linewidth_num = 1.0
     if i >= 3:
         linewidth_num = 3.0
-    plt.plot(data[i][:20], signals[i], label=legend_labels[i], linewidth=linewidth_num)
+    plt.plot(data[i][:100], signals[i], label=legend_labels[i], linewidth=linewidth_num)
 
 # Be sure to increase the font sizes! I might also have to experiment with a lot of other settings.
 plt.legend(loc='upper right', ncol=2)
@@ -65,7 +70,6 @@ plt.yscale('log')
 plt.xlabel('Number of Passes Over the Data', fontsize='x-large')
 plt.ylabel('Average KL Divergence', fontsize='x-large')
 plt.savefig('fig_kl_div_25_50_perc.png')
-
 #######################################################
 # draw the convergence vs time
 time_25_1 = np.zeros(200)
@@ -104,13 +108,19 @@ timeInterval = (60 * 17 + 21.4 - time_50_10[0]) / 200
 for i in xrange(200):
     time_50_10[i] = time_50_10[0] + i * timeInterval
 
+
+################################
 plt.figure()
-signals = ['ro--', 'y^--', 'bs--', 'ro-', 'y^-', 'bs-']
-legend_labels = ["25%, m = 1", "25%, m = 5", "25%, m = 10", "50%, m = 1", "50%, m = 5", "50%, m = 10"]
-data = [kl_25_1, kl_25_5, kl_25_10, kl_50_1, kl_50_5, kl_50_10]
-time = [time_25_1, time_25_5, time_25_10, time_50_1, time_50_5, time_50_10]
+#signals = ['ro--', 'y^--', 'bs--', 'ro-', 'y^-', 'bs-']
+signals = ['r-', 'y-', 'b-']
+#legend_labels = ["25%, m = 1", "25%, m = 5", "25%, m = 10", "50%, m = 1", "50%, m = 5", "50%, m = 10"]
+legend_labels = ["m = 1", "m = 5", "m = 10"]
+#data = [kl_25_1, kl_25_5, kl_25_10, kl_50_1, kl_50_5, kl_50_10]
+data = [kl_50_1, kl_50_5, kl_50_10]
+#time = [time_25_1, time_25_5, time_25_10, time_50_1, time_50_5, time_50_10]
+time = [time_50_1, time_50_5, time_50_10]
 i = 0
-for i in xrange(6):
+for i in xrange(3):
     linewidth_num = 1.0
     
     plt.plot(time[i], data[i], label=legend_labels[i], linewidth=linewidth_num)
@@ -121,4 +131,5 @@ plt.title('Convergence Based on Seconds', fontsize='xx-large')
 plt.yscale('log')
 plt.xlabel('Seconds', fontsize='x-large')
 plt.ylabel('(Log)Average KL Divergence', fontsize='x-large')
+plt.xlim(0, 600)
 plt.savefig('fig_kl_div_25_50_perc_jags_time.png')

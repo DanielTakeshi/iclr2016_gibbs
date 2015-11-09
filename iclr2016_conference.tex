@@ -414,8 +414,10 @@ of the model, which we did not use to evaluate the five-variable student data. A
 benchmark our sampler with JAGS.
 
 Figure~\ref{fig:mooc_cpts} shows the consecutive KL divergences across consecutive iterations. We
-see that higher $m$ values result in better convergence. \textbf{TODO Well, we have to do this one
-first.}
+see that higher $m$ values result in better convergence. \textbf{Daniel: I finished this plot and
+have to describe it. I have data from 1000 iterations but we could easily run this longer. We will
+unfortunately have to say that $m=10$ is actually worse (the plot will not go under $m=1$), but
+perhaps we are getting into too many local maxs?}
 
 %\subsection{Performance and Runtime}
 %We first look at the efficiency of each system measured by giga floating point operations per second
@@ -440,9 +442,8 @@ spin that positively.}
   \centering
   \begin{minipage}{.5\textwidth}
     \centering
-    \fbox{\rule[-.5cm]{0cm}{4cm} \rule[-.5cm]{4cm}{0cm}}
-    %\includegraphics[width=1\textwidth]{fig_kl_student_50perc}
-    \caption{\textbf{MOOC Convergence}}
+    \includegraphics[width=1\textwidth]{fig_mooc_kl_div.png}
+    \caption{KL Divergence, MOOC}
     \label{fig:mooc_cpts}
   \end{minipage}\hfill
     \begin{minipage}{.5\textwidth}
@@ -547,7 +548,7 @@ clear curve in the plot (well, it's on a log scale but still...). That is easy a
 base for that in \texttt{iclr2016\_createKLplots.py}, which is what I also used to generate these
 matplotlib images.
 
-
+For Figure~\ref{fig:mooc_cpts}, I describe this in the Figure6 directory on github.
 
 
 

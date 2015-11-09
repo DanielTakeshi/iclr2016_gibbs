@@ -119,6 +119,6 @@ for i in xrange(6):
 plt.legend(loc='upper right', ncol=2)
 plt.title('Convergence Based on Seconds', fontsize='xx-large')
 plt.yscale('log')
-plt.xlabel('Number of Passes Over the Data', fontsize='x-large')
+plt.xlabel('Seconds', fontsize='x-large')
 plt.ylabel('(Log)Average KL Divergence', fontsize='x-large')
 plt.savefig('fig_kl_div_25_50_perc_jags_time.png')

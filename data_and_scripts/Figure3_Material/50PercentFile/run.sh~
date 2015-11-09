@@ -1,0 +1,13 @@
+#!/bin/bash
+echo "run the m = 1 with 20 updates"
+time jags m1/runJagsExe
+echo "run the m = 1 without update, i.e only load model"
+time jags m1/runJagsExe_noUpdate
+echo "run the m = 5"
+time jags m5/runJagsExe
+echo "run the m = 5 without update, i.e only load model"
+time jags m5/runJagsExe_noUpdate
+echo "run the m = 10"
+time jags m10/runJagsExe
+echo "run the m = 10 without update, i.e only load model"
+time jags m10/runJagsExe_noUpdate

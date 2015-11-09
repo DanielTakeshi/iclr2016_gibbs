@@ -1,0 +1,63 @@
+# exe file for jags
+# from ./smallNet/dag; ./smallNet/state
+model in "bugfile"
+data in "data.r"
+compile, nchains(1)
+initialize
+monitor m0n0
+monitor m0n1
+monitor m0n2
+monitor m0n3
+monitor m0n4
+monitor m1n0
+monitor m1n1
+monitor m1n2
+monitor m1n3
+monitor m1n4
+monitor m2n0
+monitor m2n1
+monitor m2n2
+monitor m2n3
+monitor m2n4
+monitor m3n0
+monitor m3n1
+monitor m3n2
+monitor m3n3
+monitor m3n4
+monitor m4n0
+monitor m4n1
+monitor m4n2
+monitor m4n3
+monitor m4n4
+monitor m5n0
+monitor m5n1
+monitor m5n2
+monitor m5n3
+monitor m5n4
+monitor m6n0
+monitor m6n1
+monitor m6n2
+monitor m6n3
+monitor m6n4
+monitor m7n0
+monitor m7n1
+monitor m7n2
+monitor m7n3
+monitor m7n4
+monitor m8n0
+monitor m8n1
+monitor m8n2
+monitor m8n3
+monitor m8n4
+monitor m9n0
+monitor m9n1
+monitor m9n2
+monitor m9n3
+monitor m9n4
+monitor n0.prob
+monitor n1.prob
+monitor n2.prob
+monitor n3.prob
+monitor n4.prob
+update 20
+coda *

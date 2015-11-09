@@ -1,0 +1,81 @@
+# the dag file is from ./smallNet/dag
+# the state file is from ./smallNet/state
+var
+	m0n0[N], m0n1[N], m0n2[N], m0n3[N], m0n4[N], 
+	m1n0[N], m1n1[N], m1n2[N], m1n3[N], m1n4[N], 
+	m2n0[N], m2n1[N], m2n2[N], m2n3[N], m2n4[N], 
+	m3n0[N], m3n1[N], m3n2[N], m3n3[N], m3n4[N], 
+	m4n0[N], m4n1[N], m4n2[N], m4n3[N], m4n4[N], 
+	m5n0[N], m5n1[N], m5n2[N], m5n3[N], m5n4[N], 
+	m6n0[N], m6n1[N], m6n2[N], m6n3[N], m6n4[N], 
+	m7n0[N], m7n1[N], m7n2[N], m7n3[N], m7n4[N], 
+	m8n0[N], m8n1[N], m8n2[N], m8n3[N], m8n4[N], 
+	m9n0[N], m9n1[N], m9n2[N], m9n3[N], m9n4[N], 
+	n0.alpha[2], n1.alpha[2], n2.alpha[2,2], n3.alpha[2,2,3], n4.alpha[3,2], n0.prob[2], n1.prob[2], n2.prob[2,2], n3.prob[2,2,3], n4.prob[3,2]
+model {
+
+	n0.prob[] ~ ddirich(n0.alpha[])
+	n1.prob[] ~ ddirich(n1.alpha[])
+	n2.prob[1,] ~ ddirich(n2.alpha[1,])
+	n2.prob[2,] ~ ddirich(n2.alpha[2,])
+	n3.prob[1,1,] ~ ddirich(n3.alpha[1,1,])
+	n3.prob[1,2,] ~ ddirich(n3.alpha[1,2,])
+	n3.prob[2,1,] ~ ddirich(n3.alpha[2,1,])
+	n3.prob[2,2,] ~ ddirich(n3.alpha[2,2,])
+	n4.prob[1,] ~ ddirich(n4.alpha[1,])
+	n4.prob[2,] ~ ddirich(n4.alpha[2,])
+	n4.prob[3,] ~ ddirich(n4.alpha[3,])
+
+	for (i in 1:N) {
+		m0n0[i] ~ dcat(n0.prob[])
+		m0n1[i] ~ dcat(n1.prob[])
+		m0n2[i] ~ dcat(n2.prob[m0n0[i],])
+		m0n3[i] ~ dcat(n3.prob[m0n0[i],m0n1[i],])
+		m0n4[i] ~ dcat(n4.prob[m0n3[i],])
+		m1n0[i] ~ dcat(n0.prob[])
+		m1n1[i] ~ dcat(n1.prob[])
+		m1n2[i] ~ dcat(n2.prob[m1n0[i],])
+		m1n3[i] ~ dcat(n3.prob[m1n0[i],m1n1[i],])
+		m1n4[i] ~ dcat(n4.prob[m1n3[i],])
+		m2n0[i] ~ dcat(n0.prob[])
+		m2n1[i] ~ dcat(n1.prob[])
+		m2n2[i] ~ dcat(n2.prob[m2n0[i],])
+		m2n3[i] ~ dcat(n3.prob[m2n0[i],m2n1[i],])
+		m2n4[i] ~ dcat(n4.prob[m2n3[i],])
+		m3n0[i] ~ dcat(n0.prob[])
+		m3n1[i] ~ dcat(n1.prob[])
+		m3n2[i] ~ dcat(n2.prob[m3n0[i],])
+		m3n3[i] ~ dcat(n3.prob[m3n0[i],m3n1[i],])
+		m3n4[i] ~ dcat(n4.prob[m3n3[i],])
+		m4n0[i] ~ dcat(n0.prob[])
+		m4n1[i] ~ dcat(n1.prob[])
+		m4n2[i] ~ dcat(n2.prob[m4n0[i],])
+		m4n3[i] ~ dcat(n3.prob[m4n0[i],m4n1[i],])
+		m4n4[i] ~ dcat(n4.prob[m4n3[i],])
+		m5n0[i] ~ dcat(n0.prob[])
+		m5n1[i] ~ dcat(n1.prob[])
+		m5n2[i] ~ dcat(n2.prob[m5n0[i],])
+		m5n3[i] ~ dcat(n3.prob[m5n0[i],m5n1[i],])
+		m5n4[i] ~ dcat(n4.prob[m5n3[i],])
+		m6n0[i] ~ dcat(n0.prob[])
+		m6n1[i] ~ dcat(n1.prob[])
+		m6n2[i] ~ dcat(n2.prob[m6n0[i],])
+		m6n3[i] ~ dcat(n3.prob[m6n0[i],m6n1[i],])
+		m6n4[i] ~ dcat(n4.prob[m6n3[i],])
+		m7n0[i] ~ dcat(n0.prob[])
+		m7n1[i] ~ dcat(n1.prob[])
+		m7n2[i] ~ dcat(n2.prob[m7n0[i],])
+		m7n3[i] ~ dcat(n3.prob[m7n0[i],m7n1[i],])
+		m7n4[i] ~ dcat(n4.prob[m7n3[i],])
+		m8n0[i] ~ dcat(n0.prob[])
+		m8n1[i] ~ dcat(n1.prob[])
+		m8n2[i] ~ dcat(n2.prob[m8n0[i],])
+		m8n3[i] ~ dcat(n3.prob[m8n0[i],m8n1[i],])
+		m8n4[i] ~ dcat(n4.prob[m8n3[i],])
+		m9n0[i] ~ dcat(n0.prob[])
+		m9n1[i] ~ dcat(n1.prob[])
+		m9n2[i] ~ dcat(n2.prob[m9n0[i],])
+		m9n3[i] ~ dcat(n3.prob[m9n0[i],m9n1[i],])
+		m9n4[i] ~ dcat(n4.prob[m9n3[i],])
+	}
+}

@@ -1,0 +1,103 @@
+
+g  m1  m10  m5  run.sh  run.sh~
+[will@stout 50PercentFile]$ ./run.sh 
+run the m = 1 with no updates
+Welcome to JAGS 3.4.0 on Sun Nov  8 22:50:14 2015
+JAGS is free software and comes with ABSOLUTELY NO WARRANTY
+Loading module: basemod: ok
+Loading module: bugs: ok
+Reading data file data.r
+Compiling model graph
+   Declaring variables
+   Resolving undeclared variables
+   Allocating nodes
+   Graph Size: 337773
+Initializing model
+
+real	0m9.880s
+user	0m9.723s
+sys	0m0.151s
+run the m = 1 with 200
+Welcome to JAGS 3.4.0 on Sun Nov  8 22:50:24 2015
+JAGS is free software and comes with ABSOLUTELY NO WARRANTY
+Loading module: basemod: ok
+Loading module: bugs: ok
+Reading data file data.r
+Compiling model graph
+   Declaring variables
+   Resolving undeclared variables
+   Allocating nodes
+   Graph Size: 337773
+Initializing model
+Updating 200
+
+real	1m19.167s
+user	1m18.609s
+sys	0m0.519s
+run the m = 5 with no updates
+Welcome to JAGS 3.4.0 on Sun Nov  8 22:51:43 2015
+JAGS is free software and comes with ABSOLUTELY NO WARRANTY
+Loading module: basemod: ok
+Loading module: bugs: ok
+Reading data file data.r
+Compiling model graph
+   Declaring variables
+   Resolving undeclared variables
+   Allocating nodes
+   Graph Size: 1688669
+Initializing model
+
+real	1m29.447s
+user	1m28.595s
+sys	0m0.802s
+run the m = 5 200 update
+Welcome to JAGS 3.4.0 on Sun Nov  8 22:53:12 2015
+JAGS is free software and comes with ABSOLUTELY NO WARRANTY
+Loading module: basemod: ok
+Loading module: bugs: ok
+Reading data file data.r
+Compiling model graph
+   Declaring variables
+   Resolving undeclared variables
+   Allocating nodes
+   Graph Size: 1688669
+Initializing model
+Updating 200
+
+real	8m1.345s
+user	7m57.004s
+sys	0m2.284s
+run the m = 10 with no updates
+Welcome to JAGS 3.4.0 on Sun Nov  8 23:01:14 2015
+JAGS is free software and comes with ABSOLUTELY NO WARRANTY
+Loading module: basemod: ok
+Loading module: bugs: ok
+Reading data file data.r
+Compiling model graph
+   Declaring variables
+   Resolving undeclared variables
+   Allocating nodes
+   Graph Size: 3377289
+Initializing model
+
+real	4m28.607s
+user	4m27.175s
+sys	0m1.390s
+run the m = 10 with 200 update
+Welcome to JAGS 3.4.0 on Sun Nov  8 23:05:42 2015
+JAGS is free software and comes with ABSOLUTELY NO WARRANTY
+Loading module: basemod: ok
+Loading module: bugs: ok
+Reading data file data.r
+Compiling model graph
+   Declaring variables
+   Resolving undeclared variables
+   Allocating nodes
+   Graph Size: 3377289
+Initializing model
+Updating 200
+
+real	17m28.275s
+user	17m21.357s
+sys	0m4.346s
+

@@ -68,7 +68,10 @@ plt.plot(data3[:num_plot], signals[3], label=legend_labels[3], linewidth=4.0, da
 plt.legend(loc='upper right', ncol=1, handlelength=5, borderpad=1, labelspacing=1)
 plt.title('Average KL Divergence on MOOC Data', fontsize='xx-large')
 plt.yscale('log')
+plt.ylim([0.1,0.4])
 plt.xlabel('Number of Passes Over the Data', fontsize='x-large')
 plt.ylabel('Average KL Divergence', fontsize='x-large')
+plt.yticks(np.arange(0.1, 0.4, 0.05))
+print plt.xaxis.get_ticklabels()
 plt.savefig('fig_mooc_kl_div.png')
 

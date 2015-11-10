@@ -416,8 +416,8 @@ on the original data until convergence. Then, we use the estimated set of CPTs a
 via direct sampling to generate synthetic data, also of dimension $(334 \times 4367)$. We modify
 that synthetic data matrix so that it also has a 2.2\% sparsity level and has missing data at the
 same elements as the original data matrix. Then we re-run BIDMach on that data and test using the
-same $KL_{\rm avg}$ metric from~(\ref{ssec:student_data}), since we know the CPT that generated the
-data.
+same $KL_{\rm avg}$ metric from~(\ref{ssec:student_data}), since we know the CPTs that ``generated''
+the data.
 
 Figure~\ref{fig:mooc_kl} plots the $KL_{\rm avg}$ for BIDMach with varying $m$ values. We ran the
 sampler for several thousands of iterations but only show the first 300 for the sake of readability.
@@ -427,25 +427,14 @@ the long term trend (not shown here) is that it settles down at the same $KL_{\r
 iteration point. It is also apparent from Figure~\ref{fig:mooc_kl} (and the long-term trend) that
 $m=2$ and $m=5$ are better, showing that there is indeed a benefit to SAME with extremely sparse
 data. What is interesting is that the performance of $m=10$ is \emph{worse} than $m=1$. Even after
-thousands of iterations, the $m=10$ curve was essentially neck-to-neck with the $m=1$ curve, but it
-is much slower and had similar variance.
+thousands of iterations, the $m=10$ curve was essentially neck-to-neck with the $m=1$ curve, but
+corresponds to a much slower runtime.
 
-\textbf{Daniel: Note that we are planning on including one JAGS curve ($m=1$) in
-Figure~\ref{fig:mooc_kl}. We will need to explicitly state the runtimes as well (and also describe
-the runtime for BIDMach). Also, I should explain the ``long term'' trend stuff better, perhaps even
-extending the plot a bit. Finally, like before, I want to give an intuitive feel of the accuracy,
-i.e., how many decimal points of accuracy?}
-
-The second way of evaluating our sampler is to use prediction accuracy. We can divide up the data
-into a training and testing set, which we do by holding out one mini-batch for testing. Then, using
-our data, we ... \textbf{Daniel: TODO I am trying to think about the easiest way to test.}
-
-For each node to be predicted, we sample 50 instances for that node from the learned network and
-observed values, and then take the majority as the predicted value. The accuracy is measured as the
-percentage of corrected predictions.  Figure~\ref{fig:mooc_accuracy} shows the accuracy results.
-\textbf{TODO I would like to do this, and I think this is important. We should be seeing that
-accuracy goes up to about 66\%.  Unfortunately, the actual data is skewed in a 66\% to 33\% ratio so
-... let me figure out if I can spin that positively.}
+\textbf{Daniel: We are planning on including one JAGS curve ($m=1$) in
+Figure~\ref{fig:mooc_kl}. We will need to explicitly state the runtimes for BIDMach/JAGS, probably
+just here in the text and not in a figure/table. Also, I should explain the ``long term'' trend
+stuff better, perhaps even extending the plot a bit. Finally, like before, I want to give an
+intuitive feel of the accuracy, i.e., how many decimal points of accuracy?}
 
 \begin{figure}[t]
   \centering
@@ -464,6 +453,14 @@ accuracy goes up to about 66\%.  Unfortunately, the actual data is skewed in a 6
   \end{minipage}
 \end{figure}
 
+The second way of evaluating our sampler is to use prediction accuracy. We can divide up the data
+into a training and testing set, which we do by holding out one mini-batch for testing. Then, using
+our data, we ... \textbf{Daniel: TODO I am trying to think about the easiest way to test.}
+
+For each node to be predicted, we sample 50 instances for that node from the learned network and
+observed values, and then take the majority as the predicted value. The accuracy is measured as the
+percentage of corrected predictions.  Figure~\ref{fig:mooc_accuracy} shows the accuracy results.
+
 We emphasize that in terms of runtime, BIDMach is easily able to run this data. In all, it takes
 about ten seconds to run Gibbs sampling through this data, whereas JAGS takes hours. In fact, the
 main thing that is holding our algorithm back is the limited memory of GPUs, which means we need to
@@ -473,17 +470,43 @@ Gibbs sampling and perform graphical model inference on larger datasets.
 \textbf{Again, we should formalize the JAGS comparisons, but for this data, isn't it just a
 comparison of runtime? Do I need a table? Ideally, I would be able to use JAGS to get accuracy...}
 
+\textbf{Daniel: A couple of things here. First, I still have to run this test so there is no
+guarantee it will be good, but we can try. Second, Huasha got some ``good'' results by getting 66\%
+accuracy. The problem? The data is actually skewed so that 66\% of elements are 1s (or 2s, I
+forget), so we have to be careful.}
+
 \subsection{Runtime vs. Throughput Tradeoff}\label{ssec:tradeoff}
 
-One interesting thing about the experiments is the contribution of SAME to Gibbs sampling.
-Table~\ref{tab:tradeoff} shows the time performance and gigaflops of BIDMach on various settings.
-One can see that increasing $m$ for $m < 50$ results in steady gflops increases but \emph{without}
-an equivalent increase in time. Then, once $m$ gets large, SAME ``saturates'' and the runtime
-increases while the gflops stalls. This reinforces the conclusions from~\citep{SAME2015} and argues
-for the importance of testing with a variety of $m$ values.
+We now discuss the impact of the SAME parameter in terms of runtime and throughput. We measure the
+throughput and speed of our Gibbs sampler in terms of GigaFlops (gflops), a billion floating point
+operations per second. It is possible to compute reasonable estimates of the maximum gflops
+attainable for a computer. Therefore, in order for us to claim that the Gibbs sampler is as
+optimized as it could be, we should argue that it attains gflops values that are close to the
+theoretical limit, indicating that further improvement is unlikely beyond simply upgrading the
+hardware.
 
+\textbf{Daniel: We should compute the theoretical gflops limit.}
 
-% This table will be for SAME stuff
+As the SAME parameter increases, it increases both the throughput (good) and runtime (bad) by
+increasing the number of data points in our computations. The results from~\citep{SAME2015} suggest
+that increasing $m$ for small values will increase throughput while not costing too much in runtime.
+As one increases $m$ beyond a certain data-dependent value, then SAME ``saturates'' the algorithm
+and results in stagnant throughput while significantly increasing runtime. It follows that a
+reasonable objective for an experimenter is to run the Gibbs sampler on data with varying values of
+$m$, and identify the point where further increases in $m$ start having an unfavorable runtime and
+throughput tradeoff.
+
+As an example, we used the five-variable student data from~(\ref{ssec:student_data}), with 50\% of
+the data known versus missing, but with \emph{one million} cases, beyond the feasible datasets of
+standard Gibbs samplers. We ran the Gibbs sampler for 200 iterations on this data with a batch size
+of 50,000. Table~\ref{tab:tradeoff} shows the time and gflops of the Gibbs sampler using different
+values of $m$.  One can see that increasing $m$ for $m < 30$ results in steady gflops increases but
+\emph{without} a substantial increase in time. Then SAME saturates the algorithm and the runtime
+increases while the gflops stalls, reinforcing the conclusions from~\citep{SAME2015} and argues for
+the importance of testing with a variety of $m$ values. Notice that the runtimes listed are in
+seconds, and even with $m=50$, 200 iterations takes less than 10 minutes to complete --- we have
+barely scratched the limit of our sampler.
+
 \begin{table}[t]
 \caption{The tradeoff of total runtime (in seconds) versus the steady-state throughput (in gflops)
 for different $m$ values, on the student data with one million instances. For each trial, we ran 200
@@ -503,25 +526,20 @@ Runtime   & 66.96 & 107.96 & 162.02 & 265.02 & 366.06 & 471.51 & 586.58  \\
 \end{center}
 \end{table}
 
-\textbf{TODO more detailed discussion of SAME and runtime/gflops. Perhaps also discuss memory usage
-(as I do earlier)? Not else sure what to put here, but I'm not sure if we want to increase the
-experimental section of this paper yet again with this stuff.}
-
-Experiment here: 1 million data (full), with 50\% known. Run on bitter, with a batch size of 50,000.
-
 \textbf{Daniel: I did this experiment using the GPU version of the generic gamma random code, which
 does not have as high accuracy. I can repeat this experiment with the CPU version, but that might
-distort the runtime due to CPU-GPU switching. Any thoughts?}
+distort the runtime due to CPU-GPU switching. Any thoughts? Also, we could easily run this with more
+than a million data points if we wanted, to further show the capabilities of the sampler.}
 
 
 
 \section{Conclusions}\label{sec:conclusions}
 
-We conclude that SAME Gibbs sampling using our sampler is much faster than the state of the
-art (JAGS) in Gibbs sampling, and also that it is fast enough to apply to data with several hundreds
-of variables. We argue that SAME Gibbs sampling should be the method researchers use to perform
-inference on such Bayesian networks. Future work will explore the application of our sampler to a
-wider class of real-world datasets.
+We conclude that our Gibbs sampler is much faster than the state of the art (JAGS) in Gibbs sampling
+and can be applied to data with several hundreds of variables. We also argue that SAME is beneficial
+for Gibbs sampling, and that it should be the go-to method for researchers who wish to perform
+inference on (discrete) Bayesian networks. Future work will explore the application of our sampler
+to a wider class of real-world datasets.
 
 
 \subsubsection*{Acknowledgments}

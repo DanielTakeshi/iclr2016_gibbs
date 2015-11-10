@@ -38,17 +38,17 @@ Berkeley, CS 94720, USA \\
 \maketitle
 
 \begin{abstract}
-A fundamental task in machine learning and other fields is to perform inference on Bayesian
-networks. Since exact inference takes exponential time, it is common to use an approximate inference
-algorithm such as Gibbs sampling, but this can still be intractable for graphical models with just a
-few hundred discrete random variables. In this paper, we address this problem by presenting our
-highly optimized Gibbs sampling implementation, which we believe to be the fastest Gibbs sampler
-available. Our Gibbs sampler is GPU-accelerated, heavily parallelized, and replicates data via State
-Augmented Marginal Estimation to decrease convergence time while reaching higher quality parameter
-estimates. Experiments on both synthetic and real data show that our Gibbs sampler is orders of
-magnitude faster than JAGS without sacrificing accuracy. Our ultimate objective is to introduce the
-Gibbs sampler to researchers in many fields to expand their range of feasible machine learning
-problems.
+A fundamental task in machine learning and related fields is to perform inference on Bayesian
+networks. Since exact inference takes exponential time, it is common to use an approximate algorithm
+such as Gibbs sampling, but this can still be intractable for graphical models with just a few
+hundred binary random variables. In this paper, we address this issue by presenting our highly
+optimized Gibbs sampler, which we believe is the fastest one publicly available.  Our Gibbs
+sampler is GPU-accelerated, heavily parallelized, and replicates data via State Augmented Marginal
+Estimation (SAME) to decrease convergence time while reaching higher quality parameter estimates.
+Experiments on both synthetic and real data show that our Gibbs sampler is multiple orders of
+magnitude faster than the state of the art sampler, JAGS, without sacrificing accuracy. Our ultimate
+objective is to introduce the Gibbs sampler to researchers in many fields to expand their range of
+feasible inference problems.
 \end{abstract}
 
 
@@ -57,24 +57,24 @@ problems.
 \section{Introduction}\label{sec:intro}
 
 In many machine learning applications, one has a distribution $P(X,Z \mid \Theta)$ where $X$ is
-observed data, $Z$ is hidden (latent) data, and $\Theta$ are the model parameters. The goal is
+observed data, $Z$ is hidden (latent) data, and $\Theta$ represents the model parameters. The goal is
 generally to find an optimal $\Theta$ with respect to $X$, while marginalizing out $Z$. To represent
 these problems, it is common to use graphical models, which combine probability theory and graph
 theory to present a robust formalism for probabilistic inference. A Bayesian network is a graphical
 model defined by a directed acyclic graph and a set of conditional probability tables (CPTs). Each
 CPT represents a local probability distribution $\Pr(X_i \mid X_{\pi_i})$ where $X_i$ is a random
-variable, and $X_{\pi_i}$ represents its set of parent nodes (variables) in the graph. We denote the
-full set of CPTs as $\Theta$.
+variable, and $X_{\pi_i}$ represents its set of parent nodes in the graph. We denote the full set of
+CPTs as $\Theta$.
 
-In this paper, our focus is on the problem of estimating the parameters of Bayesian networks with
-discrete random variables based on partially observed data $\mathcal{D} = \{\xi_1, \ldots, \xi_m\}$,
-where $\xi_i$ is an $n$-dimensional vector with assignments to the $n$ variables of the graph, or
-``N/A'' to indicate missing data. We assume that the structure of our Bayesian network --- its nodes
-and edges --- is known in advance. This type of problem often arises in practice because it is
-easier to elicit graph structure from human experts than it is to get numerical
-parameters~\citep{Koller2009}. Furthermore, it is often unrealistic to expect our data $\mathcal{D}$
-to be completely observed, as data might be missing due to errors (e.g., human oversights) or
-deliberate omissions.
+In this paper, our focus is on parameter estimation of Bayesian networks with discrete random
+variables (``discrete Bayesian networks'') based on partially observed data $\mathcal{D} = \{\xi_1,
+\ldots, \xi_m\}$, where $\xi_i$ is an $n$-dimensional vector with assignments to the $n$ variables
+of the graph, or ``N/A'' to indicate missing data. We assume that the structure of the Bayesian
+network --- its nodes and edges --- is known in advance. This type of problem often arises in
+practice because it is easier to elicit graph structure from human experts than it is to get
+numerical parameters~\citep{Koller2009}. Furthermore, it is often unrealistic to expect our data
+$\mathcal{D}$ to be completely observed, as data might be missing due to errors (e.g., human
+oversights) or deliberate omissions.
 
 Well-known strategies for parameter estimation with partially observed data include
 Expectation-Maximization~\citep{EMpaper} and variations of gradient ascent~\citep{Thiesson95}.
@@ -82,47 +82,52 @@ Parameter estimation using these methods requires running probabilistic inferenc
 data, which tends to be the limiting factor since  exact inference using the junction tree algorithm
 takes exponential time. It is therefore common to use approximate inference procedures.  One way is
 to perform Markov Chain Monte Carlo (MCMC) simulation, where one constructs a Markov chain whose
-state is the assignment to all unobserved variables, such that the stationary distribution of the
-chain is posterior probability over these variables.
+states are an assignment to all unobserved variables, such that the stationary distribution of the
+chain is the posterior probability over these variables.
 
 Gibbs sampling~\citep{Geman1984} is a special case of MCMC simulation, which at iteration $t$, goes
-through each variable and samples from their full conditionals based on the values already sampled:
-$\Pr(X_i^{(t)} \mid X_1^{(t)}, \ldots, X_{i-1}^{(t)}, X_{i+1}^{(t-1)}, \ldots, X_n^{(t-1)})$. For
-our parameter estimation problem, we will also need to update $\Theta$, which we can do by sampling
-from $P(\Theta \mid \mathcal{D})$, the posterior distribution over the complete data $\mathcal{D}$
-(``complete'' due to sampling). We combine $\mathcal{D}$ with a Dirichlet prior to sample for the
-new $\Theta$.
+through each unobserved variable and samples from its full conditional based on the samples from the
+current or previous iteration: $X_i^{(t)}\ {\raise.17ex\hbox{$\scriptstyle\sim$}} \
+\Pr(X_i^{(t)} \mid X_1^{(t)}, \ldots, X_{i-1}^{(t)}, X_{i+1}^{(t-1)}, \ldots, X_n^{(t-1)})$. For the
+parameter estimation problem, one also needs to sample to update $\Theta$ from $P(\Theta
+\mid \mathcal{D})$, the posterior distribution over the complete data data $\mathcal{D}$
+(``complete'' due to sampling). Since we assume discrete random variables, the samples are
+multinomial counts, so for Bayesian estimation, one can impose a set of Dirichlet priors on
+$\Theta$ so that the posterior is also a set of Dirichlets.
 
-While Gibbs sampling is commonly used in machine learning, it is perhaps not known primarily for its
-speed or scalability \textbf{Daniel: citation needed}. In a recent result,~\citet{SAME2015} showed
-that by combining State Augmented Monte Carlo (SAME) sampling~\citep{SAME2002} with Gibbs sampling,
-one can get fast, high quality parameter estimates for discrete graphical models, but they only
-applied it to two specific types of models that do not have mutual dependencies between discrete
-states.
-
-In this paper, we build upon that result by implementing a general purpose SAME Gibbs sampler to
-work on discrete Bayesian networks that have dependencies between discrete states. To be precise,
-the novelty and aspects of our Gibbs sampler is that
+While Gibbs sampling is commonly used in machine learning, it is a very broad technique that may not
+be able to match the performance of special-purpose inference algorithms without extensive
+fine-tuning or using complicated variations~\citep{Murphy2012}. \textbf{Daniel: I am not sure if I
+am explaining this last sentence well enough. Murphy's book has some explanation, but not much.} In
+a recent result,~\citet{SAME2015} showed that by combining the State Augmented Monte Carlo (SAME)
+technique~\citep{SAME2002} with Gibbs sampling, one can get fast, high quality parameter estimates
+for discrete graphical models, but they only applied it to two specific models that do not have
+mutual dependencies between discrete states.  In this paper, we build upon that result by
+presenting a SAME Gibbs sampler for general discrete Bayesian networks. To be precise, the
+novelty and aspects of our Gibbs sampler is that
 
 \begin{itemize}[noitemsep]
-    \item our sampler uses an adjustable SAME parameter to replicate data, causing the Gibbs
-    sampler converge faster and to higher-quality MAP or ML parameter estimates by reducing the
-    excess variance introduced from standard Gibbs sampling.
-    \item we exploit advances in GPUs to run the samplers via GPUs with lots of parallelization, and
-    thus the sampler can scale up to problems with hundreds of random variables.
-    \item the sampler is run on only one computer (and designed to maximize throughput), thus
-    avoiding the need to work though complicated distributed systems.
+    \item our sampler uses an adjustable SAME parameter to replicate data, causing the Gibbs sampler
+    to converge faster to higher-quality MAP or ML parameter estimates. We believe this is due to
+    reduction of excess variance from standard Gibbs sampling.
+    \item we run our sampler on state of the art GPUs and parallelize it as much as possible. Our
+    sampler can ultimately scale up to problems with hundreds of random variables.
+    \item the sampler is designed to maximize throughput on only one computer, thus avoiding the
+    need to work though complicated distributed systems.
     \item it is open source as part of the BIDMach
     library\footnote{\url{https://github.com/BIDData/BIDMach}} and comes with various diagnostic
-    tools. Furthermore, the mini-batch updating nature of BIDMach means we could run our Gibbs
-    sampler on data too large to fit in RAM.
+    tools. Furthermore, BIDMach's mini-batch updating and matrix caching features mean we could even
+    run our Gibbs sampler on data too large to fit in a computer's RAM.
 \end{itemize}
 
-We benchmark our sampler versus JAGS~\citep{JAGS2003} and show that our Gibbs sampler is orders of
-magnitude faster. Consequently, in addition to introducing our Gibbs sampler to researchers, we
-argue in this paper that Gibbs sampling --- augmented with SAME sampling --- can be competitive with
-or superior to the fastest special purpose inference algorithms for Bayesian inference.
-\textbf{Daniel: it might be worth re-emphasizing the dual nature of this contribution more often.}
+We benchmark our sampler versus the state of the art Gibbs sampler, JAGS~\citep{JAGS2003}, and show
+that our Gibbs sampler is multiple orders of magnitude faster. Consequently, in addition to
+introducing our Gibbs sampler to researchers, we argue in this paper that Gibbs sampling augmented
+with SAME can be competitive with or superior to the fastest special purpose inference algorithms
+for Bayesian inference. \textbf{Daniel: my main concern is that we are not talking about these
+``special purpose inference algorithms.'' We're just presenting a fast SAME Gibbs sampler.  Also, I
+don't know a good way to incorporate factor graphs here; if I did, then we can
+cite~\citep{Factorie2009}.}
 
 
 
@@ -134,8 +139,8 @@ The problem of Bayesian inference for graphical models is old and well-studied, 
 we refer the reader to textbooks (e.g., see~\citet{Koller2009} for a broad background) and survey
 papers (e.g., see~\citet{Wainwright2008} for a discussion on variational inference as an alternative
 to MCMC methods). \textbf{Daniel: I would like to have a survey paper that actually compares Gibbs
-sampling versus other methods. I think this paragraph should be longer, and the introduction
-slightly condensed.}
+sampling versus other methods. I think this paragraph should be expanded, while condensing the
+introductory section.}
 
 Gibbs sampling is also relatively old and well-studied, but it has recently been getting more
 attention as the research community explores efforts to improve speed and scalability. The Gibbs
@@ -143,10 +148,10 @@ sampling research most related to our contribution involves efforts to (1) paral
 sampling and (2) achieve high throughput. By exploiting the conditional independence assumptions of
 Bayesian networks, is possible to have an exact, semi-parallel Gibbs sampler that iterates through
 color groups of nodes, and within each group, sampling each node independently~\citep{Gonzalez2011},
-a strategy that we use in our sampler. It is also possible to relax the sequential nature of the
-algorithm and approximate Gibbs sampling with more limited global communication~\citep{Johnson2013}.
-The databases community has also been able to contribute to speeding up Gibbs sampling by showing
-how improved system design can lead to higher throughput~\citep{Zhang2013}.
+a strategy that we employ in our sampler. It is also possible to relax the sequential nature of the
+algorithm and approximate Gibbs sampling by limiting global communication~\citep{Johnson2013}.  The
+databases community has also been able to contribute to speeding up Gibbs sampling by showing how
+improved system design can lead to higher throughput~\citep{Zhang2013}.
 
 Recently, the use of Graphics Processing Units (GPUs) has become essential for developing high
 performance software, as exemplified by popular packages such as Theano for evaluating mathematical
@@ -154,15 +159,15 @@ expressions with multidimensional arrays~\citep{Theano2012} and CAFFE for neural
 networks~\citep{jia2014caffe}.  The Augur probabilistic programming language~\citep{Augur2014},
 which generates inference code for Bayesian networks, demonstrates the importance of combining GPU
 code with extra parallelism introduced from exploiting conditional independence assumptions.
-\textbf{Daniel: don't forget Factorie~\citep{Factorie2009}.}
 
-The result most directly related to our paper is one that shows how the addition of SAME to a
-GPU-accelerated Gibbs sampler can be very fast for Latent Dirichlet Allocation and the Chinese
-Restaurant Process~\citep{SAME2015}. In that paper, they explored the application of SAME to
-graphical model inference on modern hardware, and showed that combining SAME with factored sample
-representation (or approximation) gives throughput competitive with the fastest symbolic methods,
-but with potentially better quality. We build up on that result by implementing a more
-general-purpose Gibbs sampler that can be applied to arbitrary discrete graphical models.
+The result most directly related to our paper, as briefly mentioned in Section~\ref{sec:intro}, is
+one that shows how the addition of SAME to a GPU-accelerated Gibbs sampler can be very fast for
+Latent Dirichlet Allocation and the Chinese Restaurant Process~\citep{SAME2015}. In that paper, they
+explored the application of SAME to graphical model inference on modern hardware, and showed that
+combining SAME with factored sample representation (or approximation) gives throughput competitive
+with the fastest symbolic methods, but with potentially better quality. We (non-trivially) extend
+this result by implementing a more general-purpose Gibbs sampler that can be applied to arbitrary
+discrete graphical models.
 
 
 
@@ -170,26 +175,31 @@ general-purpose Gibbs sampler that can be applied to arbitrary discrete graphica
 
 \section{Fast Parallel SAME Gibbs Sampling}\label{sec:same}
 
-\textbf{Daniel: I think we need John to help us out here -- not sure if we can get away without
-explaining a little math? We might also need to talk about reducing variance, but doesn't that
-follow from sharpening the distribution?}
-
-SAME is based on~\citep{SAME2002}. It means we define a new joint distribution $Q$:
-
+SAME is a variant of MCMC where one artificially replicates data to create distributions that
+concentrate themselves on the global modes~\citep{SAME2002}. It is an efficient way of performing
+MAP estimation in high-dimensional spaces when needing to integrate out a large number of variables.
+Given a distribution $P(X,Z\mid \Theta)$, to estimate the most likely $\Theta$ based on the data
+$(X,Z)$ using SAME, one would define a new joint $Q$:
 \begin{equation}\label{eq:same}
 Q(X,\Theta,Z^{(1)},\ldots,Z^{(m)}) = \prod_{j=1}^m P(X,\Theta,Z^{(j)})
 \end{equation}
-
 which models $m$ copies of the distribution tied to the same set of parameters $\Theta$, which in
-our case forms the set of Bayesian network CPTs. It is known that this new distribution $Q$ is up to
-a constant factor equal to a \emph{power} of the original distribution, so $Q(\Theta \mid X) \propto
-(P(\Theta \mid X))^m$. Thus, it has the same optima, including the global optimum, but its peaks are
-considerably sharpened. Also, as $m$ increases, SAME approaches
-Expectation-Maximization~\citep{EMpaper}.
+our case forms the set of Bayesian network CPTs. This new distribution $Q$ is proportional to a
+\emph{power} of the original distribution, so $Q(\Theta \mid X) \propto (P(\Theta \mid X))^m$. Thus,
+it has the same optima, including the global optimum, but its peaks are sharpened~\citep{SAME2002}.
+Note that as $m$ increases, SAME approaches Expectation-Maximization~\citep{EMpaper} since the
+distribution would peak at the value corresponding to the maximum likelihood estimate.
 
-\textbf{Daniel: Ideally, I think the first three sections should take up the first three full pages
-(roughly, but not more). Then section 4 (the implementation) is on page 4 (and includes the
-figure/visualization). Pages 5 through 8 are for experimental results and conclusions.}
+We argue that SAME is beneficial for Gibbs sampling because it helps to reduce excess variance.  It
+is important, however, not to set the SAME replication factor $m$ too high, because that might
+result in getting trapped in local maxima in the sharpened distribution. An ideal setup might be to
+start with a low replication factor and gradually increase it, a technique similar to simulated
+annealing for gradient descent, because both involve ``cooling'' the target distribution to sharpen
+the peaks.
+
+\textbf{Daniel: I am really confused about what I should include for this section. I feel like this
+just repeats a lot of the SAME description. It might be necessary to do that, but do we have an idea
+on what we want to discuss?}
 
 
 
@@ -199,43 +209,49 @@ figure/visualization). Pages 5 through 8 are for experimental results and conclu
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.8\textwidth]{fig_BIDMach_flow_DRAFT}
-\caption{\textbf{Daniel: I think having a short, fat BIDMach visualization would be great, but it needs
-to be publication quality. The above is ``too tall.''} This is a visualization of our Gibbs sampler.
-It takes in sparse data, replicates it using SAME (with $m=4$ here), samples them (using the same
-set of CPTs), then uses those samples (with a prior and the current CPT) to get the new CPT.}
+\caption{This visualizes our Gibbs sampler at work. The original data is has been split up into four
+mini-batches, with each one having some known data (shaded gray) and unknown data (white). The
+Gibbs sampler replicates the data via SAME $m=3$, samples the unknown values for one mini-batch,
+then uses the full data to update the CPTs. The resulting samples are stored in memory so that they
+can be used as the starting point for the next time this mini-batch appears. \textbf{Daniel: this
+figure needs (1) to get the fourth mini-batch aligned, (2) get the thin arrow non-overlapping with
+the prior, (3) center some of the text/arrows, and (4) perhaps we should use a different font? Also
+there is some repetition in the caption and in the text.}}
 \label{fig:BIDMach}
 \end{figure}
 
-Figure~\ref{fig:BIDMach} shows a visualization of how our Gibbs sampler works. It is implemented and
-integrated as part of the open-source BIDMach library~\citep{bidmach} for machine learning. Our
-Gibbs sampler expects a data matrix, with rows representing variables and columns representing
-cases. BIDMach divides data into ``mini-batches'' to which it iterates sequentially to update
-parameters. Going through all mini-batches is considered one full pass over the data.
+Our Gibbs sampler is implemented and integrated as part of the open-source BIDMach
+library~\citep{bidmach} for machine learning.  Figure~\ref{fig:BIDMach} shows a visualization of how
+it works on real data. Our sampler expects a (usually sparse) data matrix, with rows representing
+variables and columns representing cases. BIDMach divides data into same-sized ``mini-batches'' and
+iterates through them to update parameters. Going through all mini-batches is considered one full
+pass over the data.
 
-One of our main contributions is introducing a Gibbs sampler augmented with SAME sampling.
-Consequently, if $m$ is the SAME parameter, for each mini-batch our sampler forms $m$ copies of the
-data.  The known data is kept the same across all copies. Then, it performs Gibbs sampling to fill
-in the unknown values in each copy of the mini-batch using the same set of CPTs.  These sampled
-results are combined with an adjustable Dirichlet prior and (if desired) the current
-CPT\footnote{This would be useful if one wanted to do a moving average update of the CPT. Also,
-the use of the Dirichlet prior tends to be more important when the data is sparse, since it
-``smooths'' the CPTs.} to form a set of discrete counts that we then sample from to estimate the
-updated CPT. To preserve samples across all runs, each time the sampler processes a mini-batch, it
-stores the sampled results in memory. Then, during the next \emph{pass} over the data (i.e., after
-having gone through all the mini-batches) it starts the Gibbs sampling process from that stored
-data. It is possible to skip the first few samples (the standard \emph{burn-in} period) and
-also to only update the parameters every $N^{\rm th}$ iteration to reduce correlated samples.
+Our main contribution is introducing a Gibbs sampler augmented with SAME sampling.  Consequently,
+if $m$ is the SAME parameter, for each mini-batch our sampler forms $m$ copies of the known data.
+Then, it performs Gibbs sampling to fill in the unknown values in each copy of the mini-batch using
+the same set of CPTs.  These sampled results are combined with an adjustable Dirichlet prior and (if
+desired) the current CPT\footnote{This would be useful if one wanted to do a moving average update
+of the CPT. Also, the use of the Dirichlet prior tends to be more important when the data is sparse,
+since it ``smooths'' the CPTs.} to form a set of discrete counts that we then sample from to
+estimate the updated CPT. To preserve samples across all runs, each time the sampler processes a
+mini-batch, it stores the sampled results in memory.  Then, during the next \emph{pass} over the
+data (i.e., after having gone through all the batches) it starts the Gibbs sampling process from
+that stored data. It is possible to skip the first few samples (the standard \emph{burn-in} period)
+and also to only update the parameters every $N^{\rm th}$ iteration to reduce correlated samples.
 
 There are many ways in which we optimize the sampler to maximize throughput on one computer and to
 avoid excess memory allocation. First, our sampler is GPU accelerated and takes advantage of
 parallelism in modern hardware by implementing the sampling process using matrix operations. Since
 memory is scarce on GPUs (3-12 GB is typical), we use a matrix caching strategy to reuse memory for
-same-sized matrices.  This is also the reason why BIDMach uses mini-batch updates, since the
-corresponding matrices would be of the same size, and thus it re-uses their memory
-slots\footnote{This does not generally apply to the very last mini-batch, but that last batch would
-not cost too much in extra memory, and one can even ignore it if needed.}. The settings we use are
-customizable, so one can reduce the mini-batch size to reduce the memory footprint. One needs to do
-this step to perform SAME sampling with high $m$, since more replication takes up more memory.
+matrices of the same dimensions. This is why BIDMach works with same-sized mini-batches, since the
+batches themselves, along with all other matrices used as part of the sampling computation, are of
+fixed size and therefore BIDMach can re-use their memory slots\footnote{This does not generally
+apply to the very last mini-batch, but that last batch would not cost too much in extra memory, and
+one can even ignore it if needed.}. Even with caching, default mini-batch sizes might be too large,
+but since BIDMach is highly customizable, one can reduce the number of instances for each batch
+(i.e., columns in the data matrix) to reduce the memory footprint. In fact, this step is often
+necessary to use a very high SAME parameter.
 
 As briefly mentioned in Section~\ref{sec:related_work}, we further parallelize Gibbs sampling in an
 exact manner by using chromatic sampling. One property of Bayesian networks is that $u, v \in

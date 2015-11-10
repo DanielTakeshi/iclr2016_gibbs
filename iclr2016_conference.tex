@@ -356,7 +356,7 @@ are able to get to the true CPTs to within a tolerance of 0.005.  \textbf{Daniel
 formalize this ``tolerance'' and explain what this is like ``in practice'' since that will give more
 intuition.  This is in progress.} Both versions converge to the true distributions quickly after
 about ten passes. For BIDMach, we used two batches with 25,000 cases each (more batches result in
-faster convergence), but initialized the true CPTs randomly, which may have slowed down the initial
+faster convergence), but initialized the CPTs randomly, which may have slowed down the initial
 convergence.
 
 In addition, we observe that increasing $m$ results in CPT estimates that more closely match the
@@ -430,11 +430,11 @@ data. What is interesting is that the performance of $m=10$ is \emph{worse} than
 thousands of iterations, the $m=10$ curve was essentially neck-to-neck with the $m=1$ curve, but
 corresponds to a much slower runtime.
 
-\textbf{Daniel: We are planning on including one JAGS curve ($m=1$) in
-Figure~\ref{fig:mooc_kl}. We will need to explicitly state the runtimes for BIDMach/JAGS, probably
-just here in the text and not in a figure/table. Also, I should explain the ``long term'' trend
-stuff better, perhaps even extending the plot a bit. Finally, like before, I want to give an
-intuitive feel of the accuracy, i.e., how many decimal points of accuracy?}
+\textbf{Daniel: We are planning on including one JAGS curve ($m=1$) in Figure~\ref{fig:mooc_kl}. We
+will need to explicitly state the runtimes for BIDMach/JAGS, probably just here in the text and not
+in a figure/table. Also, I should explain the ``long term'' trend stuff better, perhaps even
+extending the plot a bit. Finally, like before, I want to give an intuitive feel of the accuracy,
+i.e., how many decimal points of accuracy?}
 
 \begin{figure}[t]
   \centering
@@ -454,21 +454,17 @@ intuitive feel of the accuracy, i.e., how many decimal points of accuracy?}
 \end{figure}
 
 The second way of evaluating our sampler is to use prediction accuracy. We can divide up the data
-into a training and testing set, which we do by holding out one mini-batch for testing. Then, using
-our data, we ... \textbf{Daniel: TODO I am trying to think about the easiest way to test.}
+into a training and testing set, which we do by holding out one mini-batch for testing. This testing
+batch has about 20\% of the known data. The task is, based on the other 80\% of the data, to predict
+all of the known entries in the testing set. In other words, we need to predict the entries of the
+testing set matrix, which depend both on the row (the question) but also the column (the student) as
+students have different abilities.
 
-For each node to be predicted, we sample 50 instances for that node from the learned network and
+For each entry to be predicted, we sample 50 instances from the learned set of CPTs $\Theta$ and
 observed values, and then take the majority as the predicted value. The accuracy is measured as the
 percentage of corrected predictions.  Figure~\ref{fig:mooc_accuracy} shows the accuracy results.
-
-We emphasize that in terms of runtime, BIDMach is easily able to run this data. In all, it takes
-about ten seconds to run Gibbs sampling through this data, whereas JAGS takes hours. In fact, the
-main thing that is holding our algorithm back is the limited memory of GPUs, which means we need to
-shrink the batch size with large $m$. As memory on GPUs becomes cheaper, we will be able to run
-Gibbs sampling and perform graphical model inference on larger datasets.
-
-\textbf{Again, we should formalize the JAGS comparisons, but for this data, isn't it just a
-comparison of runtime? Do I need a table? Ideally, I would be able to use JAGS to get accuracy...}
+\textbf{Daniel: I want Figure~\ref{fig:mooc_accuracy} to have the iteration on the x-axis and the
+prediction accuracy on the y-axis.}
 
 \textbf{Daniel: A couple of things here. First, I still have to run this test so there is no
 guarantee it will be good, but we can try. Second, Huasha got some ``good'' results by getting 66\%
@@ -503,9 +499,7 @@ of 50,000. Table~\ref{tab:tradeoff} shows the time and gflops of the Gibbs sampl
 values of $m$.  One can see that increasing $m$ for $m < 30$ results in steady gflops increases but
 \emph{without} a substantial increase in time. Then SAME saturates the algorithm and the runtime
 increases while the gflops stalls, reinforcing the conclusions from~\citep{SAME2015} and argues for
-the importance of testing with a variety of $m$ values. Notice that the runtimes listed are in
-seconds, and even with $m=50$, 200 iterations takes less than 10 minutes to complete --- we have
-barely scratched the limit of our sampler.
+the importance of testing with a variety of $m$ values.
 
 \begin{table}[t]
 \caption{The tradeoff of total runtime (in seconds) versus the steady-state throughput (in gflops)
@@ -525,6 +519,12 @@ Runtime   & 66.96 & 107.96 & 162.02 & 265.02 & 366.06 & 471.51 & 586.58  \\
 \end{tabular}
 \end{center}
 \end{table}
+
+Notice that the runtimes listed are in seconds, and even with $m=50$, 200 iterations takes less than
+10 minutes to complete --- we have barely scratched the limit of our sampler. In fact, one of the
+main things that limits our sampler is the memory of GPUs, since we need to shrink the batch size
+with large $m$. As memory on GPUs becomes cheaper, we will be able to run Gibbs sampling and perform
+graphical model inference on larger datasets.
 
 \textbf{Daniel: I did this experiment using the GPU version of the generic gamma random code, which
 does not have as high accuracy. I can repeat this experiment with the CPU version, but that might

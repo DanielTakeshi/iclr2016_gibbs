@@ -309,7 +309,7 @@ cheaper and simpler to run as compared to a computing cluster.
   \end{minipage}\hfill
     \begin{minipage}{.5\textwidth}
     \centering
-    \includegraphics[width=1\textwidth]{fig_kl_div_25_50_perc_jags}
+    \includegraphics[width=1\textwidth]{fig_kl_div_25_50_perc}
     \caption{The $KL_{\rm avg}$ for JAGS.}
     \label{fig:kl_jags}
   \end{minipage}
@@ -545,28 +545,6 @@ the Berkeley and National Physical Science Consortium Fellowships.
 \textbf{I expect that we will use eight pages for text, plus the ninth page for references. Then the
 remaining material (if any) will go here.}
 
-\section{Description of Figures (Will Remove in Actual Paper Submission)}
-
-\textbf{I am putting descriptions of how I generated the figures here. In the actual paper, it
-doesn't make sense to have these but I am not sure where else to put it ... it's a lot easier to
-just refer right to the figure here.}
-
-For Figure~\ref{fig:kl_divergence}, I ran the student data with one million students and a batch
-size of 25,000 for SAME parameters 1, 5, and 10. I ran this on \texttt{stout}. For each data, I ran
-it for 100 iterations. Each ``marker'' in the plot represents the AVERAGE over all the $KL_{\rm
-avg}$ metrics, for each mini-batch. Since $1000000/25000=40$, that meant each of the 40 mini-batches
-had the $KL_{\rm avg}$ metric computed, then I averaged them to get one marker. So indeed, the
-x-axis is correct: one marker really does mean one pass over the full data.
-
-If I need to recover all settings, I can check the \texttt{out\_25perc\_01same.txt} and other
-similarly-named files since that captures the BIDMach output.
-
-To me I think it might be more interesting to use FEWER data points since we would see more of a
-clear curve in the plot (well, it's on a log scale but still...). That is easy and I have the code
-base for that in \texttt{iclr2016\_createKLplots.py}, which is what I also used to generate these
-matplotlib images.
-
-For Figure~\ref{fig:mooc_cpts}, I describe this in the Figure6 directory on github.
 
 
 

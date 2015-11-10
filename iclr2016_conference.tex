@@ -399,59 +399,61 @@ them to match up to clarify the time-accuracy tradeoff.}
 \subsection{Real Dynamic Learning Maps ``MOOC'' Data}\label{ssec:mooc_data}
 
 We now benchmark our code on a Bayesian network with a nation-wide examination dataset from the
-Dynamic Learning Maps (DLM) project. The dataset contains the assessment (correct or not) of 30,000
-students' responses to questions from the DLM Alternate Assessment System. There are 4000 students
-and 340 unique questions in the pilot experiment, and the overall completion rate of the questions
-is only 2.2\% (assessment questions are tailored for each student). Each of the 340 questions is
-considered to be derived from a set of 15 basic concepts, and relations between questions and
-concepts and within concepts are given in the DAG file, which we will specify later.  Each question
-is considered as a observed node in the Bayesian network, with a very high missing value rate, and
-each concept is considered as a hidden node which never gets observed. Each node is binary-valued.
-The inference task is to learn the parameter of the network on 80\% of the response assessment and
-predict on the rest 20\% of the response.
+Dynamic Learning Maps (DLM) project. The data contains the assessment (correct or not) of student
+responses to questions from the DLM Alternate Assessment System. After our preprocessing, there were
+4367 students and 319 questions. From the DLM data source, each of the questions is considered to be
+derived from a set of 15 basic concepts. We encode questions and concepts as variables and describe
+their relationships with a Bayesian network from the DLM data. Each question is considered an
+``observed'' node in the Bayesian network, but with a very high missing value rate, as students only
+got to answer a fraction of the questions.  Our data matrix, which has dimensions $(334\times
+4367)$, ultimately ended up with a 2.2\% sparsity level. Furthermore, the first 15 rows in the data
+matrix are completely missing across all 4367 columns, since the 15 concepts are latent variables. The
+inference task is to learn the CPTs of the Bayesian network from this extremely sparse data.
+\textbf{Daniel: I need a reference (maybe we can ask Huasha?) to help me describe this data better.}
 
-After data preprocessing, we have our data as a $(334 \times 4367)$-dimensional matrix, where there
-are 334 variables and 4367 students. The first 15 variables are latent and never observed across all
-students, and they form the set of parents for the remaining 319 variables. Only 2.2 percent of the
-data is known, so the data is extremely sparse.
+We evaluate our sampler on this MOOC data using two methods. The first involves running our sampler
+on the original data until convergence. Then, we use the estimated set of CPTs and sample from that
+via direct sampling to generate synthetic data, also of dimension $(334 \times 4367)$. We modify
+that synthetic data matrix so that it also has a 2.2\% sparsity level and has missing data at the
+same elements as the original data matrix. Then we re-run BIDMach on that data and test using the
+same $KL_{\rm avg}$ metric from~(\ref{ssec:student_data}), since we know the CPT that generated the
+data.
 
-We evaluate our sampler using two methods. The first is the consecutive KL divergence difference
-from Figure~\ref{fig:consecutive_cpts}. The second is the prediction accuracy to measure the quality
-of the model, which we did not use to evaluate the five-variable student data. As before, we also
-benchmark our sampler with JAGS.
+Figure~\ref{fig:mooc_kl} plots the $KL_{\rm avg}$ for BIDMach with varying $m$ values. We ran the
+sampler for several thousands of iterations but only show the first 300 for the sake of readability.
+We see that, indeed, using $m=1$ as a reference, the Gibbs sampler appears to converge quickly to
+the true distribution. It seems like the curve gets worse after the first 100 iterations, but
+the long term trend (not shown here) is that it settles down at the same $KL_{\rm avg}$ from the 100
+iteration point. It is also apparent from Figure~\ref{fig:mooc_kl} (and the long-term trend) that
+$m=2$ and $m=5$ are better, showing that there is indeed a benefit to SAME with extremely sparse
+data. What is interesting is that the performance of $m=10$ is \emph{worse} than $m=1$. Even after
+thousands of iterations, the $m=10$ curve was essentially neck-to-neck with the $m=1$ curve, but it
+is much slower and had similar variance.
 
-Figure~\ref{fig:mooc_cpts} shows the consecutive KL divergences across consecutive iterations. We
-see that higher $m$ values result in better convergence. \textbf{Daniel: I finished this plot and
-have to describe it. I have data from 1000 iterations but we could easily run this longer. We will
-unfortunately have to say that $m=10$ is actually worse (the plot will not go under $m=1$), but
-perhaps we are getting into too many local maxs?}
+\textbf{Daniel: Note that we are planning on including one JAGS curve ($m=1$) in
+Figure~\ref{fig:mooc_kl}. We will need to explicitly state the runtimes as well (and also describe
+the runtime for BIDMach). Also, I should explain the ``long term'' trend stuff better, perhaps even
+extending the plot a bit. Finally, like before, I want to give an intuitive feel of the accuracy,
+i.e., how many decimal points of accuracy?}
 
-%\subsection{Performance and Runtime}
-%We first look at the efficiency of each system measured by giga floating point operations per second
-%(Gflops). Intel VTune Amplifier is used to measure the flops numbers. As presented in Figure
-%\ref{perf}, BIDMach achieves 5 Gflops and 1 Gflops for GPU and CPU respectively. The Gibbs sampler
-%is bottlenecked by the calculation of sampling probability vectors which is implemented using SpMV
-%operations. Such flops numbers are the hardware limit of SpMV operation. Jags and Infer.net operates
-%at much lower flops rates. Note that the y-axis of the figure is in log-scale. The VTune profile
-%results also show that Jags spend 70 \% of the runtime on disk IO, which is highly inefficient. We
-%also observe that the memory usage of Infer.net is not efficient: on our PC with 8G memory, it
-%cannot scale up to 10000 students (with the same statistics as the DLM pilot dataset we use).
+The second way of evaluating our sampler is to use prediction accuracy. We can divide up the data
+into a training and testing set, which we do by holding out one mini-batch for testing. Then, using
+our data, we ... \textbf{Daniel: TODO I am trying to think about the easiest way to test.}
 
-Next, we use prediction accuracy. For each node to be predicted, we sample 50 instances for that
-node from the learned network and observed values, and then take the majority as the predicted
-value. The accuracy is measured as the percentage of corrected predictions.
-Figure~\ref{fig:mooc_accuracy} shows the accuracy results.  \textbf{TODO I would like to do this,
-and I think this is important. We should be seeing that accuracy goes up to about 66\%.
-Unfortunately, the actual data is skewed in a 66\% to 33\% ratio so ... let me figure out if I can
-spin that positively.}
+For each node to be predicted, we sample 50 instances for that node from the learned network and
+observed values, and then take the majority as the predicted value. The accuracy is measured as the
+percentage of corrected predictions.  Figure~\ref{fig:mooc_accuracy} shows the accuracy results.
+\textbf{TODO I would like to do this, and I think this is important. We should be seeing that
+accuracy goes up to about 66\%.  Unfortunately, the actual data is skewed in a 66\% to 33\% ratio so
+... let me figure out if I can spin that positively.}
 
 \begin{figure}[t]
   \centering
   \begin{minipage}{.5\textwidth}
     \centering
     \includegraphics[width=1\textwidth]{fig_mooc_kl_div.png}
-    \caption{KL Divergence, MOOC. \textbf{Daniel: Don't worry, I will fix the y-axis labels.}}
-    \label{fig:mooc_cpts}
+    \caption{MOOC Data $KL_{\rm avg}$. \textbf{Daniel: Don't worry, I will fix the y-axis labels.}}
+    \label{fig:mooc_kl}
   \end{minipage}\hfill
     \begin{minipage}{.5\textwidth}
     \centering
@@ -548,6 +550,17 @@ remaining material (if any) will go here.}
 
 
 
+% More stuff from Huasha:
+%\subsection{Performance and Runtime}
+%We first look at the efficiency of each system measured by giga floating point operations per second
+%(Gflops). Intel VTune Amplifier is used to measure the flops numbers. As presented in Figure
+%\ref{perf}, BIDMach achieves 5 Gflops and 1 Gflops for GPU and CPU respectively. The Gibbs sampler
+%is bottlenecked by the calculation of sampling probability vectors which is implemented using SpMV
+%operations. Such flops numbers are the hardware limit of SpMV operation. Jags and Infer.net operates
+%at much lower flops rates. Note that the y-axis of the figure is in log-scale. The VTune profile
+%results also show that Jags spend 70 \% of the runtime on disk IO, which is highly inefficient. We
+%also observe that the memory usage of Infer.net is not efficient: on our PC with 8G memory, it
+%cannot scale up to 10000 students (with the same statistics as the DLM pilot dataset we use).
 
 \begin{comment}
 % Daniel: I'm leaving this here for now, because this is some extra stuff from Huasha's old write-up

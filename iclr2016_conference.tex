@@ -277,7 +277,7 @@ coloring perform well in many problems.
 
 \section{Experiments}\label{sec:experiments}
 
-We test our Gibbs sampler on one synthetic and one real dataset.  We compare our Gibbs sampler with
+We test our Gibbs sampler on one synthetic and one real dataset, and compare it with
 JAGS~\citep{JAGS2003}, which is the most popular and efficient tool for Bayesian inference. JAGS is
 the fairest comparison to our sampler because it uses Gibbs sampling as the primary inference
 algorithm. There are alternative ways of estimating CPTs, but most of them (e.g., Bayes Net Toolbox)
@@ -285,14 +285,14 @@ lack the support of efficient inference of discrete models.
 
 We evaluate our sampler and JAGS on a PC equipped with a single 4-core CPU (Intel Core i7-3667U)
 and a dual-core GPU (Nvidia GTX-690). Only one core of GPU is used in the benchmark. We also use
-Intel VTune Amplifier to profile each program and measure the flops performance. VTune is very power
-tool: It allows user to attach any running process and monitor the all the hardware instructions
-executed, including both X87 legacy floating point operations and SSE operations.  We emphasize that
-the use of one computer is deliberate, as it is cheaper and simpler to use as compared to a
-computing cluster.
+Intel VTune Amplifier to profile each program and measure the flops performance. VTune allows users
+to attach any running process and monitor all the hardware instructions executed, including both X87
+legacy floating point operations and SSE operations.  We emphasize that the use of one computer is
+deliberate, as it is cheaper and simpler to use as compared to a computing cluster.
 
-\textbf{Daniel: The above is for stout, I think. We need the updated specs for bitter, and to change
-the instructions (these are copied from Huasha Zhao).}
+\textbf{Daniel: I need to fix the preceding paragraph to have the specs for Bitter. I know the GPU
+is a GeForce GTX Titan X, but what about the processor, and the number of cores, and anything else?
+Also, should we mention the gflops?}
 
 \subsection{Synthetically Generated Student Data}\label{ssec:student_data}
 
@@ -312,41 +312,38 @@ the instructions (these are copied from Huasha Zhao).}
   \end{minipage}
 \end{figure}
 
-\textbf{Daniel: TODO Change the description here since I am removing that 50 variable student DAG
-here. Yeah it is not good to have that.}
+We first use synthetic data generated from a toy Bayesian network to show an example of correctness
+and the benefits of SAME. The network consists of five variables: $X_0 = {\rm Intelligence}$, $X_1 =
+{\rm Difficulty},$ $X_2 = {\rm SAT}$, $X_3 = {\rm Grade}$, and $X_4 = {\rm Letter}$. The directed
+edges are $\mathcal{E} = \{(X_0, X_2), (X_0, X_3), (X_1,X_3), (X_3,X_4)\}$, where $(X_i,X_j)$ means
+an arrow points from $X_i$ to $X_j$.  Variable $X_3$ is ternary, and all others are binary. The goal
+with this network is to model a student taking a class, considering ability metrics (Intelligence
+and SAT score), the class difficulty, and the student's resulting grade, which subsequently affects
+the quality of a letter of recommendation. All this is from~\citet{Koller2009}, which also lists the
+true set of CPTs.
 
-We use synthetic data generated from a toy Bayesian network to illustrate proof of correctness and
-other concepts. Our data is from~\citet{Koller2009}. The goal is to model a student taking a class,
-with metrics of skill (Intelligence and SAT score), the class difficulty, and the student's
-resulting grade, which subsequently affects the quality of a letter of recommendation.
+To generate the data for BIDMach, we listed the variables in a topological ordering and directly
+sampled their values, where $X_i$ gets sampled according to the values of its parents (if any) based
+on the true distribution. For our initial experiments, we generated 50,000 samples, so the data is
+formatted in a $(5\times 50,000)$-dimensional matrix\footnote{It should be noted that this is only
+for the sake of comparison with JAGS. BIDMach can handle millions of samples, but for JAGS, we
+limited the number of cases to a reasonable number}. Then, we randomly hid 50\% of the elements of
+the data matrix. The objective is to use Gibbs sampling to estimate the set of CPTs, and see how
+close they match the true ones from~\citep{Koller2009}.
 
-To generate the data, we performed direct sampling on a topological ordering of the variables with
-$X_0 = {\rm Intelligence}$, $X_1 = {\rm Difficulty},$ $X_2 = {\rm SAT}$, $X_3 = {\rm Grade}$, and
-$X_4 = {\rm Letter}$. Variable $X_i$ gets sampled according to the values of its parents (if any)
-based on the true distribution. We generated one million samples, which means our data is formatted
-in a $(5\times 10^6)$-dimensional matrix. Then, we randomly hid 50\% and 75\% of the data to form
-two respective datasets. The goal is to use the remaining known data, and to use Gibbs sampling, to
-sample the unknown values, and then those determine the next sample of the CPT. The objective is to
-estimate the resulting set of CPTs to see if they match the true ones.
+There are several metrics of measuring how well our sampler converges. The one we employ in this
+paper is the average Kullback-Liebler divergence of all the distributions in the set of CPTs,
+denoted as $KL_{\rm avg}$. For two distributions $p(x)$ and $q(x)$, the KL-divergence is $\sum_x
+p(x) \log(p(x)/q(x))$ where we iterate over $x$ such that $q(x) > 0$. In the ``student'' data, there
+are eleven probability distributions that form the set of CPTs. For instance, one distribution is
+$\Pr(X_4 \mid X_3 = 2)$ where $X_3$ (the parent) is fixed. This means that $KL_{\rm avg} =
+\frac{1}{11}\sum_{i=1}^{11} p_i(x) \log(p_i(x)/q_i(x))$. We do not work with the full joint
+distribution $P(X_1,X_2,X_3,X_4,X_5)$ since it is more straightforward to work with the
+``projected'' CPTs, and because with higher dimensional data, computing the full joint would be
+computationally intractable and almost all entries would have probabilities essentially at zero.
 
-There are several metrics of measuring how well our sampler converges. The one we use is the average
-Kullback-Liebler divergence $KL_{\rm avg}$. For two distributions $p(x)$ and $q(x)$, the
-KL-divergence is $\sum_x p(x) \log(p(x)/q(x))$ where we iterate over $x$ such that $q(x) > 0$. Since
-the set of CPTs has multiple probability distributions (e.g., the ``Grade'' variable ``contributes''
-four probability distributions), we must consider all of them. In this data, there are eleven CPTs,
-so the ``average KL divergence'' metric we use is
-
-% Daniel: NOTE we could put this earlier in section 5, and define it better b/c we also use it in
-% section 5.2.
-\begin{equation}\label{eq:avg_kl}
-KL_{\rm avg} = \frac{1}{11}\sum_{i=1}^{11} p_i(x) \log\left(\frac{p_i(x)}{q_i(x)}\right).
-\end{equation}
-
-Notice that for all $i$, $p_i(x)$ represents the corresponding \emph{true} distribution, and
-$q_i(x)$ is what our sampler estimates. Our sampler will sample the missing values, and then use
-those counts along with a Dirichlet prior to form a new Dirichlet distribution, which we then sample
-from to form the next (ideally, improved) estimate of the true set of CPTs. We use a uniform
-Dirichlet prior with all ones for simplicity.
+\textbf{Daniel: TODO, I fixed up the above, and still have to fix the remaining parts after this
+text.}
 
 Figure~\ref{fig:kl_accuracy} plots the $Kl_{\rm avg}$ for both versions of the student data (on a log
 scale). For each version, we use four different SAME parameters, $m = \{1,5,10,50\}$. Our results
@@ -400,10 +397,6 @@ estimates. These are shown in Figure~\ref{fig:consecutive_cpts}, which indicates
 $m$ values, the algorithm is quicker to converge to a set of parameter estimates (which themselves
 are higher quality, based on Figure~\ref{fig:kl_accuracy}).
 
-It should also be noted that we benchmarked this with JAGS, which also obtains the true CPTs. JAGS,
-however, cannot run on the entire million of samples in a reasonable amount of time. It took one
-hour for JAGS to run on just 10000 variables. \textbf{TODO Yeah, I think we need to have solid
-benchmarks here, and I can cut back on some of the other earlier stuff.}.
 
 \subsection{Real Dynamic Learning Maps ``MOOC'' Data}\label{ssec:mooc_data}
 

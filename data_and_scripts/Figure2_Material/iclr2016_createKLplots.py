@@ -22,49 +22,53 @@ import numpy as np
 # itself. Also, that raw data needs to have the AVERAGE of the KL divergences across *all*
 # mini-batches, not just the ones that are "testing" (b/c no notion of testing here, really).
 output_files = [
-                "out_student50_seed0_same01_gpu.txt",
-                "out_student50_seed0_same05_gpu.txt",
-                "out_student50_seed0_same10_gpu.txt",
-                "out_student50_seed0_same01.txt",
-                "out_student50_seed0_same05.txt",
-                "out_student50_seed0_same10.txt"
+                "test_student_batch02_same01.txt",
+                "test_student_batch02_same05.txt",
+                "test_student_batch02_same10.txt"
                 ]
 
 # Note: ideally, I'll just call this once (and then comment out this whole for loop here).
+i = 3
 for item in output_files:
     with open(item, 'r') as old_file, open(str('data_') + item,'w') as new_file:
+        kls = []
         for line in old_file:
             line_split = line.split()
             if (len(line_split) >= 3 and line_split[2] == "KLDiv"):
-                new_file.write(line_split[0] + "\n")
+                if (i >= 3):
+                    kls.append(float(line_split[0]))
+                else:
+                    new_file.write(line_split[0] + "\n")
+        if (i >= 3):
+            for k in range(0, len(kls), 2):
+                kl = (kls[k] + kls[k+1])/2.0
+                new_file.write(str(kl) + "\n")
+    i += 1
 
 # Now the next step is to plot. Load the files, then repeat the process. Each file that we're
 # loading into this array needs to be ONLY the data itself, just one number per line. Nothing more!
 plt.figure()
-signals = ['r--', 'y--', 'b--', 'r-', 'y-', 'b-']
+signals = ['r-', 'y-', 'b-', 'r-', 'y-', 'b-']
 legend_labels = [
-    "50%, m = 1",
-    "50%, m = 5",
-    "50%, m = 10",
-    "50%, m = 1", 
-    "50%, m = 5",
-    "50%, m = 10"
+    "m = 1",
+    "m = 5",
+    "m = 10"
     ]
 
 i = 0
 for item in output_files:
     data = np.loadtxt(str('data_') + item)
-    linewidth_num = 1.5
+    linewidth_num = 3.0
     if i >= 3:
         linewidth_num = 3.0
     plt.plot(data[:100], signals[i], label=legend_labels[i], linewidth=linewidth_num)
     i += 1
 
 # Be sure to increase the font sizes! I might also have to experiment with a lot of other settings.
-plt.legend(loc='upper right', ncol=2)
+plt.legend(loc='upper right', ncol=1)
 plt.title('Average KL Divergence on Student Data', fontsize='xx-large')
 plt.yscale('log')
 plt.xlabel('Number of Passes Over the Data', fontsize='x-large')
 plt.ylabel('Average KL Divergence', fontsize='x-large')
-plt.savefig('fig_kl_div_25_50_perc.png')
+plt.savefig('TEST.png')
 

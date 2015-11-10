@@ -154,6 +154,7 @@ expressions with multidimensional arrays~\citep{Theano2012} and CAFFE for neural
 networks~\citep{jia2014caffe}.  The Augur probabilistic programming language~\citep{Augur2014},
 which generates inference code for Bayesian networks, demonstrates the importance of combining GPU
 code with extra parallelism introduced from exploiting conditional independence assumptions.
+\textbf{Daniel: don't forget Factorie~\citep{Factorie2009}.}
 
 The result most directly related to our paper is one that shows how the addition of SAME to a
 GPU-accelerated Gibbs sampler can be very fast for Latent Dirichlet Allocation and the Chinese
@@ -283,7 +284,7 @@ the instructions (these are copied from Huasha Zhao).}
   \centering
   \begin{minipage}{.5\textwidth}
     \centering
-    \includegraphics[width=1\textwidth]{fig_kl_div_25_50_perc}
+    \includegraphics[width=1\textwidth]{fig_kldiv_twobatches}
     \caption{Average KL divegence.}
     \label{fig:kl_divergence}
   \end{minipage}\hfill
@@ -358,7 +359,7 @@ better.
 
 We conclude that for the $m$ values we test, increasing $m$ results in better accuracy per time
 after only a few passes through the data, so there is substantial benefit to SAME sampling. (In
-Section~\ref{sec:discussion}, we discuss the time-versus-$m$ tradeoff in more detail.)
+(~\ref{ssec:tradeoff}), we discuss the time-versus-$m$ tradeoff in more detail.)
 
 \begin{figure}[t]
   \centering
@@ -442,14 +443,14 @@ spin that positively.}
   \begin{minipage}{.5\textwidth}
     \centering
     \includegraphics[width=1\textwidth]{fig_mooc_kl_div.png}
-    \caption{KL Divergence, MOOC. \textbf{Daniel: I will fix the y-axis labels.}}
+    \caption{KL Divergence, MOOC. \textbf{Daniel: Don't worry, I will fix the y-axis labels.}}
     \label{fig:mooc_cpts}
   \end{minipage}\hfill
     \begin{minipage}{.5\textwidth}
     \centering
     \fbox{\rule[-.5cm]{0cm}{4cm} \rule[-.5cm]{4cm}{0cm}}
     %\includegraphics[width=1\textwidth]{fig_kl_student_50perc}
-    \caption{\textbf{MOOC ``Accuracy''}}
+    \caption{\textbf{Daniel: in progress!}}
     \label{fig:mooc_accuracy}
   \end{minipage}
 \end{figure}
@@ -463,29 +464,32 @@ Gibbs sampling and perform graphical model inference on larger datasets.
 \textbf{Again, we should formalize the JAGS comparisons, but for this data, isn't it just a
 comparison of runtime? Do I need a table? Ideally, I would be able to use JAGS to get accuracy...}
 
+\subsection{Runtime vs. Throughput Tradeoff}\label{ssec:tradeoff}
 
+One interesting thing about the experiments is the contribution of SAME to Gibbs sampling.
+Table~\ref{tab:tradeoff} shows the time performance and gigaflops of BIDMach on various settings.
+One can see that increasing $m$ for $m < 50$ results in steady gflops increases but \emph{without}
+an equivalent increase in time. Then, once $m$ gets large, SAME ``saturates'' and the runtime
+increases while the gflops stalls. This reinforces the conclusions from~\citep{SAME2015} and argues
+for the importance of testing with a variety of $m$ values.
 
-
-\section{Discussion}\label{sec:discussion}
-
-One interesting thing about the experiments is the contribution of SAME to Gibbs sampling.  Table
-(???) shows the time performance and gigaflops of BIDMach on various settings. One can see that
-increasing $m$ for $m < 50$ results in steady gflops increases but \emph{without} an equivalent
-increase in time. Then, once $m$ gets large, SAME ``saturates'' and the runtime increases while the
-gflops stalls. This matches the results from~\citep{SAME2015} and argues for the importance of
-testing with a variety of $m$ values.
 
 % This table will be for SAME stuff
 \begin{table}[t]
-\caption{\textbf{Placeholder: use this for testing $m$ vs. gflops and runtime?}}
-\label{sample-table}
+\caption{The tradeoff of total runtime (in seconds) versus the steady-state throughput (in gflops)
+for different $m$ values, on the student data with one million instances. For each trial, we ran 200
+iterations of Gibbs sampling, with a batch size of 50,000. As discussed in the text, once $m$ gets
+too large, it saturates the sampler and fails to noticeably improve throughput while causing a
+proportionally greater increase in runtime. This seems to happen here between $m=30$ and $m=40$.}
+\label{tab:tradeoff}
 \begin{center}
-\begin{tabular}{ll}
-\multicolumn{1}{c}{\bf PART}  &\multicolumn{1}{c}{\bf DESCRIPTION}
-\\ \hline \\
-Dendrite         &Input terminal \\
-Axon             &Output terminal \\
-Soma             &Cell body (contains cell nucleus) \\
+\begin{tabular}{ |c|c|c|c|c|c|c|c| } 
+\hline
+          & $m=1$ & $m=5$  & $m=10$ & $m=20$ & $m=30$  & $m=40$  & $m=50$  \\
+\hline \hline
+GigaFlops & 2.44  & 7.55   & 10.06  & 12.31  & 13.36  & 13.83  & 13.90   \\ 
+Runtime   & 66.96 & 107.96 & 162.02 & 265.02 & 366.06 & 471.51 & 586.58  \\
+\hline
 \end{tabular}
 \end{center}
 \end{table}
@@ -493,6 +497,14 @@ Soma             &Cell body (contains cell nucleus) \\
 \textbf{TODO more detailed discussion of SAME and runtime/gflops. Perhaps also discuss memory usage
 (as I do earlier)? Not else sure what to put here, but I'm not sure if we want to increase the
 experimental section of this paper yet again with this stuff.}
+
+Experiment here: 1 million data (full), with 50\% known. Run on bitter, with a batch size of 50,000.
+
+\textbf{Daniel: I did this experiment using the GPU version of the generic gamma random code, which
+does not have as high accuracy. I can repeat this experiment with the CPU version, but that might
+distort the runtime due to CPU-GPU switching. Any thoughts?}
+
+
 
 \section{Conclusions}\label{sec:conclusions}
 

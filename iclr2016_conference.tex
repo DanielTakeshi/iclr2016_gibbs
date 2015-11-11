@@ -520,6 +520,22 @@ Runtime   & 66.96 & 107.96 & 162.02 & 265.02 & 366.06 & 471.51 & 586.58  \\
 \end{center}
 \end{table}
 
+% Daniel: more experiments on Veteran's day.
+%
+% I'm running this again w/the same settings (i.e., all on the GPU). This should be very similar:
+%          & $m=1$ & $m=5$  & $m=10$ & $m=20$ & $m=30$  & $m=40$  & $m=50$  \\
+% \hline \hline
+% GigaFlops & 2.42  & 7.60   & 10.06  & 12.29  & 13.31  & 13.80  & 13.95   \\ 
+% Runtime   & 67.38 & 107.22 & 162.03 & 265.39 & 367.42 & 472.50 & 584.46  \\
+%
+% Now here it is, but WITH CPU GAMMA RANDOM variables, but GPU otherwise!
+%          & $m=1$ & $m=5$  & $m=10$ & $m=20$ & $m=30$  & $m=40$  & $m=50$  \\
+% \hline \hline
+% GigaFlops & 2.49  & 7.74   & 10.18  & 12.40  & 13.42  & 13.84  & 13.93   \\ 
+% Runtime   & 65.38 & 105.33 & 160.15 & 263.09 & 364.64 & 471.37 & 585.12  \\
+%
+% This is interesting. I thought switching from GPU-CPU was expensive, but it seems to be faster?
+
 Notice that the runtimes listed are in seconds, and even with $m=50$, 200 iterations takes less than
 10 minutes to complete --- we have barely scratched the limit of our sampler. In fact, one of the
 main things that limits our sampler is the memory of GPUs, since we need to shrink the batch size

@@ -31,6 +31,7 @@ data that involves forward sampling, then doing KL divergences, etc. Notes:
 
 import matplotlib.pyplot as plt
 import numpy as np
+import csv
 
 # These contain the BIDMach outout that gets printed. First, delete everything but the raw data
 # itself. Fortunately, the batch size corresponds to the full data since there's no testing set.
@@ -50,8 +51,16 @@ for item in output_files:
 # Now the next step is to plot. Load the files, then repeat the process. Each file that we're
 # loading (via np.loadtxt(...)) needs to be ONLY the data itself, just one number per line.
 plt.figure()
-signals = ['k-', 'r--', 'b--', 'y--']
-legend_labels = ["m = 1", "m = 2", "m = 5", "m = 10"]
+signals = ['k-', 'r--', 'b--', 'y--', 'z--']
+legend_labels = ["m = 1", "m = 2", "m = 5", "m = 10", "jags, m=1"]
+
+# load the data from jags
+with open('./jags_data', 'rb') as csvfile:
+    spamreader = csv.reader(csvfile, delimiter=',', quotechar=',')
+    for row in spamreader:
+        x = row
+x = np.array(x)
+jags = x.astype(np.float)
 
 data0 = np.loadtxt(str('data_') + output_files[0])
 data1 = np.loadtxt(str('data_') + output_files[1])
@@ -63,7 +72,7 @@ plt.plot(data0[:num_plot], signals[0], label=legend_labels[0], linewidth=5.0)
 plt.plot(data1[:num_plot], signals[1], label=legend_labels[1], linewidth=4.0, dashes=(20,5))
 plt.plot(data2[:num_plot], signals[2], label=legend_labels[2], linewidth=4.0, dashes=(10,5))
 plt.plot(data3[:num_plot], signals[3], label=legend_labels[3], linewidth=4.0, dashes=(5,5))
-
+plt.plot(jags, signals[3], label=legend_labels[4], linewidth=4.0, dashes=(2,5))
 # Be sure to increase the font sizes! I might also have to experiment with a lot of other settings.
 plt.legend(loc='upper right', ncol=1, handlelength=5, borderpad=1, labelspacing=1)
 plt.title('Average KL Divergence on MOOC Data', fontsize='xx-large')
@@ -71,7 +80,7 @@ plt.yscale('log')
 plt.ylim([0.1,0.4])
 plt.xlabel('Number of Passes Over the Data', fontsize='x-large')
 plt.ylabel('Average KL Divergence', fontsize='x-large')
-plt.yticks(np.arange(0.1, 0.4, 0.05))
-print plt.xaxis.get_ticklabels()
+plt.yticks(np.arange(0.1, 1, 0.05))
+# print plt.xaxis.get_ticklabels()
 plt.savefig('fig_mooc_kl_div.png')
 

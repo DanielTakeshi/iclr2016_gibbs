@@ -1,0 +1,19 @@
+le  data.r  runJagsExe
+[will@stout newData]$ time jags runJagsExe
+Welcome to JAGS 3.4.0 on Tue Nov 10 16:49:12 2015
+JAGS is free software and comes with ABSOLUTELY NO WARRANTY
+Loading module: basemod: ok
+Loading module: bugs: ok
+Reading data file data.r
+Compiling model graph
+   Declaring variables
+   Resolving undeclared variables
+   Allocating nodes
+   Graph Size: 2906780
+Initializing model
+Updating 200
+
+real    111m27.920s
+user    111m21.846s
+sys     0m3.022s
+

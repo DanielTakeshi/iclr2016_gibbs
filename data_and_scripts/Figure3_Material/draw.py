@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import csv
 
 
-with open('./50PercentFile/m1_long/kldiv', 'rb') as csvfile:
+with open('./50PercentFile/m1/kldiv', 'rb') as csvfile:
     spamreader = csv.reader(csvfile, delimiter=',', quotechar=',')
     for row in spamreader:
         x = row
@@ -67,7 +67,7 @@ plt.title('Average KL Divergence on Student Data', fontsize='xx-large')
 plt.yscale('log')
 plt.xlabel('Number of Passes Over the Data', fontsize='x-large')
 plt.ylabel('Average KL Divergence', fontsize='x-large')
-plt.savefig('fig_kl_div_25_50_perc.png')
+plt.savefig('fig_kl_div_25_50_perc_jags.png')
 #######################################################
 # draw the convergence vs time
 time_25_1 = np.zeros(200)
@@ -89,20 +89,20 @@ for i in xrange(200):
     time_25_10[i] = time_25_10[0] + i * timeInterval
     
 time_50_1 = np.zeros(2000)
-time_50_1[0] = 9.7
-timeInterval = (60 * 11 + 52.6 - time_50_1[0]) / 200
+time_50_1[0] = 6.87
+timeInterval = (60 * 6 + 8.8 - time_50_1[0]) / 2000
 for i in xrange(2000):
     time_50_1[i] = time_50_1[0] + i * timeInterval
     
-time_50_5 = np.zeros(200)
-time_50_5[0] = 60 + 28.6
-timeInterval = (60 * 7 + 57.0 - time_50_5[0]) / 200
-for i in xrange(200):
+time_50_5 = np.zeros(300)
+time_50_5[0] = 38.5
+timeInterval = (60 * 6 + 39.6 - time_50_5[0]) / 300
+for i in xrange(300):
     time_50_5[i] = time_50_5[0] + i * timeInterval
     
 time_50_10 = np.zeros(200)
-time_50_10[0] = 60 * 4 + 27.1
-timeInterval = (60 * 17 + 21.4 - time_50_10[0]) / 200
+time_50_10[0] = 60 * 1 + 19.8
+timeInterval = (60 * 8 + 58.6 - time_50_10[0]) / 200
 for i in xrange(200):
     time_50_10[i] = time_50_10[0] + i * timeInterval
 
@@ -129,5 +129,6 @@ plt.title('Convergence Based on Seconds', fontsize='xx-large')
 plt.yscale('log')
 plt.xlabel('Seconds', fontsize='x-large')
 plt.ylabel('(Log)Average KL Divergence', fontsize='x-large')
-plt.xlim(0, 400)
+plt.xlim(0, 300)
+plt.ylim(1e-5, 0.1)
 plt.savefig('fig_kl_div_25_50_perc_jags_time.png')

@@ -4,15 +4,10 @@ model in "bugfile"
 data in "data.r"
 compile, nchains(1)
 initialize
-monitor m0n0
-monitor m0n1
-monitor m0n2
-monitor m0n3
-monitor m0n4
 monitor n0.prob
 monitor n1.prob
 monitor n2.prob
 monitor n3.prob
 monitor n4.prob
-update 200
+update 2000
 coda *

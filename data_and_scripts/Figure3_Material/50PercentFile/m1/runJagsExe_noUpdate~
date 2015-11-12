@@ -14,5 +14,5 @@ monitor n1.prob
 monitor n2.prob
 monitor n3.prob
 monitor n4.prob
-update 20
+# update 20
 coda *

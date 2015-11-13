@@ -208,15 +208,12 @@ on what we want to discuss?}
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.8\textwidth]{fig_BIDMach_flow_DRAFT}
-\caption{This visualizes our Gibbs sampler at work. The original data is has been split up into four
-mini-batches, with each one having some known data (shaded gray) and unknown data (white). The
-Gibbs sampler replicates the data via SAME $m=3$, samples the unknown values for one mini-batch,
-then uses the full data to update the CPTs. The resulting samples are stored in memory so that they
-can be used as the starting point for the next time this mini-batch appears. \textbf{Daniel: this
-figure needs (1) to get the fourth mini-batch aligned, (2) get the thin arrow non-overlapping with
-the prior, (3) center some of the text/arrows, and (4) perhaps we should use a different font? Also
-there is some repetition in the caption and in the text.}}
+\includegraphics[width=0.8\textwidth]{fig_BIDMach_final}
+\caption{This visualizes our Gibbs sampler at work. The original data is split into four
+mini-batches of equal sizes (for caching purposes), with each having some known data (shaded gray)
+and unknown data (white). For each batch, the sampler replicates the data with SAME $m=3$, samples
+the unknown values, then uses those to update the CPTs. The resulting samples are stored in memory
+and are used as the starting point for when we sample this batch again.}
 \label{fig:BIDMach}
 \end{figure}
 
@@ -224,8 +221,8 @@ Our Gibbs sampler is implemented and integrated as part of the open-source BIDMa
 library~\citep{bidmach} for machine learning.  Figure~\ref{fig:BIDMach} shows a visualization of how
 it works on real data. Our sampler expects a (usually sparse) data matrix, with rows representing
 variables and columns representing cases. BIDMach divides data into same-sized ``mini-batches'' and
-iterates through them to update parameters. Going through all mini-batches is considered one full
-pass over the data.
+iterates through them to update parameters. Going through all mini-batches is one full pass over the
+data.
 
 Our main contribution is introducing a Gibbs sampler augmented with SAME sampling.  Consequently,
 if $m$ is the SAME parameter, for each mini-batch our sampler forms $m$ copies of the known data.
@@ -253,13 +250,12 @@ but since BIDMach is highly customizable, one can reduce the number of instances
 (i.e., columns in the data matrix) to reduce the memory footprint. In fact, this step is often
 necessary to use a very high SAME parameter.
 
-As briefly mentioned in Section~\ref{sec:related_work}, we further parallelize Gibbs sampling in an
-exact manner by using chromatic sampling. One property of Bayesian networks is that $u, v \in
-\mathcal{V}$ are independent conditioning on a set of variables $\mathcal{C}$ if $\mathcal{C}$
-includes at least one variable on every path connecting $u$ and $v$ in $\tilde{\mathcal{G}}$, which
-is the \emph{moralized graph} of the network (i.e., the graph formed by connecting parents and
-dropping edge orientations). That is, vertex set $\mathcal{C}$ separates the dependency between $u$
-and $v$.
+As mentioned in Section~\ref{sec:related_work}, we further parallelize Gibbs sampling in an
+exact manner via chromatic sampling. In Bayesian networks, we konw that $u, v \in \mathcal{V}$ are
+independent conditioning on a set of variables $\mathcal{C}$ if $\mathcal{C}$ includes at least one
+variable on every path connecting $u$ and $v$ in $\tilde{\mathcal{G}}$, which is the \emph{moralized
+graph} of the network (i.e., the graph formed by connecting parents and dropping edge orientations).
+That is, vertex set $\mathcal{C}$ separates the dependency between $u$ and $v$.
 
 Suppose there is a $k$-coloring of $\tilde{\mathcal{G}}$ such that each vertex is assigned one of $k$
 colors and adjacent vertices have different colors. Denote $\mathcal{V}_c$ the set of variables
@@ -268,7 +264,7 @@ $\mathcal{V}_k$, where within each color group, it samples all the variables in 
 parallel sampler corresponds exactly to the execution of a sequential scan Gibbs sampler for some
 permutation over the variables and will converge to the desired distribution because variables
 within one color group are independent to each other given all the other variables. Finding the
-optimal coloring of a graph is NP-complete in general, but efficient heuristics for balanced graph
+optimal coloring of a general graph is NP-complete, but efficient heuristics for balanced graph
 coloring perform well in many problems.
 
 

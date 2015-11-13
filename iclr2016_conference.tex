@@ -445,28 +445,30 @@ i.e., how many decimal points of accuracy?}
     \begin{minipage}{.5\textwidth}
     \centering
     \includegraphics[width=1\textwidth]{fig_prediction_accuracy_mooc}
-    \caption{Prediction accuracy MOOC}
+    \caption{MOOC data prediction accuracy.}
     \label{fig:mooc_accuracy}
   \end{minipage}
 \end{figure}
 
-The second way of evaluating our sampler is to use prediction accuracy. We can divide up the data
-into a training and testing set, which we do by holding out one mini-batch for testing. This testing
-batch has about 20\% of the known data. The task is, based on the other 80\% of the data, to predict
-all of the known entries in the testing set. In other words, we need to predict the entries of the
-testing set matrix, which depend both on the row (the question) but also the column (the student) as
-students have different abilities.
+The second way we evaluate our sampler is with prediction accuracy. We divide the original
+data into a training and testing batch so that 80\% of the known data is in training. The training
+set is for updating the CPTs. During the testing batch, we sample for 500 iterations using the
+current CPTs (but \emph{without updating} them). For each of the known test points, we compute the
+number of 0s and 1s sampled (from the 500 iterations), pick the majority to be our prediction,
+and then compare it with the true value. Since only 2.2\% of the data is known, this is a challenging
+prediction problem. Moreover, we divide the training and testing data into batches, so for each
+student (i.e., column) in the test data matrix, we have no evidence.  Random guessing is equivalent
+to 50\% accuracy since this is a binary prediction task.
 
-For each entry to be predicted, we sample 50 instances from the learned set of CPTs $\Theta$ and
-observed values, and then take the majority as the predicted value. The accuracy is measured as the
-percentage of corrected predictions.  Figure~\ref{fig:mooc_accuracy} shows the accuracy results.
-\textbf{Daniel: I want Figure~\ref{fig:mooc_accuracy} to have the iteration on the x-axis and the
-prediction accuracy on the y-axis.}
-
-\textbf{Daniel: A couple of things here. First, I still have to run this test so there is no
-guarantee it will be good, but we can try. Second, Huasha got some ``good'' results by getting 66\%
-accuracy. The problem? The data is actually skewed so that 66\% of elements are 1s (or 2s, I
-forget), so we have to be careful.}
+We ran the prediction accuracy algorithm with SAME parameters $m=1$ and $m=5$ using three different
+random seeds for each, to reduce the chances of one trial skewing the results.
+Figure~\ref{fig:mooc_accuracy} plots the mean prediction accuracy (among three trials) for both SAME
+parameters. Our sampler indeed learns to predict reasonably well and reaches roughly 61\% accuracy.
+SAME is not beneficial in terms of accuracy or even the standard deviation of the accuracies (not
+plotted here). This is likely because sampling 500 times to determine our prediction may cause
+convergence to a result invariant to minor differences in CPTs.  Sampling only one time to determine
+prediction accuracy resulted in about 56\% accuracy for $m=1$, and beyond 500 samples, we did not
+observe improvements.
 
 \subsection{Runtime vs. Throughput Tradeoff}\label{ssec:tradeoff}
 
@@ -561,9 +563,8 @@ We thank Yang Gao, Biye Jiang, and Huasha Zhao for helpful discussions. Daniel S
 the Berkeley and National Physical Science Consortium Fellowships.
 
 \textbf{Daniel: Don't worry, I will modify the BibTeX stuff so that it deletes a lot of unnecessary
-things (e.g., website URLs).}
+things (e.g., website URLs) and is more consistent.}
 
-% TODO Yeah make the references section a *lot* cleaner!
 \bibliography{iclr2016_conference}
 \bibliographystyle{iclr2016_conference}
 

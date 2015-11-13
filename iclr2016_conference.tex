@@ -40,15 +40,15 @@ Berkeley, CS 94720, USA \\
 \begin{abstract}
 A fundamental task in machine learning and related fields is to perform inference on Bayesian
 networks. Since exact inference takes exponential time, it is common to use an approximate algorithm
-such as Gibbs sampling, but this can still be intractable for graphical models with hundreds of
-binary random variables. In this paper, we address this issue by presenting our highly optimized
-Gibbs sampler, which we believe is the fastest one publicly available.  Our Gibbs sampler is
-GPU-accelerated, heavily parallelized, does not require the data to fit in memory, and replicates
-data via State Augmented Marginal Estimation (SAME) to decrease convergence time while reaching
-higher quality parameter estimates.  Experiments on both synthetic and real data show that our Gibbs
-sampler is substantially faster than the state of the art sampler, JAGS, without sacrificing
-accuracy. Our ultimate objective is to introduce the Gibbs sampler to researchers in many fields to
-expand their range of feasible inference problems.
+such as Gibbs sampling, but this can still be intractable for graphical models with just a few
+hundred binary random variables. In this paper, we address this issue by presenting our highly
+optimized Gibbs sampler, which we believe is the fastest one publicly available.  Our Gibbs
+sampler is GPU-accelerated, heavily parallelized, and replicates data via State Augmented Marginal
+Estimation (SAME) to decrease convergence time while reaching higher quality parameter estimates.
+Experiments on both synthetic and real data show that our Gibbs sampler is multiple orders of
+magnitude faster than the state of the art sampler, JAGS, without sacrificing accuracy. Our ultimate
+objective is to introduce the Gibbs sampler to researchers in many fields to expand their range of
+feasible inference problems.
 \end{abstract}
 
 
@@ -446,8 +446,9 @@ i.e., how many decimal points of accuracy?}
   \end{minipage}\hfill
     \begin{minipage}{.5\textwidth}
     \centering
-    \includegraphics[width=1\textwidth]{fig_prediction_accuracy_mooc}
-    \caption{MOOC Data Prediction Accuracy.}
+    \fbox{\rule[-.5cm]{0cm}{4cm} \rule[-.5cm]{4cm}{0cm}}
+    %\includegraphics[width=1\textwidth]{fig_kl_student_50perc}
+    \caption{\textbf{Daniel: in progress!}}
     \label{fig:mooc_accuracy}
   \end{minipage}
 \end{figure}
@@ -469,10 +470,6 @@ prediction accuracy on the y-axis.}
 guarantee it will be good, but we can try. Second, Huasha got some ``good'' results by getting 66\%
 accuracy. The problem? The data is actually skewed so that 66\% of elements are 1s (or 2s, I
 forget), so we have to be careful.}
-
-\textbf{Daniel: Update, we seem to be getting reasonable results on the prediction accuracy. Some of
-it is very heavily dependent on the GPU/CPU gamma random number generation. Hopefully those are
-resolved this weekend.}
 
 \subsection{Runtime vs. Throughput Tradeoff}\label{ssec:tradeoff}
 

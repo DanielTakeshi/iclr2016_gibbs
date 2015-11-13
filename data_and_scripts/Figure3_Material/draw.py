@@ -51,7 +51,7 @@ kl_25_10 = x.astype(np.float)
 
 plt.figure()
 #signals = ['ro--', 'y^--', 'bs--', 'ro-', 'y^-', 'bs-']
-signals = ['r-', 'y-', 'b-']
+signals = ['r-', 'y-', 'b-', 'r-', 'y-', 'b-']
 #legend_labels = ["25%, m = 1", "25%, m = 5", "25%, m = 10", "50%, m = 1", "50%, m = 5", "50%, m = 10"]
 legend_labels = ["m = 1", "m = 5", "m = 10"]
 #data = [kl_25_1, kl_25_5, kl_25_10, kl_50_1, kl_50_5, kl_50_10]
@@ -62,7 +62,7 @@ for i in xrange(3):
     plt.plot(data[i][:100], signals[i], label=legend_labels[i], linewidth=linewidth_num)
 
 # Be sure to increase the font sizes! I might also have to experiment with a lot of other settings.
-plt.legend(loc='upper right', ncol=2)
+plt.legend(loc='upper right', ncol=1)
 plt.title('Average KL Divergence on Student Data', fontsize='xx-large')
 plt.yscale('log')
 plt.xlabel('Number of Passes Over the Data', fontsize='x-large')
@@ -110,7 +110,7 @@ for i in xrange(200):
 ################################
 plt.figure()
 #signals = ['ro--', 'y^--', 'bs--', 'ro-', 'y^-', 'bs-']
-signals = ['r-', 'y-', 'b-']
+signals = ['r-', 'y-', 'b-', 'r-', 'y-', 'b-']
 #legend_labels = ["25%, m = 1", "25%, m = 5", "25%, m = 10", "50%, m = 1", "50%, m = 5", "50%, m = 10"]
 legend_labels = ["m = 1", "m = 5", "m = 10"]
 #data = [kl_25_1, kl_25_5, kl_25_10, kl_50_1, kl_50_5, kl_50_10]
@@ -119,12 +119,12 @@ data = [kl_50_1, kl_50_5, kl_50_10]
 time = [time_50_1, time_50_5, time_50_10]
 i = 0
 for i in xrange(3):
-    linewidth_num = 3
+    linewidth_num = 2
     
-    plt.plot(time[i], data[i], label=legend_labels[i], linewidth=linewidth_num)
+    plt.plot(time[i], data[i], signals[i], label=legend_labels[i], linewidth=linewidth_num)
 
 # Be sure to increase the font sizes! I might also have to experiment with a lot of other settings.
-plt.legend(loc='upper right', ncol=2)
+plt.legend(loc='upper right', ncol=1)
 plt.title('Convergence Based on Seconds', fontsize='xx-large')
 plt.yscale('log')
 plt.xlabel('Seconds', fontsize='x-large')

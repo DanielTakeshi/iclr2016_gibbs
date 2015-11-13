@@ -18,25 +18,31 @@ Note: this is a draft at the moment. I don't think we'll have one CPU and one GP
 import matplotlib.pyplot as plt
 import numpy as np
 
-# CPU Gamma Random Number Generation
-accuracies_cpu = []
-with open("prediction_accuracy_mooc_100iter_cpu.txt", 'r') as data_file:
+accuracies_1 = []
+with open("pred_acc_seed0_gpubutgamma_200iter_1same.txt", 'r') as data_file:
     for line in data_file:
         line_split = line.split()
         if (len(line_split) >= 2 and line_split[0] == "Accuracy:"):
-            accuracies_cpu.append(float(line_split[1]))
+            accuracies_1.append(float(line_split[1]))
 
-# GPU Gamma Random Number Generation
-accuracies_gpu = []
-with open("prediction_accuracy_mooc_100iter_gpu.txt", 'r') as data_file:
+accuracies_2 = []
+with open("pred_acc_seed1337_gpubutgamma_200iter_1same.txt", 'r') as data_file:
     for line in data_file:
         line_split = line.split()
         if (len(line_split) >= 2 and line_split[0] == "Accuracy:"):
-            accuracies_gpu.append(float(line_split[1]))
+            accuracies_2.append(float(line_split[1]))
+
+accuracies_3 = []
+with open("pred_acc_seed9999_gpubutgamma_200iter_1same.txt", 'r') as data_file:
+    for line in data_file:
+        line_split = line.split()
+        if (len(line_split) >= 2 and line_split[0] == "Accuracy:"):
+            accuracies_3.append(float(line_split[1]))
 
 plt.figure()
-plt.plot(accuracies_cpu, 'r-', label="CPU Gamma", linewidth = 3.0) # CPU
-plt.plot(accuracies_gpu, 'b-', label="GPU Gamma", linewidth = 3.0) # GPU
+plt.plot(accuracies_1, 'r-', label="Seed 0000", linewidth = 3.0)
+plt.plot(accuracies_2, 'y-', label="Seed 1337", linewidth = 3.0)
+plt.plot(accuracies_3, 'b-', label="Seed 9999", linewidth = 3.0)
 plt.legend(loc='lower right', ncol=1)
 plt.title('Prediction Accuracy on MOOC Data', fontsize='xx-large')
 plt.xlabel('Number of Passes Over the Data', fontsize='x-large')

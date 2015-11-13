@@ -296,7 +296,7 @@ We emphasize that the use of one computer is deliberate and a strength of our sa
 cheaper and simpler to run as compared to a computing cluster.
 
 
-\subsection{Synthetically Generated ``Koller'' Data}\label{ssec:student_data}
+\subsection{Synthetically Generated ``Koller'' Data}\label{ssec:koller_data}
 
 \textbf{Daniel: change all figures to have (Koller) at the end! Also, refer to this as the Koller
 data! I.e., figures should have the title: XXX (Koller) or XXX (MOOC).}
@@ -325,7 +325,8 @@ an arrow points from $X_i$ to $X_j$.  Variable $X_3$ is ternary, and all others 
 with this network is to model a student taking a class, considering ability metrics (Intelligence
 and SAT score), the class difficulty, and the student's resulting grade, which subsequently affects
 the quality of a letter of recommendation. All this is from Chapter 3 of~\citet{Koller2009}, which
-also lists the true set of CPTs.
+also lists the true set of CPTs. Due to the name of the first author, we label this data ``Koller''
+data to distinguish it from the MOOC data we use in~(\ref{ssec:mooc_data}).
 
 To generate the data for BIDMach, we listed the variables in a topological ordering and directly
 sampled their values, where $X_i$ got sampled according to the values of its parents (if any) based
@@ -417,7 +418,7 @@ on the original data until convergence. Then, we use the estimated set of CPTs a
 via direct sampling to generate synthetic data, also of dimension $(334 \times 4367)$. We modify
 that synthetic data matrix so that it also has a 2.2\% sparsity level and has missing data at the
 same elements as the original data matrix. Then we re-run BIDMach on that data and test using the
-same $KL_{\rm avg}$ metric from~(\ref{ssec:student_data}), since we know the CPTs that ``generated''
+same $KL_{\rm avg}$ metric from~(\ref{ssec:koller_data}), since we know the CPTs that ``generated''
 the data.
 
 Figure~\ref{fig:mooc_kl} plots the $KL_{\rm avg}$ for BIDMach with varying $m$ values. We ran the
@@ -494,18 +495,18 @@ reasonable objective for an experimenter is to run the Gibbs sampler on data wit
 $m$, and identify the point where further increases in $m$ start having an unfavorable runtime and
 throughput tradeoff.
 
-As an example, we used the five-variable student data from~(\ref{ssec:student_data}), with 50\% of
-the data known versus missing, but with \emph{one million} cases, beyond the feasible datasets of
-standard Gibbs samplers. We ran the Gibbs sampler for 200 iterations on this data with a batch size
-of 50,000. Table~\ref{tab:tradeoff} shows the time and gflops of the Gibbs sampler using different
-values of $m$.  One can see that increasing $m$ for $m < 30$ results in steady gflops increases but
+As an example, we used the Koller data from~(\ref{ssec:koller_data}), with 50\% of the data known
+versus missing, but with \emph{one million} cases, beyond the feasible datasets of standard Gibbs
+samplers. We ran the Gibbs sampler for 200 iterations on this data with a batch size of 50,000.
+Table~\ref{tab:tradeoff} shows the time and gflops of the Gibbs sampler using different values of
+$m$.  One can see that increasing $m$ for $m < 30$ results in steady gflops increases but
 \emph{without} a substantial increase in time. Then SAME saturates the algorithm and the runtime
 increases while the gflops stalls, reinforcing the conclusions from~\citep{SAME2015} and argues for
 the importance of testing with a variety of $m$ values.
 
 \begin{table}[t]
 \caption{The tradeoff of total runtime (in seconds) versus the steady-state throughput (in gflops)
-for different $m$ values, on the student data with one million instances. For each trial, we ran 200
+for different $m$ values, on the Koller data with one million instances. For each trial, we ran 200
 iterations of Gibbs sampling, with a batch size of 50,000. As discussed in the text, once $m$ gets
 too large, it saturates the sampler and fails to noticeably improve throughput while causing a
 proportionally greater increase in runtime. This seems to happen here between $m=30$ and $m=40$.}

@@ -1,0 +1,482 @@
+Loading /home/seita/BIDMach/lib/bidmach_init.scala...
+import BIDMat.{CMat, CSMat, DMat, Dict, FMat, FND, GMat, GDMat, GIMat, GLMat, GSMat, GSDMat, HMat, IDict, Image, IMat, LMat, Mat, SMat, SBMat, SDMat}
+import BIDMat.MatFunctions._
+import BIDMat.SciFunctions._
+import BIDMat.Solvers._
+import BIDMat.Plotting._
+import BIDMach.Learner
+import BIDMach.models.{FM, GLM, KMeans, KMeansw, LDA, LDAgibbs, Model, NMF, SFA, RandomForest}
+import BIDMach.networks.DNN
+import BIDMach.datasources.{DataSource, MatDS, FilesDS, SFilesDS}
+import BIDMach.mixins.{CosineSim, Perplexity, Top, L1Regularizer, L2Regularizer}
+import BIDMach.updaters.{ADAGrad, Batch, BatchNorm, IncMult, IncNorm, Telescoping}
+import BIDMach.causal.IPTW
+1 CUDA device found, CUDA version 7.0
+
+Loading scripts/bn_test.ssc...
+data: BIDMat.FMat =
+   0   1   1   0   0   0   0   0   1   1   1   0   0   0   0   1   2   1   2   2   0   1   0   0   0   2   1   2   0   2   1   2   2   1   1   2   0   1   0   0   0   2   2   1   0   1   0   0   1...
+   0   2   0   2   0   1   2   1   0   0   0   2   0   2   1   2   0   0   2   1   1   1   1   1   1   1   0   0   0   0   0   2   0   0   1   2   2   1   1   0   0   0   0   0   1   0   0   0   0...
+   0   1   1   1   1   0   1   1   0   1   1   2   0   1   1   0   0   0   2   2   0   0   0   0   1   1   1   2   0   0   1   2   2   1   0   0   2   1   0   0   1   2   2   1   2   0   0   1   1...
+  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  .. ...data_50k: BIDMat.FMat =
+   0   1   1   0   0   0   0   0   1   1   1   0   0   0   0   1   2   1   2   2   0   1   0   0   0   2   1   2   0   2   1   2   2   1   1   2   0   1   0   0   0   2   2   1   0   1   0   0   1...
+   0   2   0   2   0   1   2   1   0   0   0   2   0   2   1   2   0   0   2   1   1   1   1   1   1   1   0   0   0   0   0   2   0   0   1   2   2   1   1   0   0   0   0   0   1   0   0   0   0...
+   0   1   1   1   1   0   1   1   0   1   1   2   0   1   1   0   0   0   2   2   0   0   0   0   1   1   1   2   0   0   1   2   2   1   0   0   2   1   0   0   1   2   2   1   2   0   0   1   1...
+  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  .. ...dag: BIDMat.SMat =
+(   0,   2)   1
+(   0,   3)   1
+(   1,   3)   1
+(   3,   4)   1
+states: BIDMat.IMat =
+   2
+   2
+   2
+  ..
+nn: BIDMach.Learner = Learner(BIDMach.datasources.MatDS@14f542e9,BIDMach.models.BayesNet@71fbd9be,null,BIDMach.updaters.IncNorm@4d948368,BIDMach.models.BayesNet$xopts$1@513f48a2)
+opts: BIDMach.Learner.Options with BIDMach.models.BayesNet.Opts with BIDMach.datasources.MatDS.Opts with BIDMach.updaters.IncNorm.Opts = BIDMach.models.BayesNet$xopts$1@513f48a2
+opts.npasses: Int = 200
+opts.useGPU: Boolean = true
+opts.batchSize: Int = 50000
+opts.updateAll: Boolean = true
+Option Name       Type          Value
+===========       ====          =====
+addConstFeat      boolean       false
+autoReset         boolean       true
+batchSize         int           50000
+checkPointFile    String        null
+checkPointInterval  float         0.0
+copiesForSAME     int           1
+cumScore          int           0
+debug             int           0
+debugMem          boolean       false
+dim               int           5
+doubleScore       boolean       false
+evalStep          int           11
+featThreshold     Mat           null
+featType          int           1
+isprob            boolean       false
+npasses           int           200
+numSamplesBurn    int           0
+nzPerColumn       int           0
+power             float         0.0
+pstep             float         0.01
+putBack           int           1
+resFile           String        null
+sample            float         1.0
+samplingRate      int           1
+sizeMargin        float         3.0
+startBlock        int           8000
+updateAll         boolean       true
+useCache          boolean       true
+useDouble         boolean       false
+useGPU            boolean       true
+warmup            long          0
+randSeed = 0
+pass= 0
+0.62761  0 KLDiv
+pass= 1
+0.27447  1 KLDiv
+pass= 2
+0.17393  2 KLDiv
+pass= 3
+0.11075  3 KLDiv
+pass= 4
+0.071204  4 KLDiv
+pass= 5
+0.043942  5 KLDiv
+pass= 6
+0.027975  6 KLDiv
+pass= 7
+0.018049  7 KLDiv
+pass= 8
+0.012230  8 KLDiv
+pass= 9
+0.0080550  9 KLDiv
+pass=10
+0.0057669  10 KLDiv
+pass=11
+0.0046272  11 KLDiv
+pass=12
+0.0033697  12 KLDiv
+pass=13
+0.0020480  13 KLDiv
+pass=14
+0.0017769  14 KLDiv
+pass=15
+0.0016668  15 KLDiv
+pass=16
+0.00092522  16 KLDiv
+pass=17
+0.0010483  17 KLDiv
+pass=18
+0.00062203  18 KLDiv
+pass=19
+0.00042114  19 KLDiv
+pass=20
+0.00049752  20 KLDiv
+pass=21
+0.00039321  21 KLDiv
+pass=22
+0.00058397  22 KLDiv
+pass=23
+0.00065997  23 KLDiv
+pass=24
+0.00060814  24 KLDiv
+pass=25
+0.00049432  25 KLDiv
+pass=26
+0.00035936  26 KLDiv
+pass=27
+0.00015700  27 KLDiv
+pass=28
+0.00022791  28 KLDiv
+pass=29
+0.00027545  29 KLDiv
+pass=30
+0.00020919  30 KLDiv
+pass=31
+0.00018421  31 KLDiv
+pass=32
+0.00029608  32 KLDiv
+pass=33
+0.00034176  33 KLDiv
+pass=34
+0.00043949  34 KLDiv
+pass=35
+0.00027052  35 KLDiv
+pass=36
+0.00028676  36 KLDiv
+pass=37
+0.00019156  37 KLDiv
+pass=38
+0.00030817  38 KLDiv
+pass=39
+0.00013579  39 KLDiv
+pass=40
+0.00020811  40 KLDiv
+pass=41
+0.00010845  41 KLDiv
+pass=42
+0.00012401  42 KLDiv
+pass=43
+0.00020168  43 KLDiv
+pass=44
+0.00023638  44 KLDiv
+pass=45
+0.00025828  45 KLDiv
+pass=46
+0.00025666  46 KLDiv
+pass=47
+0.00017917  47 KLDiv
+pass=48
+0.00035756  48 KLDiv
+pass=49
+0.00034317  49 KLDiv
+pass=50
+0.00053506  50 KLDiv
+pass=51
+0.00050955  51 KLDiv
+pass=52
+0.00045835  52 KLDiv
+pass=53
+0.00046113  53 KLDiv
+pass=54
+0.00073045  54 KLDiv
+pass=55
+0.00047686  55 KLDiv
+pass=56
+0.00045671  56 KLDiv
+pass=57
+0.00053803  57 KLDiv
+pass=58
+0.00048839  58 KLDiv
+pass=59
+0.00041513  59 KLDiv
+pass=60
+0.00029801  60 KLDiv
+pass=61
+0.00036194  61 KLDiv
+pass=62
+0.00032137  62 KLDiv
+pass=63
+0.00048314  63 KLDiv
+pass=64
+0.00051969  64 KLDiv
+pass=65
+0.00018604  65 KLDiv
+pass=66
+0.00022079  66 KLDiv
+pass=67
+0.00031173  67 KLDiv
+pass=68
+0.00024806  68 KLDiv
+pass=69
+0.00032152  69 KLDiv
+pass=70
+0.00025285  70 KLDiv
+pass=71
+0.00029345  71 KLDiv
+pass=72
+0.00025982  72 KLDiv
+pass=73
+0.00023078  73 KLDiv
+pass=74
+0.00033646  74 KLDiv
+pass=75
+0.00018732  75 KLDiv
+pass=76
+0.00015351  76 KLDiv
+pass=77
+0.00015987  77 KLDiv
+pass=78
+0.00015672  78 KLDiv
+pass=79
+0.00018940  79 KLDiv
+pass=80
+0.00025830  80 KLDiv
+pass=81
+0.00028754  81 KLDiv
+pass=82
+0.00024537  82 KLDiv
+pass=83
+0.00027679  83 KLDiv
+pass=84
+0.00026390  84 KLDiv
+pass=85
+0.00031804  85 KLDiv
+pass=86
+0.00028493  86 KLDiv
+pass=87
+0.00032854  87 KLDiv
+pass=88
+0.00034087  88 KLDiv
+pass=89
+0.00041627  89 KLDiv
+pass=90
+0.00024586  90 KLDiv
+pass=91
+0.00032566  91 KLDiv
+pass=92
+0.00017889  92 KLDiv
+pass=93
+0.00019094  93 KLDiv
+pass=94
+0.00024544  94 KLDiv
+pass=95
+0.00025656  95 KLDiv
+pass=96
+0.00014426  96 KLDiv
+pass=97
+0.00024240  97 KLDiv
+pass=98
+0.00016310  98 KLDiv
+pass=99
+0.00031391  99 KLDiv
+pass=100
+0.00030808  100 KLDiv
+pass=101
+0.00018951  101 KLDiv
+pass=102
+0.00014847  102 KLDiv
+pass=103
+0.00012667  103 KLDiv
+pass=104
+0.00010639  104 KLDiv
+pass=105
+0.00022231  105 KLDiv
+pass=106
+0.00024435  106 KLDiv
+pass=107
+0.00016732  107 KLDiv
+pass=108
+0.00015832  108 KLDiv
+pass=109
+0.00016118  109 KLDiv
+pass=110
+0.00023120  110 KLDiv
+pass=111
+0.00023825  111 KLDiv
+pass=112
+0.00019757  112 KLDiv
+pass=113
+0.00024180  113 KLDiv
+pass=114
+0.00015860  114 KLDiv
+pass=115
+0.00018302  115 KLDiv
+pass=116
+0.00027426  116 KLDiv
+pass=117
+0.00016659  117 KLDiv
+pass=118
+0.00015185  118 KLDiv
+pass=119
+0.00014491  119 KLDiv
+pass=120
+0.00030375  120 KLDiv
+pass=121
+0.00018500  121 KLDiv
+pass=122
+0.00022231  122 KLDiv
+pass=123
+0.00020543  123 KLDiv
+pass=124
+0.00020102  124 KLDiv
+pass=125
+0.00024081  125 KLDiv
+pass=126
+0.00026929  126 KLDiv
+pass=127
+0.00019720  127 KLDiv
+pass=128
+0.00023424  128 KLDiv
+pass=129
+0.00016920  129 KLDiv
+pass=130
+0.00023239  130 KLDiv
+pass=131
+0.00020071  131 KLDiv
+pass=132
+0.00020859  132 KLDiv
+pass=133
+0.00018044  133 KLDiv
+pass=134
+0.00015732  134 KLDiv
+pass=135
+0.00020652  135 KLDiv
+pass=136
+0.00034350  136 KLDiv
+pass=137
+0.00026792  137 KLDiv
+pass=138
+0.00013502  138 KLDiv
+pass=139
+0.00024556  139 KLDiv
+pass=140
+0.00033991  140 KLDiv
+pass=141
+0.00027104  141 KLDiv
+pass=142
+0.00044275  142 KLDiv
+pass=143
+0.00018084  143 KLDiv
+pass=144
+0.00026489  144 KLDiv
+pass=145
+0.00023335  145 KLDiv
+pass=146
+0.00045336  146 KLDiv
+pass=147
+0.00058572  147 KLDiv
+pass=148
+0.00055908  148 KLDiv
+pass=149
+0.00036559  149 KLDiv
+pass=150
+0.00041516  150 KLDiv
+pass=151
+0.00048144  151 KLDiv
+pass=152
+0.00052374  152 KLDiv
+pass=153
+0.00049006  153 KLDiv
+pass=154
+0.00043119  154 KLDiv
+pass=155
+0.00027152  155 KLDiv
+pass=156
+0.00046730  156 KLDiv
+pass=157
+0.00028050  157 KLDiv
+pass=158
+0.00022372  158 KLDiv
+pass=159
+0.00023232  159 KLDiv
+pass=160
+0.00023898  160 KLDiv
+pass=161
+0.00030381  161 KLDiv
+pass=162
+0.00027947  162 KLDiv
+pass=163
+0.00039774  163 KLDiv
+pass=164
+0.00042478  164 KLDiv
+pass=165
+0.00035244  165 KLDiv
+pass=166
+0.00021798  166 KLDiv
+pass=167
+0.00020608  167 KLDiv
+pass=168
+0.00052562  168 KLDiv
+pass=169
+0.00043528  169 KLDiv
+pass=170
+0.00038946  170 KLDiv
+pass=171
+0.00024240  171 KLDiv
+pass=172
+0.00021742  172 KLDiv
+pass=173
+0.00018595  173 KLDiv
+pass=174
+0.00017422  174 KLDiv
+pass=175
+0.00023290  175 KLDiv
+pass=176
+0.00024209  176 KLDiv
+pass=177
+0.00019641  177 KLDiv
+pass=178
+0.00025940  178 KLDiv
+pass=179
+0.00029134  179 KLDiv
+pass=180
+0.00033527  180 KLDiv
+pass=181
+0.00039752  181 KLDiv
+pass=182
+0.00042899  182 KLDiv
+pass=183
+0.00018945  183 KLDiv
+pass=184
+0.00019754  184 KLDiv
+pass=185
+0.00025626  185 KLDiv
+pass=186
+0.00032729  186 KLDiv
+pass=187
+0.00032321  187 KLDiv
+pass=188
+0.00032115  188 KLDiv
+pass=189
+0.00032086  189 KLDiv
+pass=190
+0.00026847  190 KLDiv
+pass=191
+0.00012192  191 KLDiv
+pass=192
+0.00024243  192 KLDiv
+pass=193
+0.00032731  193 KLDiv
+pass=194
+0.00025599  194 KLDiv
+pass=195
+0.00037898  195 KLDiv
+pass=196
+0.00053464  196 KLDiv
+pass=197
+0.00042189  197 KLDiv
+pass=198
+0.00032530  198 KLDiv
+pass=199
+0.00013254  199 KLDiv
+Time=3.9480 secs, gflops=1.78
+java.lang.IndexOutOfBoundsException: 0
+  at scala.collection.mutable.ListBuffer.apply(ListBuffer.scala:126)
+  at BIDMach.Learner$.scores2FMat(Learner.scala:798)
+  at BIDMach.Learner.retrain(Learner.scala:134)
+  at BIDMach.Learner.train(Learner.scala:56)
+  ... 54 elided
+res4: BIDMat.Mat = 0.70841,0.29159,0.59759,0.40241,0.94965,0.050351,0.19186,0.80814,0.29464,0.40746,0.29790,0.060907,0.24304,0.69605,0.89892,0.079215,0.021864,0.50195,0.29483,0.20321,0.099617,0.90038,0.40232,0.59768,0.99079,0.0092130

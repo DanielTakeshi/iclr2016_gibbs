@@ -66,7 +66,7 @@ for item in output_files:
 
 # Be sure to increase the font sizes! I might also have to experiment with a lot of other settings.
 plt.legend(loc='upper right', ncol=1)
-plt.title('Average KL Divergence on Student Data', fontsize='xx-large')
+plt.title('Average KL Divergence (Koller)', fontsize='xx-large')
 plt.yscale('log')
 plt.xlabel('Number of Passes Over the Data', fontsize='x-large')
 plt.ylabel('Average KL Divergence', fontsize='x-large')

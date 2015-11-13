@@ -267,6 +267,9 @@ within one color group are independent to each other given all the other variabl
 optimal coloring of a general graph is NP-complete, but efficient heuristics for balanced graph
 coloring perform well in many problems.
 
+\textbf{Daniel: TODO Ahhh, I forgot! The stuff in Figure 1 does actually require data to fit in
+memory. There are ways we can get around this with more efficient storage but we should make that
+explicit, and say that Figure 1 is only for intuition as most data will fit in memory anyway!}
 
 
 
@@ -372,9 +375,8 @@ the relative marginal benefit of increasing $m$ on this data means that SAME may
 beneficial time-accuracy tradeoff. BIDMach, on the other had, has faster initialization costs and
 increasing $m$ results in faster convergence.
 
-\textbf{Daniel: the previous paragraph needs a lot of revision, in part because
-Figures~\ref{fig:kl_time_bidmach} and~\ref{fig:kl_time_jags} are old figures and we need to revise
-them to match up to clarify the time-accuracy tradeoff.}
+\textbf{Daniel: I would suggest that we omit Figures~\ref{fig:kl_time_bidmach}
+and~\ref{fig:kl_time_jags} from the paper.}
 
 \begin{figure}[t]
   \centering
@@ -557,6 +559,9 @@ to a wider class of real-world datasets.
 
 We thank Yang Gao, Biye Jiang, and Huasha Zhao for helpful discussions. Daniel Seita is supported by
 the Berkeley and National Physical Science Consortium Fellowships.
+
+\textbf{Daniel: Don't worry, I will modify the BibTeX stuff so that it deletes a lot of unnecessary
+things (e.g., website URLs).}
 
 % TODO Yeah make the references section a *lot* cleaner!
 \bibliography{iclr2016_conference}

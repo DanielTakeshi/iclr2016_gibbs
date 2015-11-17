@@ -296,7 +296,10 @@ We emphasize that the use of one computer is deliberate and a strength of our sa
 cheaper and simpler to run as compared to a computing cluster.
 
 
-\subsection{Synthetically Generated Student Data}\label{ssec:student_data}
+\subsection{Synthetically Generated ``Koller'' Data}\label{ssec:koller_data}
+
+\textbf{Daniel: change all figures to have (Koller) at the end! Also, refer to this as the Koller
+data! I.e., figures should have the title: XXX (Koller) or XXX (MOOC).}
 
 \begin{figure}[t]
   \centering
@@ -322,7 +325,8 @@ an arrow points from $X_i$ to $X_j$.  Variable $X_3$ is ternary, and all others 
 with this network is to model a student taking a class, considering ability metrics (Intelligence
 and SAT score), the class difficulty, and the student's resulting grade, which subsequently affects
 the quality of a letter of recommendation. All this is from Chapter 3 of~\citet{Koller2009}, which
-also lists the true set of CPTs.
+also lists the true set of CPTs. Due to the name of the first author, we label this data ``Koller''
+data to distinguish it from the MOOC data we use in~(\ref{ssec:mooc_data}).
 
 To generate the data for BIDMach, we listed the variables in a topological ordering and directly
 sampled their values, where $X_i$ got sampled according to the values of its parents (if any) based
@@ -414,7 +418,7 @@ on the original data until convergence. Then, we use the estimated set of CPTs a
 via direct sampling to generate synthetic data, also of dimension $(334 \times 4367)$. We modify
 that synthetic data matrix so that it also has a 2.2\% sparsity level and has missing data at the
 same elements as the original data matrix. Then we re-run BIDMach on that data and test using the
-same $KL_{\rm avg}$ metric from~(\ref{ssec:student_data}), since we know the CPTs that ``generated''
+same $KL_{\rm avg}$ metric from~(\ref{ssec:koller_data}), since we know the CPTs that ``generated''
 the data.
 
 Figure~\ref{fig:mooc_kl} plots the $KL_{\rm avg}$ for BIDMach with varying $m$ values. We ran the
@@ -445,28 +449,30 @@ i.e., how many decimal points of accuracy?}
     \begin{minipage}{.5\textwidth}
     \centering
     \includegraphics[width=1\textwidth]{fig_prediction_accuracy_mooc}
-    \caption{Prediction accuracy MOOC}
+    \caption{MOOC data prediction accuracy.}
     \label{fig:mooc_accuracy}
   \end{minipage}
 \end{figure}
 
-The second way of evaluating our sampler is to use prediction accuracy. We can divide up the data
-into a training and testing set, which we do by holding out one mini-batch for testing. This testing
-batch has about 20\% of the known data. The task is, based on the other 80\% of the data, to predict
-all of the known entries in the testing set. In other words, we need to predict the entries of the
-testing set matrix, which depend both on the row (the question) but also the column (the student) as
-students have different abilities.
+The second way we evaluate our sampler is with prediction accuracy. We divide the original
+data into a training and testing batch so that 80\% of the known data is in training. The training
+set is for updating the CPTs. During the testing batch, we sample for 500 iterations using the
+current CPTs (but \emph{without updating} them). For each of the known test points, we compute the
+number of 0s and 1s sampled (from the 500 iterations), pick the majority to be our prediction,
+and then compare it with the true value. Since only 2.2\% of the data is known, this is a challenging
+prediction problem. Moreover, we divide the training and testing data into batches, so for each
+student (i.e., column) in the test data matrix, we have no evidence.  Random guessing is equivalent
+to 50\% accuracy since this is a binary prediction task.
 
-For each entry to be predicted, we sample 50 instances from the learned set of CPTs $\Theta$ and
-observed values, and then take the majority as the predicted value. The accuracy is measured as the
-percentage of corrected predictions.  Figure~\ref{fig:mooc_accuracy} shows the accuracy results.
-\textbf{Daniel: I want Figure~\ref{fig:mooc_accuracy} to have the iteration on the x-axis and the
-prediction accuracy on the y-axis.}
-
-\textbf{Daniel: A couple of things here. First, I still have to run this test so there is no
-guarantee it will be good, but we can try. Second, Huasha got some ``good'' results by getting 66\%
-accuracy. The problem? The data is actually skewed so that 66\% of elements are 1s (or 2s, I
-forget), so we have to be careful.}
+We ran the prediction accuracy algorithm with SAME parameters $m=1$ and $m=5$ using three different
+random seeds for each, to reduce the chances of one trial skewing the results.
+Figure~\ref{fig:mooc_accuracy} plots the mean prediction accuracy (among three trials) for both SAME
+parameters. Our sampler indeed learns to predict reasonably well and reaches roughly 61\% accuracy.
+SAME is not beneficial in terms of accuracy or even the standard deviation of the accuracies (not
+plotted here). This is likely because sampling 500 times to determine our prediction may cause
+convergence to a result invariant to minor differences in CPTs.  Sampling only one time to determine
+prediction accuracy resulted in about 56\% accuracy for $m=1$, and beyond 500 samples, we did not
+observe improvements.
 
 \subsection{Runtime vs. Throughput Tradeoff}\label{ssec:tradeoff}
 
@@ -489,22 +495,22 @@ reasonable objective for an experimenter is to run the Gibbs sampler on data wit
 $m$, and identify the point where further increases in $m$ start having an unfavorable runtime and
 throughput tradeoff.
 
-As an example, we used the five-variable student data from~(\ref{ssec:student_data}), with 50\% of
-the data known versus missing, but with \emph{one million} cases, beyond the feasible datasets of
-standard Gibbs samplers. We ran the Gibbs sampler for 200 iterations on this data with a batch size
-of 50,000. Table~\ref{tab:tradeoff} shows the time and gflops of the Gibbs sampler using different
-values of $m$.  One can see that increasing $m$ for $m < 30$ results in steady gflops increases but
+As an example, we used the Koller data from~(\ref{ssec:koller_data}), with 50\% of the data known
+versus missing, but with \emph{one million} cases, beyond the feasible datasets of standard Gibbs
+samplers. We ran the Gibbs sampler for 200 iterations on this data with a batch size of 50,000.
+Table~\ref{tab:tradeoff} shows the time and gflops of the Gibbs sampler using different values of
+$m$.  One can see that increasing $m$ for $m < 30$ results in steady gflops increases but
 \emph{without} a substantial increase in time. Then SAME saturates the algorithm and the runtime
 increases while the gflops stalls, reinforcing the conclusions from~\citep{SAME2015} and argues for
 the importance of testing with a variety of $m$ values.
 
 \begin{table}[t]
 \caption{The tradeoff of total runtime (in seconds) versus the steady-state throughput (in gflops)
-for different $m$ values, on the student data with one million instances. For each trial, we ran 200
+for different $m$ values, on the Koller data with one million instances. For each trial, we ran 200
 iterations of Gibbs sampling, with a batch size of 50,000. As discussed in the text, once $m$ gets
 too large, it saturates the sampler and fails to noticeably improve throughput while causing a
 proportionally greater increase in runtime. This seems to happen here between $m=30$ and $m=40$.}
-\label{tab:tradeoff}
+\label{tab:tradeoff_old}
 \begin{center}
 \begin{tabular}{ |c|c|c|c|c|c|c|c| } 
 \hline
@@ -539,12 +545,126 @@ main things that limits our sampler is the memory of GPUs, since we need to shri
 with large $m$. As memory on GPUs becomes cheaper, we will be able to run Gibbs sampling and perform
 graphical model inference on larger datasets.
 
-\textbf{Daniel: I did this experiment using the GPU version of the generic gamma random code, which
-does not have as high accuracy. I can repeat this experiment with the CPU version, but that might
-distort the runtime due to CPU-GPU switching. Any thoughts? Also, we could easily run this with more
-than a million data points if we wanted, to further show the capabilities of the sampler.}
+\section{Actual Tables}
+
+(Draft section)
+
+These are the set of \emph{actual} tables we will be using. Let's clean this up later once we have
+better figures. Also, I'll keep more detailed results in LaTeX comments.
+
+% BIDMach (CPU) vs JAGS for the Koller data. This one only has 50k columns now!
+% BIDMach settings: 25k batch size, 200 iterations, 777 seed.  We do get gflops with BIDMach, so we
+% can include them if desired, but the runtime is the more interesting thing we want to compare.
+% Perhaps we should use total seconds, rather than per iteration? It's easier to understand.
+%
+% Here are the BIDMach CPU (not GPU!) results, with extra values if we can get more JAGS results:
+% Time=8.7060 secs, gflops=0.84 (m=1)
+% Time=15.4930 secs, gflops=0.94 (m=2)
+% Time=29.7660 secs, gflops=1.23 (m=5)
+% Time=67.6580 secs, gflops=1.08 (m=10)
+% Time=129.7780 secs, gflops=1.13 (m=20)
+%
+% Yeah, a  bit weird that gflops doesn't increase each time ...
+\begin{table}[h]
+\caption{BIDMach (CPU) vs. JAGS Runtime on Koller Data}
+\label{tab:bidmach_jags_koller}
+\begin{center}
+\begin{tabular}{ |c|c|c|c|c| } 
+\hline
+                  & $m=1$ & $m=5$ & $m=10$ \\
+\hline \hline
+BIDMach Time/Iter & 0.044 & 0.149 & 0.338  \\ 
+JAGS Time/Iter    & & & \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
 
 
+% BIDMach (CPU) vs JAGS for the Real MOOC data *replicated*, with SAME=1.
+% Batch size: we'll use 2184 (approx 4367/2) to be a fair comparision with previous table with
+% Koller, because we usually like to have more than one mini-batch.
+%
+% Here are the BIDMach CPU (not GPU!) results:
+%
+% Time=36.4890 secs, gflops=1.20 (1x)
+% Time=71.5470 secs, gflops=1.22 (2x)
+% Time=196.5920 secs, gflops=1.11 (5x)
+% Time=387.2260 secs, gflops=1.13 (10x)
+% Time=739.8330 secs, gflops=1.18 (20x)
+%
+% It takes a while with 20x, and absurdly long with 100x ... remember, the batch sizes are the same.
+% Note: I suppose I should run this with 60% data as well...
+%
+% Notes on JAGS: we tried with 100x, but it crashed (ran out of memory) on stout, after almost 30
+% minutes.
+\begin{table}[h]
+\caption{BIDMach (CPU) vs. JAGS Runtime on (Replicated) Real MOOC Data}
+\label{tab:bidmach_jags_realmooc}
+\begin{center}
+\begin{tabular}{ |c|c|c|c|c|c| } 
+\hline
+                  & 1x    & 2x    & 5x    & 10x   & 20x \\
+\hline \hline
+BIDMach Time/Iter & 0.182 & 0.358 & 0.983 & 1.936 & 3.699 \\ 
+JAGS Time/Iter    & & & & & \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+
+% This should be in another section. We might consider splitting this in two if we have space. For
+% both of these, I chose the largest batch size that we could do m = 50.
+%
+% Koller Data = (5 x 1,000,000)-dimensional, mini-batch size = 50,000, iterations = 200, seed = 777.
+% This is with the sliding, rectangular window of samples, which is *slower* than the moving
+% average,  hence we'll get slower gflops. Before, with complete truncation (but an incorrect
+% graphical model, technically speaking) we were getting 13.90 for m = 50.
+% Final statistics from BIDMach:
+% Time=61.4750 secs, gflops=2.38 (m=1)
+% Time=104.6140 secs, gflops=6.98 (m=5)
+% Time=160.8270 secs, gflops=9.08 (m=10)
+% Time=265.6820 secs, gflops=11.00 (m=20)
+% Time=374.4060 secs, gflops=11.70 (m=30)
+% Time=476.0510 secs, gflops=12.27 (m=40)
+% Time=591.2360 secs, gflops=12.35 (m=50)
+%
+% MOOC Data = (334 x 43670)-dimensional, where we replicated the *real* mooc 5x column-wise. Hence,
+% RM = Replicated MOOC. Again, this is with the sliding, rectangular window of samples. I was going
+% to use 10x, but I would have had to shrink the batch size down to 100 (or even less than that), I
+% think because putback requires extra memory or something. So I'm doing 5x, which lets me increase
+% the batch size to 400. More advanced GPUs in the future will allow us to run this faster.
+
+% Settings: mini-batch size = 400, SAME is the variable. 200 iterations and 777 seed as usual.
+% Total runtimes were:
+%
+% Time=133.2460 secs, gflops=1.65 (m=1)
+% Time=238.3670 secs, gflops=4.58 (m=5)
+% Time=308.1950 secs, gflops=7.08 (m=10)
+% Time=450.3450 secs, gflops=9.69 (m=20)
+% Time=599.5060 secs, gflops=10.92 (m=30)
+% Time=750.6940 secs, gflops=11.62 (m=40)
+% Time=907.2790 secs, gflops=12.02 (m=50)
+%
+% Now for the actual table itself:
+\begin{table}[h]
+\caption{BIDMach (GPU) Runtime vs. GigaFlops on Large Data}
+\label{tab:tradeoff}
+\begin{center}
+\begin{tabular}{ |c|c|c|c|c|c|c|c| } 
+\hline
+               & $m=1$ & $m=5$ & $m=10$ & $m=20$ & $m=30$ & $m=40$ & $m=50$  \\
+\hline \hline
+GigaFlops (K)  & 2.38  & 6.98  & 9.08   & 11.00  & 11.70  & 12.27  & 12.35   \\ 
+Time/Iter (K)  & 0.307 & 0.523 & 0.804  & 1.328  & 1.872  & 2.380  & 2.957   \\
+\hline 
+GigaFlops (RM) & 1.65  & 4.58  & 7.08   & 9.69   & 10.92  & 11.62  & 12.02   \\ 
+Time/Iter (RM) & 0.666 & 1.192 & 1.541  & 2.252  & 2.998  & 3.753  & 4.536   \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
 
 \section{Conclusions}\label{sec:conclusions}
 
@@ -557,29 +677,20 @@ to a wider class of real-world datasets.
 
 \subsubsection*{Acknowledgments}
 
-We thank Yang Gao, Biye Jiang, and Huasha Zhao for helpful discussions. Daniel Seita is supported by
-the Berkeley and National Physical Science Consortium Fellowships.
+We thank Yang Gao, Biye Jiang, and Huasha Zhao for helpful discussions.
 
-\textbf{Daniel: Don't worry, I will modify the BibTeX stuff so that it deletes a lot of unnecessary
-things (e.g., website URLs).}
-
-% TODO Yeah make the references section a *lot* cleaner!
 \bibliography{iclr2016_conference}
 \bibliographystyle{iclr2016_conference}
 
 
 
 
-
-
-
-
-%% APPENDIX
-\clearpage
-\appendix
-
-\textbf{I expect that we will use eight pages for text, plus the ninth page for references. Then the
-remaining material (if any) will go here.}
+%%% APPENDIX
+%\clearpage
+%\appendix
+%
+%\textbf{I expect that we will use eight pages for text, plus the ninth page for references. Then the
+%remaining material (if any) will go here.}
 
 
 

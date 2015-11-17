@@ -1,0 +1,683 @@
+Loading /home/seita/BIDMach/lib/bidmach_init.scala...
+import BIDMat.{CMat, CSMat, DMat, Dict, FMat, FND, GMat, GDMat, GIMat, GLMat, GSMat, GSDMat, HMat, IDict, Image, IMat, LMat, Mat, SMat, SBMat, SDMat}
+import BIDMat.MatFunctions._
+import BIDMat.SciFunctions._
+import BIDMat.Solvers._
+import BIDMat.Plotting._
+import BIDMach.Learner
+import BIDMach.models.{FM, GLM, KMeans, KMeansw, LDA, LDAgibbs, Model, NMF, SFA, RandomForest}
+import BIDMach.networks.DNN
+import BIDMach.datasources.{DataSource, MatDS, FilesDS, SFilesDS}
+import BIDMach.mixins.{CosineSim, Perplexity, Top, L1Regularizer, L2Regularizer}
+import BIDMach.updaters.{ADAGrad, Batch, BatchNorm, IncMult, IncNorm, Telescoping}
+import BIDMach.causal.IPTW
+1 CUDA device found, CUDA version 7.0
+
+Loading scripts/bn_test.ssc...
+dag: BIDMat.SMat =
+(   0,   2)   1
+(   1,   2)   1
+(   0,   3)   1
+(   1,   3)   1
+(   4,   5)   1
+(   4,   6)   1
+(   6,   7)   1
+(   2,   8)   1
+  ...  ...  ...
+data: BIDMat.SMat =
+(   52,    0)    1
+(   53,    0)    1
+(   54,    0)    1
+(   52,    1)    1
+(   53,    1)    1
+(   54,    1)    2
+(  140,    1)    1
+(  141,    1)    1
+   ...   ...   ...
+states: BIDMat.IMat =
+   2
+   2
+   2
+  ..
+nn: BIDMach.Learner = Learner(BIDMach.datasources.MatDS@5794cc69,BIDMach.models.BayesNet@69f82e6a,null,BIDMach.updaters.IncNorm@24af6780,BIDMach.models.BayesNet$xopts$1@77b41750)
+opts: BIDMach.Learner.Options with BIDMach.models.BayesNet.Opts with BIDMach.datasources.MatDS.Opts with BIDMach.updaters.IncNorm.Opts = BIDMach.models.BayesNet$xopts$1@77b41750
+opts.npasses: Int = 200
+opts.useGPU: Boolean = true
+opts.batchSize: Int = 3000
+opts.updateAll: Boolean = false
+Option Name       Type          Value
+===========       ====          =====
+addConstFeat      boolean       false
+autoReset         boolean       true
+batchSize         int           3000
+checkPointFile    String        null
+checkPointInterval  float         0.0
+copiesForSAME     int           5
+cumScore          int           0
+debug             int           0
+debugMem          boolean       false
+dim               int           334
+doubleScore       boolean       false
+evalStep          int           11
+featThreshold     Mat           null
+featType          int           1
+isprob            boolean       false
+npasses           int           200
+numSamplesBurn    int           0
+nzPerColumn       int           0
+power             float         0.0
+pstep             float         0.01
+putBack           int           1
+resFile           String        null
+sample            float         1.0
+samplingRate      int           1
+sizeMargin        float         3.0
+startBlock        int           8000
+updateAll         boolean       false
+useCache          boolean       true
+useDouble         boolean       false
+useGPU            boolean       true
+warmup            long          0
+randSeed = 9999
+pass= 0
+Accuracy: 0.5025205 = 3190.0 / 6348. Total 0/1 predicted = 3322,3026, with random seed 9999.
+100.00%, ll=-193.30527, gf=3.590, secs=74.1, GB=0.03, MB/s= 0.40, GPUmem=0.336343
+pass= 1
+Accuracy: 0.5033081 = 3195.0 / 6348. Total 0/1 predicted = 3263,3085, with random seed 9999.
+100.00%, ll=-195.50923, gf=3.597, secs=147.8, GB=0.06, MB/s= 0.40, GPUmem=0.338520
+pass= 2
+Accuracy: 0.50803405 = 3225.0 / 6348. Total 0/1 predicted = 3231,3117, with random seed 9999.
+100.00%, ll=-196.99382, gf=3.600, secs=221.5, GB=0.09, MB/s= 0.40, GPUmem=0.336343
+pass= 3
+Accuracy: 0.5151229 = 3270.0 / 6348. Total 0/1 predicted = 3232,3116, with random seed 9999.
+100.00%, ll=-198.03595, gf=3.602, secs=295.2, GB=0.12, MB/s= 0.40, GPUmem=0.338520
+pass= 4
+Accuracy: 0.52016383 = 3302.0 / 6348. Total 0/1 predicted = 3174,3174, with random seed 9999.
+100.00%, ll=-198.92966, gf=3.603, secs=368.8, GB=0.15, MB/s= 0.40, GPUmem=0.338520
+pass= 5
+Accuracy: 0.52394456 = 3326.0 / 6348. Total 0/1 predicted = 3148,3200, with random seed 9999.
+100.00%, ll=-199.95177, gf=3.604, secs=442.5, GB=0.18, MB/s= 0.40, GPUmem=0.338520
+pass= 6
+Accuracy: 0.52914304 = 3359.0 / 6348. Total 0/1 predicted = 3051,3297, with random seed 9999.
+100.00%, ll=-200.59181, gf=3.604, secs=516.2, GB=0.21, MB/s= 0.40, GPUmem=0.336364
+pass= 7
+Accuracy: 0.5326087 = 3381.0 / 6348. Total 0/1 predicted = 3067,3281, with random seed 9999.
+100.00%, ll=-201.46060, gf=3.604, secs=589.8, GB=0.24, MB/s= 0.40, GPUmem=0.336364
+pass= 8
+Accuracy: 0.5374921 = 3412.0 / 6348. Total 0/1 predicted = 3086,3262, with random seed 9999.
+100.00%, ll=-201.76372, gf=3.604, secs=663.5, GB=0.26, MB/s= 0.40, GPUmem=0.338520
+pass= 9
+Accuracy: 0.5436358 = 3451.0 / 6348. Total 0/1 predicted = 2989,3359, with random seed 9999.
+100.00%, ll=-202.28622, gf=3.605, secs=737.2, GB=0.29, MB/s= 0.40, GPUmem=0.338520
+pass=10
+Accuracy: 0.54505354 = 3460.0 / 6348. Total 0/1 predicted = 3018,3330, with random seed 9999.
+100.00%, ll=-202.76393, gf=3.605, secs=810.9, GB=0.32, MB/s= 0.40, GPUmem=0.338520
+pass=11
+Accuracy: 0.54914933 = 3486.0 / 6348. Total 0/1 predicted = 2912,3436, with random seed 9999.
+100.00%, ll=-203.25270, gf=3.605, secs=884.6, GB=0.35, MB/s= 0.40, GPUmem=0.338520
+pass=12
+Accuracy: 0.55340266 = 3513.0 / 6348. Total 0/1 predicted = 2887,3461, with random seed 9999.
+100.00%, ll=-203.30678, gf=3.605, secs=958.3, GB=0.38, MB/s= 0.40, GPUmem=0.338520
+pass=13
+Accuracy: 0.56285447 = 3573.0 / 6348. Total 0/1 predicted = 2771,3577, with random seed 9999.
+100.00%, ll=-203.39542, gf=3.605, secs=1031.9, GB=0.41, MB/s= 0.40, GPUmem=0.336343
+pass=14
+Accuracy: 0.5653749 = 3589.0 / 6348. Total 0/1 predicted = 2783,3565, with random seed 9999.
+100.00%, ll=-203.76573, gf=3.605, secs=1105.6, GB=0.44, MB/s= 0.40, GPUmem=0.337432
+pass=15
+Accuracy: 0.5682105 = 3607.0 / 6348. Total 0/1 predicted = 2735,3613, with random seed 9999.
+100.00%, ll=-203.70088, gf=3.605, secs=1179.2, GB=0.47, MB/s= 0.40, GPUmem=0.338520
+pass=16
+Accuracy: 0.576402 = 3659.0 / 6348. Total 0/1 predicted = 2715,3633, with random seed 9999.
+100.00%, ll=-203.98618, gf=3.606, secs=1252.8, GB=0.50, MB/s= 0.40, GPUmem=0.338520
+pass=17
+Accuracy: 0.57041585 = 3621.0 / 6348. Total 0/1 predicted = 2661,3687, with random seed 9999.
+100.00%, ll=-203.77452, gf=3.606, secs=1326.5, GB=0.53, MB/s= 0.40, GPUmem=0.336343
+pass=18
+Accuracy: 0.57498425 = 3650.0 / 6348. Total 0/1 predicted = 2714,3634, with random seed 9999.
+100.00%, ll=-204.05565, gf=3.606, secs=1400.2, GB=0.56, MB/s= 0.40, GPUmem=0.337798
+pass=19
+Accuracy: 0.5756144 = 3654.0 / 6348. Total 0/1 predicted = 2588,3760, with random seed 9999.
+100.00%, ll=-204.00473, gf=3.606, secs=1473.9, GB=0.59, MB/s= 0.40, GPUmem=0.336384
+pass=20
+Accuracy: 0.58144295 = 3691.0 / 6348. Total 0/1 predicted = 2535,3813, with random seed 9999.
+100.00%, ll=-203.96393, gf=3.606, secs=1547.6, GB=0.62, MB/s= 0.40, GPUmem=0.336384
+pass=21
+Accuracy: 0.5752993 = 3652.0 / 6348. Total 0/1 predicted = 2482,3866, with random seed 9999.
+100.00%, ll=-203.71294, gf=3.606, secs=1621.3, GB=0.65, MB/s= 0.40, GPUmem=0.336364
+pass=22
+Accuracy: 0.5836484 = 3705.0 / 6348. Total 0/1 predicted = 2531,3817, with random seed 9999.
+100.00%, ll=-203.93843, gf=3.606, secs=1694.9, GB=0.68, MB/s= 0.40, GPUmem=0.336364
+pass=23
+Accuracy: 0.5872716 = 3728.0 / 6348. Total 0/1 predicted = 2514,3834, with random seed 9999.
+100.00%, ll=-203.92412, gf=3.606, secs=1768.6, GB=0.71, MB/s= 0.40, GPUmem=0.336343
+pass=24
+Accuracy: 0.578765 = 3674.0 / 6348. Total 0/1 predicted = 2444,3904, with random seed 9999.
+100.00%, ll=-203.73500, gf=3.606, secs=1842.2, GB=0.74, MB/s= 0.40, GPUmem=0.336384
+pass=25
+Accuracy: 0.5845936 = 3711.0 / 6348. Total 0/1 predicted = 2437,3911, with random seed 9999.
+100.00%, ll=-203.69554, gf=3.606, secs=1915.9, GB=0.77, MB/s= 0.40, GPUmem=0.337432
+pass=26
+Accuracy: 0.581758 = 3693.0 / 6348. Total 0/1 predicted = 2501,3847, with random seed 9999.
+100.00%, ll=-203.48535, gf=3.606, secs=1989.5, GB=0.79, MB/s= 0.40, GPUmem=0.338520
+pass=27
+Accuracy: 0.5869565 = 3726.0 / 6348. Total 0/1 predicted = 2450,3898, with random seed 9999.
+100.00%, ll=-203.19484, gf=3.606, secs=2063.2, GB=0.82, MB/s= 0.40, GPUmem=0.337452
+pass=28
+Accuracy: 0.57939506 = 3678.0 / 6348. Total 0/1 predicted = 2468,3880, with random seed 9999.
+100.00%, ll=-203.28169, gf=3.606, secs=2136.9, GB=0.85, MB/s= 0.40, GPUmem=0.338520
+pass=29
+Accuracy: 0.57939506 = 3678.0 / 6348. Total 0/1 predicted = 2460,3888, with random seed 9999.
+100.00%, ll=-203.34338, gf=3.606, secs=2210.6, GB=0.88, MB/s= 0.40, GPUmem=0.337808
+pass=30
+Accuracy: 0.58601135 = 3720.0 / 6348. Total 0/1 predicted = 2386,3962, with random seed 9999.
+100.00%, ll=-202.88763, gf=3.606, secs=2284.2, GB=0.91, MB/s= 0.40, GPUmem=0.337452
+pass=31
+Accuracy: 0.58711404 = 3727.0 / 6348. Total 0/1 predicted = 2381,3967, with random seed 9999.
+100.00%, ll=-202.90724, gf=3.606, secs=2357.9, GB=0.94, MB/s= 0.40, GPUmem=0.338520
+pass=32
+Accuracy: 0.5912098 = 3753.0 / 6348. Total 0/1 predicted = 2375,3973, with random seed 9999.
+100.00%, ll=-202.61423, gf=3.606, secs=2431.5, GB=0.97, MB/s= 0.40, GPUmem=0.337432
+pass=33
+Accuracy: 0.5910523 = 3752.0 / 6348. Total 0/1 predicted = 2412,3936, with random seed 9999.
+100.00%, ll=-202.35370, gf=3.605, secs=2505.7, GB=1.00, MB/s= 0.40, GPUmem=0.336343
+pass=34
+Accuracy: 0.59183997 = 3757.0 / 6348. Total 0/1 predicted = 2365,3983, with random seed 9999.
+100.00%, ll=-201.95287, gf=3.605, secs=2579.4, GB=1.03, MB/s= 0.40, GPUmem=0.337432
+pass=35
+Accuracy: 0.5946755 = 3775.0 / 6348. Total 0/1 predicted = 2361,3987, with random seed 9999.
+100.00%, ll=-201.75710, gf=3.606, secs=2653.0, GB=1.06, MB/s= 0.40, GPUmem=0.337808
+pass=36
+Accuracy: 0.5927851 = 3763.0 / 6348. Total 0/1 predicted = 2369,3979, with random seed 9999.
+100.00%, ll=-201.69080, gf=3.606, secs=2726.7, GB=1.09, MB/s= 0.40, GPUmem=0.338520
+pass=37
+Accuracy: 0.58931947 = 3741.0 / 6348. Total 0/1 predicted = 2411,3937, with random seed 9999.
+100.00%, ll=-201.60843, gf=3.606, secs=2800.3, GB=1.12, MB/s= 0.40, GPUmem=0.337798
+pass=38
+Accuracy: 0.5962508 = 3785.0 / 6348. Total 0/1 predicted = 2437,3911, with random seed 9999.
+100.00%, ll=-201.36595, gf=3.606, secs=2873.9, GB=1.15, MB/s= 0.40, GPUmem=0.336384
+pass=39
+Accuracy: 0.5973535 = 3792.0 / 6348. Total 0/1 predicted = 2418,3930, with random seed 9999.
+100.00%, ll=-200.93623, gf=3.606, secs=2947.6, GB=1.18, MB/s= 0.40, GPUmem=0.336384
+pass=40
+Accuracy: 0.5984562 = 3799.0 / 6348. Total 0/1 predicted = 2375,3973, with random seed 9999.
+100.00%, ll=-201.07143, gf=3.606, secs=3021.3, GB=1.21, MB/s= 0.40, GPUmem=0.338520
+pass=41
+Accuracy: 0.5976685 = 3794.0 / 6348. Total 0/1 predicted = 2408,3940, with random seed 9999.
+100.00%, ll=-200.79625, gf=3.606, secs=3094.9, GB=1.24, MB/s= 0.40, GPUmem=0.337452
+pass=42
+Accuracy: 0.5959357 = 3783.0 / 6348. Total 0/1 predicted = 2425,3923, with random seed 9999.
+100.00%, ll=-200.60014, gf=3.606, secs=3168.5, GB=1.27, MB/s= 0.40, GPUmem=0.338520
+pass=43
+Accuracy: 0.5973535 = 3792.0 / 6348. Total 0/1 predicted = 2388,3960, with random seed 9999.
+100.00%, ll=-200.51875, gf=3.606, secs=3242.2, GB=1.30, MB/s= 0.40, GPUmem=0.338520
+pass=44
+Accuracy: 0.60144925 = 3818.0 / 6348. Total 0/1 predicted = 2412,3936, with random seed 9999.
+100.00%, ll=-200.09572, gf=3.606, secs=3315.8, GB=1.32, MB/s= 0.40, GPUmem=0.338520
+pass=45
+Accuracy: 0.5992439 = 3804.0 / 6348. Total 0/1 predicted = 2428,3920, with random seed 9999.
+100.00%, ll=-200.01228, gf=3.606, secs=3389.5, GB=1.35, MB/s= 0.40, GPUmem=0.336709
+pass=46
+Accuracy: 0.60113424 = 3816.0 / 6348. Total 0/1 predicted = 2436,3912, with random seed 9999.
+100.00%, ll=-199.87970, gf=3.606, secs=3463.1, GB=1.38, MB/s= 0.40, GPUmem=0.337432
+pass=47
+Accuracy: 0.5987713 = 3801.0 / 6348. Total 0/1 predicted = 2485,3863, with random seed 9999.
+100.00%, ll=-199.74864, gf=3.606, secs=3536.8, GB=1.41, MB/s= 0.40, GPUmem=0.337452
+pass=48
+Accuracy: 0.6047574 = 3839.0 / 6348. Total 0/1 predicted = 2485,3863, with random seed 9999.
+100.00%, ll=-199.30847, gf=3.606, secs=3610.4, GB=1.44, MB/s= 0.40, GPUmem=0.337452
+pass=49
+Accuracy: 0.6036547 = 3832.0 / 6348. Total 0/1 predicted = 2478,3870, with random seed 9999.
+100.00%, ll=-199.37349, gf=3.606, secs=3684.2, GB=1.47, MB/s= 0.40, GPUmem=0.336364
+pass=50
+Accuracy: 0.6047574 = 3839.0 / 6348. Total 0/1 predicted = 2475,3873, with random seed 9999.
+100.00%, ll=-198.96411, gf=3.606, secs=3757.8, GB=1.50, MB/s= 0.40, GPUmem=0.336343
+pass=51
+Accuracy: 0.6020794 = 3822.0 / 6348. Total 0/1 predicted = 2512,3836, with random seed 9999.
+100.00%, ll=-198.71428, gf=3.606, secs=3831.4, GB=1.53, MB/s= 0.40, GPUmem=0.337432
+pass=52
+Accuracy: 0.59987396 = 3808.0 / 6348. Total 0/1 predicted = 2464,3884, with random seed 9999.
+100.00%, ll=-198.72064, gf=3.606, secs=3905.1, GB=1.56, MB/s= 0.40, GPUmem=0.337798
+pass=53
+Accuracy: 0.59656584 = 3787.0 / 6348. Total 0/1 predicted = 2407,3941, with random seed 9999.
+100.00%, ll=-198.14272, gf=3.606, secs=3978.8, GB=1.59, MB/s= 0.40, GPUmem=0.338520
+pass=54
+Accuracy: 0.6036547 = 3832.0 / 6348. Total 0/1 predicted = 2400,3948, with random seed 9999.
+100.00%, ll=-198.16295, gf=3.606, secs=4052.5, GB=1.62, MB/s= 0.40, GPUmem=0.336364
+pass=55
+Accuracy: 0.59751105 = 3793.0 / 6348. Total 0/1 predicted = 2417,3931, with random seed 9999.
+100.00%, ll=-197.78398, gf=3.606, secs=4126.2, GB=1.65, MB/s= 0.40, GPUmem=0.338520
+pass=56
+Accuracy: 0.60806555 = 3860.0 / 6348. Total 0/1 predicted = 2424,3924, with random seed 9999.
+100.00%, ll=-197.63403, gf=3.606, secs=4199.9, GB=1.68, MB/s= 0.40, GPUmem=0.336343
+pass=57
+Accuracy: 0.60239446 = 3824.0 / 6348. Total 0/1 predicted = 2398,3950, with random seed 9999.
+100.00%, ll=-197.53003, gf=3.606, secs=4273.6, GB=1.71, MB/s= 0.40, GPUmem=0.337452
+pass=58
+Accuracy: 0.6061752 = 3848.0 / 6348. Total 0/1 predicted = 2410,3938, with random seed 9999.
+100.00%, ll=-197.45805, gf=3.606, secs=4347.3, GB=1.74, MB/s= 0.40, GPUmem=0.337432
+pass=59
+Accuracy: 0.60554504 = 3844.0 / 6348. Total 0/1 predicted = 2418,3930, with random seed 9999.
+100.00%, ll=-197.31705, gf=3.606, secs=4421.0, GB=1.77, MB/s= 0.40, GPUmem=0.338520
+pass=60
+Accuracy: 0.60239446 = 3824.0 / 6348. Total 0/1 predicted = 2378,3970, with random seed 9999.
+100.00%, ll=-196.95421, gf=3.606, secs=4494.7, GB=1.80, MB/s= 0.40, GPUmem=0.337432
+pass=61
+Accuracy: 0.6061752 = 3848.0 / 6348. Total 0/1 predicted = 2400,3948, with random seed 9999.
+100.00%, ll=-196.80640, gf=3.606, secs=4568.4, GB=1.82, MB/s= 0.40, GPUmem=0.338520
+pass=62
+Accuracy: 0.60523 = 3842.0 / 6348. Total 0/1 predicted = 2364,3984, with random seed 9999.
+100.00%, ll=-196.54330, gf=3.606, secs=4642.1, GB=1.85, MB/s= 0.40, GPUmem=0.337452
+pass=63
+Accuracy: 0.60034657 = 3811.0 / 6348. Total 0/1 predicted = 2373,3975, with random seed 9999.
+100.00%, ll=-196.32478, gf=3.606, secs=4715.8, GB=1.88, MB/s= 0.40, GPUmem=0.338520
+pass=64
+Accuracy: 0.6061752 = 3848.0 / 6348. Total 0/1 predicted = 2298,4050, with random seed 9999.
+100.00%, ll=-195.95213, gf=3.606, secs=4789.4, GB=1.91, MB/s= 0.40, GPUmem=0.337452
+pass=65
+Accuracy: 0.6017643 = 3820.0 / 6348. Total 0/1 predicted = 2362,3986, with random seed 9999.
+100.00%, ll=-195.99889, gf=3.606, secs=4863.1, GB=1.94, MB/s= 0.40, GPUmem=0.337432
+pass=66
+Accuracy: 0.60192186 = 3821.0 / 6348. Total 0/1 predicted = 2293,4055, with random seed 9999.
+100.00%, ll=-195.67593, gf=3.606, secs=4936.7, GB=1.97, MB/s= 0.40, GPUmem=0.336384
+pass=67
+Accuracy: 0.60239446 = 3824.0 / 6348. Total 0/1 predicted = 2282,4066, with random seed 9999.
+100.00%, ll=-195.48381, gf=3.606, secs=5010.4, GB=2.00, MB/s= 0.40, GPUmem=0.338520
+pass=68
+Accuracy: 0.6063327 = 3849.0 / 6348. Total 0/1 predicted = 2285,4063, with random seed 9999.
+100.00%, ll=-195.49529, gf=3.606, secs=5084.0, GB=2.03, MB/s= 0.40, GPUmem=0.338520
+pass=69
+Accuracy: 0.6083806 = 3862.0 / 6348. Total 0/1 predicted = 2260,4088, with random seed 9999.
+100.00%, ll=-195.26869, gf=3.606, secs=5157.7, GB=2.06, MB/s= 0.40, GPUmem=0.336384
+pass=70
+Accuracy: 0.60649025 = 3850.0 / 6348. Total 0/1 predicted = 2282,4066, with random seed 9999.
+100.00%, ll=-195.56650, gf=3.606, secs=5231.4, GB=2.09, MB/s= 0.40, GPUmem=0.337076
+pass=71
+Accuracy: 0.6047574 = 3839.0 / 6348. Total 0/1 predicted = 2333,4015, with random seed 9999.
+100.00%, ll=-195.29152, gf=3.606, secs=5305.0, GB=2.12, MB/s= 0.40, GPUmem=0.336730
+pass=72
+Accuracy: 0.6097984 = 3871.0 / 6348. Total 0/1 predicted = 2319,4029, with random seed 9999.
+100.00%, ll=-194.96918, gf=3.606, secs=5378.7, GB=2.15, MB/s= 0.40, GPUmem=0.338520
+pass=73
+Accuracy: 0.60239446 = 3824.0 / 6348. Total 0/1 predicted = 2340,4008, with random seed 9999.
+100.00%, ll=-194.73781, gf=3.606, secs=5452.4, GB=2.18, MB/s= 0.40, GPUmem=0.338520
+pass=74
+Accuracy: 0.60759294 = 3857.0 / 6348. Total 0/1 predicted = 2391,3957, with random seed 9999.
+100.00%, ll=-194.31627, gf=3.606, secs=5526.0, GB=2.21, MB/s= 0.40, GPUmem=0.338520
+pass=75
+Accuracy: 0.6030246 = 3828.0 / 6348. Total 0/1 predicted = 2408,3940, with random seed 9999.
+100.00%, ll=-193.32948, gf=3.606, secs=5599.7, GB=2.24, MB/s= 0.40, GPUmem=0.336364
+pass=76
+Accuracy: 0.6038122 = 3833.0 / 6348. Total 0/1 predicted = 2379,3969, with random seed 9999.
+100.00%, ll=-193.80759, gf=3.606, secs=5673.3, GB=2.27, MB/s= 0.40, GPUmem=0.338520
+pass=77
+Accuracy: 0.6074354 = 3856.0 / 6348. Total 0/1 predicted = 2360,3988, with random seed 9999.
+100.00%, ll=-193.43503, gf=3.606, secs=5747.0, GB=2.30, MB/s= 0.40, GPUmem=0.338520
+pass=78
+Accuracy: 0.6127914 = 3890.0 / 6348. Total 0/1 predicted = 2394,3954, with random seed 9999.
+100.00%, ll=-193.13562, gf=3.606, secs=5820.7, GB=2.33, MB/s= 0.40, GPUmem=0.336364
+pass=79
+Accuracy: 0.6148393 = 3903.0 / 6348. Total 0/1 predicted = 2381,3967, with random seed 9999.
+100.00%, ll=-193.08914, gf=3.606, secs=5894.4, GB=2.35, MB/s= 0.40, GPUmem=0.336709
+pass=80
+Accuracy: 0.61294895 = 3891.0 / 6348. Total 0/1 predicted = 2377,3971, with random seed 9999.
+100.00%, ll=-192.74570, gf=3.606, secs=5968.1, GB=2.38, MB/s= 0.40, GPUmem=0.338520
+pass=81
+Accuracy: 0.6047574 = 3839.0 / 6348. Total 0/1 predicted = 2309,4039, with random seed 9999.
+100.00%, ll=-192.38014, gf=3.606, secs=6041.8, GB=2.41, MB/s= 0.40, GPUmem=0.338520
+pass=82
+Accuracy: 0.6094833 = 3869.0 / 6348. Total 0/1 predicted = 2315,4033, with random seed 9999.
+100.00%, ll=-192.28392, gf=3.606, secs=6115.4, GB=2.44, MB/s= 0.40, GPUmem=0.338520
+pass=83
+Accuracy: 0.6127914 = 3890.0 / 6348. Total 0/1 predicted = 2314,4034, with random seed 9999.
+100.00%, ll=-192.04010, gf=3.606, secs=6189.1, GB=2.47, MB/s= 0.40, GPUmem=0.336364
+pass=84
+Accuracy: 0.60727787 = 3855.0 / 6348. Total 0/1 predicted = 2335,4013, with random seed 9999.
+100.00%, ll=-192.01730, gf=3.606, secs=6262.7, GB=2.50, MB/s= 0.40, GPUmem=0.337452
+pass=85
+Accuracy: 0.61247635 = 3888.0 / 6348. Total 0/1 predicted = 2288,4060, with random seed 9999.
+100.00%, ll=-191.87582, gf=3.606, secs=6336.5, GB=2.53, MB/s= 0.40, GPUmem=0.336364
+pass=86
+Accuracy: 0.6045999 = 3838.0 / 6348. Total 0/1 predicted = 2282,4066, with random seed 9999.
+100.00%, ll=-191.19020, gf=3.606, secs=6410.2, GB=2.56, MB/s= 0.40, GPUmem=0.337432
+pass=87
+Accuracy: 0.6112161 = 3880.0 / 6348. Total 0/1 predicted = 2302,4046, with random seed 9999.
+100.00%, ll=-191.15791, gf=3.606, secs=6483.8, GB=2.59, MB/s= 0.40, GPUmem=0.336730
+pass=88
+Accuracy: 0.61704475 = 3917.0 / 6348. Total 0/1 predicted = 2257,4091, with random seed 9999.
+100.00%, ll=-191.56715, gf=3.606, secs=6557.6, GB=2.62, MB/s= 0.40, GPUmem=0.337432
+pass=89
+Accuracy: 0.6099559 = 3872.0 / 6348. Total 0/1 predicted = 2270,4078, with random seed 9999.
+100.00%, ll=-190.97290, gf=3.606, secs=6631.3, GB=2.65, MB/s= 0.40, GPUmem=0.337432
+pass=90
+Accuracy: 0.60554504 = 3844.0 / 6348. Total 0/1 predicted = 2288,4060, with random seed 9999.
+100.00%, ll=-190.91316, gf=3.606, secs=6705.0, GB=2.68, MB/s= 0.40, GPUmem=0.337452
+pass=91
+Accuracy: 0.6110586 = 3879.0 / 6348. Total 0/1 predicted = 2325,4023, with random seed 9999.
+100.00%, ll=-190.86554, gf=3.606, secs=6778.6, GB=2.71, MB/s= 0.40, GPUmem=0.337452
+pass=92
+Accuracy: 0.610271 = 3874.0 / 6348. Total 0/1 predicted = 2280,4068, with random seed 9999.
+100.00%, ll=-190.80658, gf=3.606, secs=6852.3, GB=2.74, MB/s= 0.40, GPUmem=0.337432
+pass=93
+Accuracy: 0.60554504 = 3844.0 / 6348. Total 0/1 predicted = 2318,4030, with random seed 9999.
+100.00%, ll=-190.52454, gf=3.606, secs=6926.0, GB=2.77, MB/s= 0.40, GPUmem=0.338520
+pass=94
+Accuracy: 0.6077505 = 3858.0 / 6348. Total 0/1 predicted = 2306,4042, with random seed 9999.
+100.00%, ll=-190.19817, gf=3.606, secs=6999.6, GB=2.80, MB/s= 0.40, GPUmem=0.338520
+pass=95
+Accuracy: 0.60853815 = 3863.0 / 6348. Total 0/1 predicted = 2219,4129, with random seed 9999.
+100.00%, ll=-190.06610, gf=3.606, secs=7073.3, GB=2.83, MB/s= 0.40, GPUmem=0.336740
+pass=96
+Accuracy: 0.6131065 = 3892.0 / 6348. Total 0/1 predicted = 2296,4052, with random seed 9999.
+100.00%, ll=-189.95647, gf=3.606, secs=7146.9, GB=2.86, MB/s= 0.40, GPUmem=0.337096
+pass=97
+Accuracy: 0.6120038 = 3885.0 / 6348. Total 0/1 predicted = 2263,4085, with random seed 9999.
+100.00%, ll=-189.69102, gf=3.606, secs=7220.6, GB=2.88, MB/s= 0.40, GPUmem=0.336364
+pass=98
+Accuracy: 0.61216134 = 3886.0 / 6348. Total 0/1 predicted = 2214,4134, with random seed 9999.
+100.00%, ll=-189.83080, gf=3.606, secs=7294.4, GB=2.91, MB/s= 0.40, GPUmem=0.338520
+pass=99
+Accuracy: 0.6115312 = 3882.0 / 6348. Total 0/1 predicted = 2280,4068, with random seed 9999.
+100.00%, ll=-189.45340, gf=3.606, secs=7368.0, GB=2.94, MB/s= 0.40, GPUmem=0.338520
+pass=100
+Accuracy: 0.6112161 = 3880.0 / 6348. Total 0/1 predicted = 2204,4144, with random seed 9999.
+100.00%, ll=-189.55000, gf=3.606, secs=7441.7, GB=2.97, MB/s= 0.40, GPUmem=0.338520
+pass=101
+Accuracy: 0.61247635 = 3888.0 / 6348. Total 0/1 predicted = 2232,4116, with random seed 9999.
+100.00%, ll=-189.05186, gf=3.606, secs=7515.4, GB=3.00, MB/s= 0.40, GPUmem=0.336384
+pass=102
+Accuracy: 0.61657214 = 3914.0 / 6348. Total 0/1 predicted = 2212,4136, with random seed 9999.
+100.00%, ll=-189.09909, gf=3.606, secs=7589.1, GB=3.03, MB/s= 0.40, GPUmem=0.336343
+pass=103
+Accuracy: 0.6123188 = 3887.0 / 6348. Total 0/1 predicted = 2195,4153, with random seed 9999.
+100.00%, ll=-188.93069, gf=3.606, secs=7662.8, GB=3.06, MB/s= 0.40, GPUmem=0.337808
+pass=104
+Accuracy: 0.6112161 = 3880.0 / 6348. Total 0/1 predicted = 2238,4110, with random seed 9999.
+100.00%, ll=-188.62497, gf=3.606, secs=7736.5, GB=3.09, MB/s= 0.40, GPUmem=0.336364
+pass=105
+Accuracy: 0.61499685 = 3904.0 / 6348. Total 0/1 predicted = 2204,4144, with random seed 9999.
+100.00%, ll=-188.87180, gf=3.606, secs=7810.2, GB=3.12, MB/s= 0.40, GPUmem=0.336364
+pass=106
+Accuracy: 0.60964084 = 3870.0 / 6348. Total 0/1 predicted = 2240,4108, with random seed 9999.
+100.00%, ll=-188.08887, gf=3.606, secs=7883.8, GB=3.15, MB/s= 0.40, GPUmem=0.336384
+pass=107
+Accuracy: 0.60601765 = 3847.0 / 6348. Total 0/1 predicted = 2253,4095, with random seed 9999.
+100.00%, ll=-187.94261, gf=3.606, secs=7957.5, GB=3.18, MB/s= 0.40, GPUmem=0.338520
+pass=108
+Accuracy: 0.6053875 = 3843.0 / 6348. Total 0/1 predicted = 2217,4131, with random seed 9999.
+100.00%, ll=-187.42210, gf=3.606, secs=8031.2, GB=3.21, MB/s= 0.40, GPUmem=0.337432
+pass=109
+Accuracy: 0.610586 = 3876.0 / 6348. Total 0/1 predicted = 2194,4154, with random seed 9999.
+100.00%, ll=-187.63397, gf=3.606, secs=8104.9, GB=3.24, MB/s= 0.40, GPUmem=0.337452
+pass=110
+Accuracy: 0.6107435 = 3877.0 / 6348. Total 0/1 predicted = 2287,4061, with random seed 9999.
+100.00%, ll=-187.14539, gf=3.606, secs=8178.5, GB=3.27, MB/s= 0.40, GPUmem=0.338520
+pass=111
+Accuracy: 0.6097984 = 3871.0 / 6348. Total 0/1 predicted = 2271,4077, with random seed 9999.
+100.00%, ll=-186.96245, gf=3.606, secs=8252.1, GB=3.30, MB/s= 0.40, GPUmem=0.337798
+pass=112
+Accuracy: 0.61184627 = 3884.0 / 6348. Total 0/1 predicted = 2322,4026, with random seed 9999.
+100.00%, ll=-187.23553, gf=3.606, secs=8325.8, GB=3.33, MB/s= 0.40, GPUmem=0.338520
+pass=113
+Accuracy: 0.61389416 = 3897.0 / 6348. Total 0/1 predicted = 2391,3957, with random seed 9999.
+100.00%, ll=-186.94110, gf=3.606, secs=8399.4, GB=3.36, MB/s= 0.40, GPUmem=0.337432
+pass=114
+Accuracy: 0.61042845 = 3875.0 / 6348. Total 0/1 predicted = 2299,4049, with random seed 9999.
+100.00%, ll=-187.06097, gf=3.606, secs=8473.1, GB=3.38, MB/s= 0.40, GPUmem=0.337432
+pass=115
+Accuracy: 0.6077505 = 3858.0 / 6348. Total 0/1 predicted = 2296,4052, with random seed 9999.
+100.00%, ll=-186.53511, gf=3.606, secs=8546.7, GB=3.41, MB/s= 0.40, GPUmem=0.337432
+pass=116
+Accuracy: 0.60853815 = 3863.0 / 6348. Total 0/1 predicted = 2417,3931, with random seed 9999.
+100.00%, ll=-186.77333, gf=3.606, secs=8620.4, GB=3.44, MB/s= 0.40, GPUmem=0.338520
+pass=117
+Accuracy: 0.60916823 = 3867.0 / 6348. Total 0/1 predicted = 2373,3975, with random seed 9999.
+100.00%, ll=-186.91989, gf=3.606, secs=8694.1, GB=3.47, MB/s= 0.40, GPUmem=0.336384
+pass=118
+Accuracy: 0.60932577 = 3868.0 / 6348. Total 0/1 predicted = 2358,3990, with random seed 9999.
+100.00%, ll=-186.85609, gf=3.606, secs=8767.7, GB=3.50, MB/s= 0.40, GPUmem=0.336364
+pass=119
+Accuracy: 0.60916823 = 3867.0 / 6348. Total 0/1 predicted = 2325,4023, with random seed 9999.
+100.00%, ll=-186.85762, gf=3.606, secs=8841.4, GB=3.53, MB/s= 0.40, GPUmem=0.337798
+pass=120
+Accuracy: 0.6099559 = 3872.0 / 6348. Total 0/1 predicted = 2406,3942, with random seed 9999.
+100.00%, ll=-186.62190, gf=3.606, secs=8915.0, GB=3.56, MB/s= 0.40, GPUmem=0.338520
+pass=121
+Accuracy: 0.6126339 = 3889.0 / 6348. Total 0/1 predicted = 2365,3983, with random seed 9999.
+100.00%, ll=-186.38841, gf=3.606, secs=8988.9, GB=3.59, MB/s= 0.40, GPUmem=0.337798
+pass=122
+Accuracy: 0.61168873 = 3883.0 / 6348. Total 0/1 predicted = 2393,3955, with random seed 9999.
+100.00%, ll=-186.34169, gf=3.606, secs=9062.6, GB=3.62, MB/s= 0.40, GPUmem=0.336384
+pass=123
+Accuracy: 0.615627 = 3908.0 / 6348. Total 0/1 predicted = 2354,3994, with random seed 9999.
+100.00%, ll=-186.16246, gf=3.606, secs=9136.3, GB=3.65, MB/s= 0.40, GPUmem=0.336343
+pass=124
+Accuracy: 0.6143667 = 3900.0 / 6348. Total 0/1 predicted = 2342,4006, with random seed 9999.
+100.00%, ll=-186.01050, gf=3.606, secs=9210.3, GB=3.68, MB/s= 0.40, GPUmem=0.338520
+pass=125
+Accuracy: 0.60932577 = 3868.0 / 6348. Total 0/1 predicted = 2444,3904, with random seed 9999.
+100.00%, ll=-186.29144, gf=3.606, secs=9283.9, GB=3.71, MB/s= 0.40, GPUmem=0.337432
+pass=126
+Accuracy: 0.6063327 = 3849.0 / 6348. Total 0/1 predicted = 2411,3937, with random seed 9999.
+100.00%, ll=-186.10425, gf=3.606, secs=9357.6, GB=3.74, MB/s= 0.40, GPUmem=0.336364
+pass=127
+Accuracy: 0.60964084 = 3870.0 / 6348. Total 0/1 predicted = 2344,4004, with random seed 9999.
+100.00%, ll=-186.11497, gf=3.606, secs=9431.2, GB=3.77, MB/s= 0.40, GPUmem=0.337432
+pass=128
+Accuracy: 0.6066478 = 3851.0 / 6348. Total 0/1 predicted = 2357,3991, with random seed 9999.
+100.00%, ll=-185.78880, gf=3.606, secs=9504.9, GB=3.80, MB/s= 0.40, GPUmem=0.336343
+pass=129
+Accuracy: 0.613264 = 3893.0 / 6348. Total 0/1 predicted = 2343,4005, with random seed 9999.
+100.00%, ll=-185.62085, gf=3.606, secs=9578.6, GB=3.83, MB/s= 0.40, GPUmem=0.337452
+pass=130
+Accuracy: 0.60239446 = 3824.0 / 6348. Total 0/1 predicted = 2366,3982, with random seed 9999.
+100.00%, ll=-185.72903, gf=3.606, secs=9652.3, GB=3.86, MB/s= 0.40, GPUmem=0.336343
+pass=131
+Accuracy: 0.61294895 = 3891.0 / 6348. Total 0/1 predicted = 2373,3975, with random seed 9999.
+100.00%, ll=-185.37846, gf=3.606, secs=9725.9, GB=3.89, MB/s= 0.40, GPUmem=0.336364
+pass=132
+Accuracy: 0.6090107 = 3866.0 / 6348. Total 0/1 predicted = 2350,3998, with random seed 9999.
+100.00%, ll=-185.13405, gf=3.606, secs=9799.5, GB=3.91, MB/s= 0.40, GPUmem=0.337798
+pass=133
+Accuracy: 0.6135791 = 3895.0 / 6348. Total 0/1 predicted = 2381,3967, with random seed 9999.
+100.00%, ll=-185.03835, gf=3.606, secs=9873.2, GB=3.94, MB/s= 0.40, GPUmem=0.336364
+pass=134
+Accuracy: 0.60507244 = 3841.0 / 6348. Total 0/1 predicted = 2307,4041, with random seed 9999.
+100.00%, ll=-184.99487, gf=3.606, secs=9946.9, GB=3.97, MB/s= 0.40, GPUmem=0.338520
+pass=135
+Accuracy: 0.6086956 = 3864.0 / 6348. Total 0/1 predicted = 2306,4042, with random seed 9999.
+100.00%, ll=-184.92592, gf=3.606, secs=10020.6, GB=4.00, MB/s= 0.40, GPUmem=0.336364
+pass=136
+Accuracy: 0.61168873 = 3883.0 / 6348. Total 0/1 predicted = 2273,4075, with random seed 9999.
+100.00%, ll=-184.85696, gf=3.606, secs=10094.4, GB=4.03, MB/s= 0.40, GPUmem=0.338520
+pass=137
+Accuracy: 0.6066478 = 3851.0 / 6348. Total 0/1 predicted = 2277,4071, with random seed 9999.
+100.00%, ll=-184.50517, gf=3.606, secs=10168.1, GB=4.06, MB/s= 0.40, GPUmem=0.337452
+pass=138
+Accuracy: 0.61452425 = 3901.0 / 6348. Total 0/1 predicted = 2307,4041, with random seed 9999.
+100.00%, ll=-184.41537, gf=3.606, secs=10241.8, GB=4.09, MB/s= 0.40, GPUmem=0.338520
+pass=139
+Accuracy: 0.60507244 = 3841.0 / 6348. Total 0/1 predicted = 2259,4089, with random seed 9999.
+100.00%, ll=-184.34619, gf=3.606, secs=10315.5, GB=4.12, MB/s= 0.40, GPUmem=0.338520
+pass=140
+Accuracy: 0.60523 = 3842.0 / 6348. Total 0/1 predicted = 2278,4070, with random seed 9999.
+100.00%, ll=-184.19652, gf=3.606, secs=10389.1, GB=4.15, MB/s= 0.40, GPUmem=0.336343
+pass=141
+Accuracy: 0.59499055 = 3777.0 / 6348. Total 0/1 predicted = 2307,4041, with random seed 9999.
+100.00%, ll=-184.09503, gf=3.606, secs=10462.8, GB=4.18, MB/s= 0.40, GPUmem=0.338520
+pass=142
+Accuracy: 0.61168873 = 3883.0 / 6348. Total 0/1 predicted = 2259,4089, with random seed 9999.
+100.00%, ll=-184.28474, gf=3.606, secs=10536.5, GB=4.21, MB/s= 0.40, GPUmem=0.337452
+pass=143
+Accuracy: 0.60554504 = 3844.0 / 6348. Total 0/1 predicted = 2292,4056, with random seed 9999.
+100.00%, ll=-184.44196, gf=3.606, secs=10610.1, GB=4.24, MB/s= 0.40, GPUmem=0.337452
+pass=144
+Accuracy: 0.615942 = 3910.0 / 6348. Total 0/1 predicted = 2258,4090, with random seed 9999.
+100.00%, ll=-183.72913, gf=3.606, secs=10683.8, GB=4.27, MB/s= 0.40, GPUmem=0.338520
+pass=145
+Accuracy: 0.61137366 = 3881.0 / 6348. Total 0/1 predicted = 2293,4055, with random seed 9999.
+100.00%, ll=-184.19759, gf=3.606, secs=10757.5, GB=4.30, MB/s= 0.40, GPUmem=0.338520
+pass=146
+Accuracy: 0.6082231 = 3861.0 / 6348. Total 0/1 predicted = 2331,4017, with random seed 9999.
+100.00%, ll=-183.61066, gf=3.606, secs=10831.2, GB=4.33, MB/s= 0.40, GPUmem=0.338520
+pass=147
+Accuracy: 0.6094833 = 3869.0 / 6348. Total 0/1 predicted = 2265,4083, with random seed 9999.
+100.00%, ll=-183.81705, gf=3.606, secs=10904.9, GB=4.36, MB/s= 0.40, GPUmem=0.337798
+pass=148
+Accuracy: 0.61452425 = 3901.0 / 6348. Total 0/1 predicted = 2315,4033, with random seed 9999.
+100.00%, ll=-183.87473, gf=3.606, secs=10978.5, GB=4.39, MB/s= 0.40, GPUmem=0.338520
+pass=149
+Accuracy: 0.60680526 = 3852.0 / 6348. Total 0/1 predicted = 2320,4028, with random seed 9999.
+100.00%, ll=-183.76057, gf=3.606, secs=11052.2, GB=4.42, MB/s= 0.40, GPUmem=0.338520
+pass=150
+Accuracy: 0.61609954 = 3911.0 / 6348. Total 0/1 predicted = 2201,4147, with random seed 9999.
+100.00%, ll=-183.44887, gf=3.606, secs=11125.9, GB=4.44, MB/s= 0.40, GPUmem=0.336709
+pass=151
+Accuracy: 0.61090106 = 3878.0 / 6348. Total 0/1 predicted = 2240,4108, with random seed 9999.
+100.00%, ll=-183.15454, gf=3.606, secs=11199.6, GB=4.47, MB/s= 0.40, GPUmem=0.336384
+pass=152
+Accuracy: 0.6082231 = 3861.0 / 6348. Total 0/1 predicted = 2243,4105, with random seed 9999.
+100.00%, ll=-183.45830, gf=3.606, secs=11273.3, GB=4.50, MB/s= 0.40, GPUmem=0.338520
+pass=153
+Accuracy: 0.61247635 = 3888.0 / 6348. Total 0/1 predicted = 2224,4124, with random seed 9999.
+100.00%, ll=-183.31459, gf=3.606, secs=11347.1, GB=4.53, MB/s= 0.40, GPUmem=0.336384
+pass=154
+Accuracy: 0.60806555 = 3860.0 / 6348. Total 0/1 predicted = 2204,4144, with random seed 9999.
+100.00%, ll=-183.52011, gf=3.606, secs=11420.9, GB=4.56, MB/s= 0.40, GPUmem=0.336384
+pass=155
+Accuracy: 0.6172023 = 3918.0 / 6348. Total 0/1 predicted = 2260,4088, with random seed 9999.
+100.00%, ll=-183.14575, gf=3.606, secs=11494.6, GB=4.59, MB/s= 0.40, GPUmem=0.338520
+pass=156
+Accuracy: 0.6086956 = 3864.0 / 6348. Total 0/1 predicted = 2234,4114, with random seed 9999.
+100.00%, ll=-183.53941, gf=3.606, secs=11568.2, GB=4.62, MB/s= 0.40, GPUmem=0.336364
+pass=157
+Accuracy: 0.60932577 = 3868.0 / 6348. Total 0/1 predicted = 2264,4084, with random seed 9999.
+100.00%, ll=-183.37874, gf=3.606, secs=11641.9, GB=4.65, MB/s= 0.40, GPUmem=0.338520
+pass=158
+Accuracy: 0.6082231 = 3861.0 / 6348. Total 0/1 predicted = 2259,4089, with random seed 9999.
+100.00%, ll=-183.59789, gf=3.606, secs=11715.5, GB=4.68, MB/s= 0.40, GPUmem=0.336343
+pass=159
+Accuracy: 0.61011344 = 3873.0 / 6348. Total 0/1 predicted = 2273,4075, with random seed 9999.
+100.00%, ll=-182.84169, gf=3.606, secs=11789.2, GB=4.71, MB/s= 0.40, GPUmem=0.338520
+pass=160
+Accuracy: 0.61184627 = 3884.0 / 6348. Total 0/1 predicted = 2256,4092, with random seed 9999.
+100.00%, ll=-183.31322, gf=3.606, secs=11862.8, GB=4.74, MB/s= 0.40, GPUmem=0.338520
+pass=161
+Accuracy: 0.60396975 = 3834.0 / 6348. Total 0/1 predicted = 2264,4084, with random seed 9999.
+100.00%, ll=-182.98529, gf=3.606, secs=11936.4, GB=4.77, MB/s= 0.40, GPUmem=0.337452
+pass=162
+Accuracy: 0.613264 = 3893.0 / 6348. Total 0/1 predicted = 2275,4073, with random seed 9999.
+100.00%, ll=-183.09572, gf=3.606, secs=12010.0, GB=4.80, MB/s= 0.40, GPUmem=0.338520
+pass=163
+Accuracy: 0.61011344 = 3873.0 / 6348. Total 0/1 predicted = 2237,4111, with random seed 9999.
+100.00%, ll=-183.15735, gf=3.606, secs=12083.6, GB=4.83, MB/s= 0.40, GPUmem=0.336364
+pass=164
+Accuracy: 0.6167297 = 3915.0 / 6348. Total 0/1 predicted = 2205,4143, with random seed 9999.
+100.00%, ll=-182.85135, gf=3.606, secs=12157.3, GB=4.86, MB/s= 0.40, GPUmem=0.338520
+pass=165
+Accuracy: 0.61090106 = 3878.0 / 6348. Total 0/1 predicted = 2218,4130, with random seed 9999.
+100.00%, ll=-182.73741, gf=3.606, secs=12231.0, GB=4.89, MB/s= 0.40, GPUmem=0.336720
+pass=166
+Accuracy: 0.6126339 = 3889.0 / 6348. Total 0/1 predicted = 2171,4177, with random seed 9999.
+100.00%, ll=-182.66763, gf=3.606, secs=12304.6, GB=4.92, MB/s= 0.40, GPUmem=0.336709
+pass=167
+Accuracy: 0.6009767 = 3815.0 / 6348. Total 0/1 predicted = 2189,4159, with random seed 9999.
+100.00%, ll=-182.50310, gf=3.606, secs=12378.3, GB=4.94, MB/s= 0.40, GPUmem=0.336364
+pass=168
+Accuracy: 0.61090106 = 3878.0 / 6348. Total 0/1 predicted = 2170,4178, with random seed 9999.
+100.00%, ll=-182.31003, gf=3.606, secs=12452.0, GB=4.97, MB/s= 0.40, GPUmem=0.338520
+pass=169
+Accuracy: 0.610271 = 3874.0 / 6348. Total 0/1 predicted = 2164,4184, with random seed 9999.
+100.00%, ll=-182.17740, gf=3.606, secs=12525.7, GB=5.00, MB/s= 0.40, GPUmem=0.337798
+pass=170
+Accuracy: 0.6120038 = 3885.0 / 6348. Total 0/1 predicted = 2155,4193, with random seed 9999.
+100.00%, ll=-182.13147, gf=3.606, secs=12599.3, GB=5.03, MB/s= 0.40, GPUmem=0.336343
+pass=171
+Accuracy: 0.62114054 = 3943.0 / 6348. Total 0/1 predicted = 2197,4151, with random seed 9999.
+100.00%, ll=-182.21315, gf=3.606, secs=12673.0, GB=5.06, MB/s= 0.40, GPUmem=0.336364
+pass=172
+Accuracy: 0.6083806 = 3862.0 / 6348. Total 0/1 predicted = 2152,4196, with random seed 9999.
+100.00%, ll=-182.24632, gf=3.606, secs=12746.6, GB=5.09, MB/s= 0.40, GPUmem=0.336364
+pass=173
+Accuracy: 0.61137366 = 3881.0 / 6348. Total 0/1 predicted = 2165,4183, with random seed 9999.
+100.00%, ll=-182.12029, gf=3.606, secs=12820.3, GB=5.12, MB/s= 0.40, GPUmem=0.338520
+pass=174
+Accuracy: 0.61216134 = 3886.0 / 6348. Total 0/1 predicted = 2158,4190, with random seed 9999.
+100.00%, ll=-181.72604, gf=3.606, secs=12893.9, GB=5.15, MB/s= 0.40, GPUmem=0.338520
+pass=175
+Accuracy: 0.61090106 = 3878.0 / 6348. Total 0/1 predicted = 2182,4166, with random seed 9999.
+100.00%, ll=-181.78870, gf=3.606, secs=12967.6, GB=5.18, MB/s= 0.40, GPUmem=0.336364
+pass=176
+Accuracy: 0.61216134 = 3886.0 / 6348. Total 0/1 predicted = 2176,4172, with random seed 9999.
+100.00%, ll=-181.92088, gf=3.606, secs=13041.3, GB=5.21, MB/s= 0.40, GPUmem=0.336384
+pass=177
+Accuracy: 0.6107435 = 3877.0 / 6348. Total 0/1 predicted = 2161,4187, with random seed 9999.
+100.00%, ll=-181.90901, gf=3.606, secs=13115.0, GB=5.24, MB/s= 0.40, GPUmem=0.337452
+pass=178
+Accuracy: 0.6146818 = 3902.0 / 6348. Total 0/1 predicted = 2136,4212, with random seed 9999.
+100.00%, ll=-182.37436, gf=3.606, secs=13188.6, GB=5.27, MB/s= 0.40, GPUmem=0.338520
+pass=179
+Accuracy: 0.6146818 = 3902.0 / 6348. Total 0/1 predicted = 2156,4192, with random seed 9999.
+100.00%, ll=-181.79655, gf=3.606, secs=13262.3, GB=5.30, MB/s= 0.40, GPUmem=0.338520
+pass=180
+Accuracy: 0.61090106 = 3878.0 / 6348. Total 0/1 predicted = 2186,4162, with random seed 9999.
+100.00%, ll=-182.24306, gf=3.606, secs=13335.9, GB=5.33, MB/s= 0.40, GPUmem=0.338520
+pass=181
+Accuracy: 0.61294895 = 3891.0 / 6348. Total 0/1 predicted = 2057,4291, with random seed 9999.
+100.00%, ll=-181.76065, gf=3.606, secs=13409.4, GB=5.36, MB/s= 0.40, GPUmem=0.336384
+pass=182
+Accuracy: 0.6094833 = 3869.0 / 6348. Total 0/1 predicted = 2187,4161, with random seed 9999.
+100.00%, ll=-181.42714, gf=3.606, secs=13483.1, GB=5.39, MB/s= 0.40, GPUmem=0.336364
+pass=183
+Accuracy: 0.61247635 = 3888.0 / 6348. Total 0/1 predicted = 2178,4170, with random seed 9999.
+100.00%, ll=-181.52397, gf=3.606, secs=13556.8, GB=5.42, MB/s= 0.40, GPUmem=0.338520
+pass=184
+Accuracy: 0.6099559 = 3872.0 / 6348. Total 0/1 predicted = 2130,4218, with random seed 9999.
+100.00%, ll=-181.58032, gf=3.606, secs=13630.4, GB=5.45, MB/s= 0.40, GPUmem=0.338520
+pass=185
+Accuracy: 0.6153119 = 3906.0 / 6348. Total 0/1 predicted = 2178,4170, with random seed 9999.
+100.00%, ll=-181.44539, gf=3.609, secs=13695.6, GB=5.47, MB/s= 0.40, GPUmem=0.557064
+pass=186
+Accuracy: 0.61184627 = 3884.0 / 6348. Total 0/1 predicted = 2168,4180, with random seed 9999.
+100.00%, ll=-181.32404, gf=3.615, secs=13744.4, GB=5.50, MB/s= 0.40, GPUmem=0.556352
+pass=187
+Accuracy: 0.61216134 = 3886.0 / 6348. Total 0/1 predicted = 2108,4240, with random seed 9999.
+100.00%, ll=-180.79681, gf=3.621, secs=13793.5, GB=5.53, MB/s= 0.40, GPUmem=0.557064
+pass=188
+Accuracy: 0.6131065 = 3892.0 / 6348. Total 0/1 predicted = 2162,4186, with random seed 9999.
+100.00%, ll=-181.27505, gf=3.628, secs=13841.8, GB=5.56, MB/s= 0.40, GPUmem=0.556342
+pass=189
+Accuracy: 0.61184627 = 3884.0 / 6348. Total 0/1 predicted = 2082,4266, with random seed 9999.
+100.00%, ll=-180.93193, gf=3.634, secs=13890.2, GB=5.59, MB/s= 0.40, GPUmem=0.556352
+pass=190
+Accuracy: 0.62114054 = 3943.0 / 6348. Total 0/1 predicted = 2109,4239, with random seed 9999.
+100.00%, ll=-180.85304, gf=3.641, secs=13939.5, GB=5.62, MB/s= 0.40, GPUmem=0.555996
+pass=191
+Accuracy: 0.6142092 = 3899.0 / 6348. Total 0/1 predicted = 2101,4247, with random seed 9999.
+100.00%, ll=-181.06688, gf=3.647, secs=13988.3, GB=5.65, MB/s= 0.40, GPUmem=0.557064
+pass=192
+Accuracy: 0.61389416 = 3897.0 / 6348. Total 0/1 predicted = 2135,4213, with random seed 9999.
+100.00%, ll=-180.75452, gf=3.653, secs=14037.4, GB=5.68, MB/s= 0.40, GPUmem=0.555976
+pass=193
+Accuracy: 0.6110586 = 3879.0 / 6348. Total 0/1 predicted = 2177,4171, with random seed 9999.
+100.00%, ll=-181.18564, gf=3.659, secs=14086.1, GB=5.71, MB/s= 0.41, GPUmem=0.555996
+pass=194
+Accuracy: 0.6123188 = 3887.0 / 6348. Total 0/1 predicted = 2175,4173, with random seed 9999.
+100.00%, ll=-180.81448, gf=3.665, secs=14135.3, GB=5.74, MB/s= 0.41, GPUmem=0.556342
+pass=195
+Accuracy: 0.6157845 = 3909.0 / 6348. Total 0/1 predicted = 2171,4177, with random seed 9999.
+100.00%, ll=-180.78688, gf=3.672, secs=14184.1, GB=5.77, MB/s= 0.41, GPUmem=0.555976
+pass=196
+Accuracy: 0.6123188 = 3887.0 / 6348. Total 0/1 predicted = 2159,4189, with random seed 9999.
+100.00%, ll=-180.58971, gf=3.678, secs=14232.5, GB=5.80, MB/s= 0.41, GPUmem=0.555996
+pass=197
+Accuracy: 0.6042848 = 3836.0 / 6348. Total 0/1 predicted = 2136,4212, with random seed 9999.
+100.00%, ll=-180.65329, gf=3.684, secs=14281.7, GB=5.83, MB/s= 0.41, GPUmem=0.555996
+pass=198
+Accuracy: 0.6110586 = 3879.0 / 6348. Total 0/1 predicted = 2081,4267, with random seed 9999.
+100.00%, ll=-180.08975, gf=3.694, secs=14315.4, GB=5.86, MB/s= 0.41, GPUmem=0.775608
+pass=199
+Accuracy: 0.6157845 = 3909.0 / 6348. Total 0/1 predicted = 2183,4165, with random seed 9999.
+100.00%, ll=-179.99504, gf=3.706, secs=14337.2, GB=5.89, MB/s= 0.41, GPUmem=0.775608
+Time=14337.2441 secs, gflops=3.71
+res4: BIDMat.Mat = 0.27685,0.72315,0.37462,0.62538,0.50710,0.49290,0.19500,0.80500,0.63130,0.36870,0.27232,0.72768,0.31320,0.68680,0.69768,0.30232,0.74833,0.25167,0.54543,0.45457,0.32337,0.67663,0.58232,0.41768,0.70918,0.29082,0.80309,0.19691,0.42950,0.57050,0.37917,0.62083,0.51673,0.48327,0.058329,0.94167,0.080096,0.91990,0.20109,0.79891,0.58106,0.41894,0.061116,0.93888,0.19396,0.80604,0.30858,0.69142,0.25404,0.74596,0.94031,0.059690,0.93631,0.063691,0.58406,0.41594,0.62312,0.37688,0.57928,0.42072,0.59561,0.40439,0.36429,0.63571,0.37559,0.62441,0.70439,0.29561,0.57766,0.42234,0.18239,0.81762,0.42921,0.57079,0.020883,0.97912,0.38705,0.61295,0.25405,0.74595,0.73291,0.26709,0.68316,0.31684,0.49061,0.50939,0.35778,0.64222,0.58534,0.41466,0.35841,0.64159,0.82751,0.17249,0.31533,0.68467,0.39...

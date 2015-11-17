@@ -63,7 +63,8 @@ for i in xrange(3):
 
 # Be sure to increase the font sizes! I might also have to experiment with a lot of other settings.
 plt.legend(loc='upper right', ncol=1)
-plt.title('Average KL Divergence on Koller Data', fontsize='xx-large')
+
+plt.title('Average KL Divergence (Koller)', fontsize='xx-large'
 plt.yscale('log')
 plt.xlabel('Number of Passes Over the Data', fontsize='x-large')
 plt.ylabel('Average KL Divergence', fontsize='x-large')
@@ -125,10 +126,10 @@ for i in xrange(3):
 
 # Be sure to increase the font sizes! I might also have to experiment with a lot of other settings.
 plt.legend(loc='upper right', ncol=1)
-plt.title('Convergence Based on Seconds', fontsize='xx-large')
+plt.title('Average KL and Time Tradeoff (Koller)', fontsize='xx-large')
 plt.yscale('log')
 plt.xlabel('Seconds', fontsize='x-large')
-plt.ylabel('(Log)Average KL Divergence', fontsize='x-large')
+plt.ylabel('Average KL Divergence', fontsize='x-large')
 plt.xlim(0, 300)
 plt.ylim(1e-5, 0.1)
 plt.savefig('fig_kl_div_25_50_perc_jags_time.png')

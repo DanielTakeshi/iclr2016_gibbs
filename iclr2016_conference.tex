@@ -556,25 +556,47 @@ better figures. Also, I'll keep more detailed results in LaTeX comments.
 % BIDMach settings: 25k batch size, 200 iterations, 777 seed.  We do get gflops with BIDMach, so we
 % can include them if desired, but the runtime is the more interesting thing we want to compare.
 % Perhaps we should use total seconds, rather than per iteration? It's easier to understand.
+% Also, opts.updateAll = true because we should be updating after each mini-batch.
 %
-% Here are the BIDMach CPU (not GPU!) results, with extra values if we can get more JAGS results:
+% Here are the BIDMach CPU (not GPU!) results ON BITTER, with extra values if we can get more JAGS results:
+%
 % Time=8.7060 secs, gflops=0.84 (m=1)
 % Time=15.4930 secs, gflops=0.94 (m=2)
 % Time=29.7660 secs, gflops=1.23 (m=5)
 % Time=67.6580 secs, gflops=1.08 (m=10)
 % Time=129.7780 secs, gflops=1.13 (m=20)
 %
-% Yeah, a  bit weird that gflops doesn't increase each time ...
+% BIDMach CPU times on STOUT, which is what we actually have to report!
+%
+% Time=10.6480 secs, gflops=0.69 (m=1)
+% Time=15.3780 secs, gflops=0.95 (m=2)
+% Time=31.4540 secs, gflops=1.16 (m=5)
+% Time=61.1170 secs, gflops=1.20 (m=10)
+% Time=122.2520 secs, gflops=1.20 (m=20)
+%
+% Yeah, a  bit weird that gflops doesn't increase each time ... also, funny how stout is actually
+% faster. That works to our *advantage* here!
+%
+% EDIT: Argh, we may have to re-run this to get times for four mini-batches since that's what I use for Fig 2. 
+% Stout with mb size of 12.5k:
+%
+%
+%
+%
+%
+%
+%
+% Make sure we mention in the paper that we're deliberately handicapping ourselves.
 \begin{table}[h]
 \caption{BIDMach (CPU) vs. JAGS Runtime on Koller Data}
 \label{tab:bidmach_jags_koller}
 \begin{center}
-\begin{tabular}{ |c|c|c|c|c| } 
+\begin{tabular}{ |c|c|c|c|c|c|c| } 
 \hline
-                  & $m=1$ & $m=5$ & $m=10$ \\
+                  & $m=1$ & $m=2$ & $m=5$ & $m=10$ & $m=20$ \\
 \hline \hline
-BIDMach Time/Iter & 0.044 & 0.149 & 0.338  \\ 
-JAGS Time/Iter    & & & \\
+BIDMach Time/Iter & 0.053 & 0.077 & 0.157 & 0.306 & 0.611 \\ 
+JAGS Time/Iter    & & & & & \\
 \hline
 \end{tabular}
 \end{center}
@@ -585,19 +607,29 @@ JAGS Time/Iter    & & & \\
 % Batch size: we'll use 2184 (approx 4367/2) to be a fair comparision with previous table with
 % Koller, because we usually like to have more than one mini-batch.
 %
-% Here are the BIDMach CPU (not GPU!) results:
+% Here are the BIDMach CPU (not GPU!) results on BITTER:
 %
 % Time=36.4890 secs, gflops=1.20 (1x)
 % Time=71.5470 secs, gflops=1.22 (2x)
 % Time=196.5920 secs, gflops=1.11 (5x)
 % Time=387.2260 secs, gflops=1.13 (10x)
 % Time=739.8330 secs, gflops=1.18 (20x)
+% 
+% Here are the CPU BIDMach times on STOUT with the same settings, which is what we report:
+%
+%
+%
+%
+% Time=358.4780 secs, gflops=1.22 (10x)
+% Time=700.2980 secs, gflops=1.25 (20x)
+% (40x)
 %
 % It takes a while with 20x, and absurdly long with 100x ... remember, the batch sizes are the same.
-% Note: I suppose I should run this with 60% data as well...
+% Note: I suppose I should run this with 40% data as well...
 %
 % Notes on JAGS: we tried with 100x, but it crashed (ran out of memory) on stout, after almost 30
-% minutes.
+% minutes. And actually, 40% crashed as well. But on stout, BIDMach only uses 11.4% of the memory
+% with 40% of the data.
 \begin{table}[h]
 \caption{BIDMach (CPU) vs. JAGS Runtime on (Replicated) Real MOOC Data}
 \label{tab:bidmach_jags_realmooc}

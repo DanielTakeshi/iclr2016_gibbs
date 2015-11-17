@@ -338,5 +338,5 @@ monitor n330.prob
 monitor n331.prob
 monitor n332.prob
 monitor n333.prob
-update 200
+update 500
 coda *

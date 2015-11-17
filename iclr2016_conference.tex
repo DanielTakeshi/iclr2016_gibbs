@@ -273,7 +273,7 @@ explicit, and say that Figure 1 is only for intuition as most data will fit in m
 
 
 
-
+% Daniel: be sure to reference data correctly! Call it "Koller", "Synthetic MOOC", or "Real MOOC".
 \section{Experiments}\label{sec:experiments}
 
 We benchmark our Gibbs sampler based on one synthetic and one real dataset. We compare it with
@@ -299,9 +299,6 @@ We emphasize that the use of one computer at a time is deliberate and a strength
 it is cheaper and simpler to run as compared to a computing cluster.
 
 \subsection{Synthetically Generated ``Koller'' Data}\label{ssec:koller_data}
-
-\textbf{Daniel: change all figures to have (Koller) at the end! Also, refer to this as the Koller
-data! I.e., figures should have the title: XXX (Koller) or XXX (MOOC).}
 
 \begin{figure}[t]
   \centering
@@ -421,35 +418,47 @@ substantially worse $KL_{\rm avg}$ than the respective yellow and blue curves. T
 $m=1$ to $m=5$ has a much larger relative improvement than the increase from $m=5$ to $m=10$,
 consistent with our observations of diminishing returns.
 
-Next, we evaluate how the SAME parameter $m$ affects the runtime of the sampler, since more samples
-means the algorithm necessarily runs longer. Figures~\ref{fig:kl_time_bidmach}
-and~\ref{fig:kl_time_jags} plot $KL_{\rm avg}$ versus total runtime (in seconds) for BIDMach and
-JAGS, respectively. As before, $KL_{\rm avg}$ is on a log scale.
 
-There are several interesting observations. The first is that the curves for higher $m$ values start
-later due to high initialization costs (this is especially problematic for JAGS). This, along with
-the relative marginal benefit of increasing $m$ on this data means that SAME may not have a
-beneficial time-accuracy tradeoff. BIDMach, on the other had, has faster initialization costs and
-increasing $m$ results in faster convergence.
+\subsection{Dynamic Learning Maps ``MOOC'' Data}\label{ssec:mooc_data}
 
-% Daniel: I just think we have to get rid of (or replace, more likely) these figures.
-%\begin{figure}[t]
-%  \centering
-%  \begin{minipage}{.5\textwidth}
-%    \centering
-%    \includegraphics[width=1\textwidth]{fig_kl_time_tradeoff_koller_data}
-%    \caption{Time and $KL_{\rm avg}$ (BIDMach).}
-%    \label{fig:kl_time_bidmach}
-%  \end{minipage}\hfill
-%    \begin{minipage}{.5\textwidth}
-%    \centering
-%    \includegraphics[width=1\textwidth]{fig_kl_div_25_50_perc_jags_time}
-%    \caption{Time and $KL_{\rm avg}$ (JAGS).}
-%    \label{fig:kl_time_jags}
-%  \end{minipage}
-%\end{figure}
+% Daniel: a few things to argue about for the kldiv_synthmooc_gpu_300iter_02b.png figure.
+%   (1) These are in fact the steady states. I ran the BIDMach data for 500 iterations, and the
+% graphs level out at where they level out (i.e., the 2.2% and 5% data look like they're going up *a
+% little* but then they have another smooth decrease, etc.).
+%   (2) Also note the random starting point. This data's CPT is very even (lots of 50-50 stuff) so
+% JAGS will usually pick a good starting point, but BIDMach is completely random (which is what I
+% used here). In the 25% data, the steady state is roughly 0.007. JAGS seems like it can get there
+% in 7-8 iterations, while it seems like we take roughly 3-3.5 times that much. When we initialize
+% with a smoother prior, we tend to get convergence in about 2-2.5 times as many iterations (which
+% one can argue we should be using anyway).
+%   (3) Also consider the batch size. We are using 2184 so we have two mini-batches. More frequent
+% updates with smaller batch sizes can get the convergence down to about 1.5-2 times as many
+% iterations, but at an unacceptable extra time cost (i.e., the time would go up by double if we
+% halve the batch size, but the convergence time is not halved when we do that), so we felt from
+% informal tuning that two mini-batches was appropriate.
+%   (4) Finally, we can tune the SAME parameter. With a smooth prior (adding 10 to the starting
+% CPT), and also with SAME = 20, and a batch size of 500, I was able to get convergence in 10
+% iterations, roughly matching JAGS. We should say that in reality, the cost tradeoff is somewhat
+% unacceptable and we will stick with what we have here (i.e., losing a factor of 3 in converge rate
+% per iteration). The fact that BIDMach is fast and easily tunable means that tuning can and should
+% be done to get high quality models. We should mention that we do not know why JAGS converges
+% faster, and analyzing the source code did not help.
+\begin{figure}[t]
+  \centering
+  \begin{minipage}{.5\textwidth}
+    \centering
+    \includegraphics[width=1\textwidth]{kldiv_synthmooc_gpu_300iter_02b}
+    \caption{Time and $KL_{\rm avg}$ (BIDMach).}
+    \label{fig:kl_time_bidmach}
+  \end{minipage}\hfill
+    \begin{minipage}{.5\textwidth}
+    \centering
+    \includegraphics[width=1\textwidth]{kldiv_synthmooc_gpu_300iter_02b}
+    \caption{Time and $KL_{\rm avg}$ (JAGS).}
+    \label{fig:kl_time_jags}
+  \end{minipage}
+\end{figure}
 
-\subsection{Real Dynamic Learning Maps ``MOOC'' Data}\label{ssec:mooc_data}
 
 % BIDMach (CPU) vs JAGS for the Real MOOC data *replicated*, with SAME=1.
 % Batch size: we'll use 2184 (approx 4367/2) to be a fair comparision with previous table with

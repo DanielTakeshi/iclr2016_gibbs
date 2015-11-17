@@ -367,7 +367,7 @@ data! I.e., figures should have the title: XXX (Koller) or XXX (MOOC).}
                   & $m=1$ & $m=2$ & $m=5$ & $m=10$ & $m=20$ \\
 \hline \hline
 BIDMach Time/Iter & 0.055 & 0.090 & 0.165 & 0.311  & 0.577 \\ 
-JAGS Time/Iter    & & & & & \\
+JAGS Time/Iter    & 0.210 &  & 1.406 & 2.675 & \\
 \hline
 \end{tabular}
 \end{center}
@@ -489,8 +489,8 @@ increasing $m$ results in faster convergence.
 \hline
                   & 1x    & 2x    & 5x    & 10x   & 20x   & 40x   \\
 \hline \hline
-BIDMach Time/Iter & 0.182 & 0.375 & 0.931 & 1.792 & 3.501 & 7.181 \\ 
-JAGS Time/Iter    & & & & & & OOM \\
+BIDMach Time(sec)/Iter & 0.182 & 0.375 & 0.931 & 1.792 & 3.501 & 7.181 \\ 
+JAGS Time(sec)/Iter    & & & & 94.075 & & OOM \\
 \hline
 \end{tabular}
 \end{center}

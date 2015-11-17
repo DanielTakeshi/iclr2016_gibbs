@@ -305,14 +305,14 @@ data! I.e., figures should have the title: XXX (Koller) or XXX (MOOC).}
   \centering
   \begin{minipage}{.5\textwidth}
     \centering
-    \includegraphics[width=1\textwidth]{fig_kldiv_twobatches}
-    \caption{The $KL_{\rm avg}$ for BIDMach.}
+    \includegraphics[width=1\textwidth]{fig_kldiv_koller_mb4_gpu}
+    \caption{The $KL_{\rm avg}$ from BIDMach.}
     \label{fig:kl_bidmach}
   \end{minipage}\hfill
     \begin{minipage}{.5\textwidth}
     \centering
     \includegraphics[width=1\textwidth]{fig_kl_div_25_50_perc_jags}
-    \caption{The $KL_{\rm avg}$ for JAGS.}
+    \caption{The $KL_{\rm avg}$ from JAGS.}
     \label{fig:kl_jags}
   \end{minipage}
 \end{figure}
@@ -577,16 +577,17 @@ better figures. Also, I'll keep more detailed results in LaTeX comments.
 % Yeah, a  bit weird that gflops doesn't increase each time ... also, funny how stout is actually
 % faster. That works to our *advantage* here!
 %
-% EDIT: Argh, we may have to re-run this to get times for four mini-batches since that's what I use for Fig 2. 
-% Stout with mb size of 12.5k:
+% EDIT: Argh, we may have to re-run this to get times for FOUR mini-batches since that's what I use
+% for Fig 2. Results on stout with mini-batch sizes of 12.5k:
 %
+% Time=11.0200 secs, gflops=0.66 (m=1)
+% Time=18.0350 secs, gflops=0.81 (m=2)
+% Time=33.0970 secs, gflops=1.10 (m=5)
+% Time=62.2550 secs, gflops=1.17 (m=10)
+% Time=115.3720 secs, gflops=1.27 (m=20)
 %
-%
-%
-%
-%
-%
-% Make sure we mention in the paper that we're deliberately handicapping ourselves.
+% Make sure we mention in the paper that we're deliberately handicapping ourselves. EDIT: wait, wow,
+% 12500 can even be faster in some cases? Yeah, CPU runtime is tricky, but these are ballparks anyway.
 \begin{table}[h]
 \caption{BIDMach (CPU) vs. JAGS Runtime on Koller Data}
 \label{tab:bidmach_jags_koller}
@@ -595,7 +596,7 @@ better figures. Also, I'll keep more detailed results in LaTeX comments.
 \hline
                   & $m=1$ & $m=2$ & $m=5$ & $m=10$ & $m=20$ \\
 \hline \hline
-BIDMach Time/Iter & 0.053 & 0.077 & 0.157 & 0.306 & 0.611 \\ 
+BIDMach Time/Iter & 0.055 & 0.090 & 0.165 & 0.311  & 0.577 \\ 
 JAGS Time/Iter    & & & & & \\
 \hline
 \end{tabular}
@@ -617,12 +618,12 @@ JAGS Time/Iter    & & & & & \\
 % 
 % Here are the CPU BIDMach times on STOUT with the same settings, which is what we report:
 %
-%
-%
-%
+% Time=38.4290 secs, gflops=1.14 (1x)
+% Time=75.0240 secs, gflops=1.17 (2x)
+% Time=186.2360 secs, gflops=1.17 (5x)
 % Time=358.4780 secs, gflops=1.22 (10x)
 % Time=700.2980 secs, gflops=1.25 (20x)
-% (40x)
+% Time=1436.2930 secs, gflops=1.22 (40x)
 %
 % It takes a while with 20x, and absurdly long with 100x ... remember, the batch sizes are the same.
 % Note: I suppose I should run this with 40% data as well...
@@ -634,12 +635,12 @@ JAGS Time/Iter    & & & & & \\
 \caption{BIDMach (CPU) vs. JAGS Runtime on (Replicated) Real MOOC Data}
 \label{tab:bidmach_jags_realmooc}
 \begin{center}
-\begin{tabular}{ |c|c|c|c|c|c| } 
+\begin{tabular}{ |c|c|c|c|c|c|c| } 
 \hline
-                  & 1x    & 2x    & 5x    & 10x   & 20x \\
+                  & 1x    & 2x    & 5x    & 10x   & 20x   & 40x   \\
 \hline \hline
-BIDMach Time/Iter & 0.182 & 0.358 & 0.983 & 1.936 & 3.699 \\ 
-JAGS Time/Iter    & & & & & \\
+BIDMach Time/Iter & 0.182 & 0.375 & 0.931 & 1.792 & 3.501 & 7.181 \\ 
+JAGS Time/Iter    & & & & & & OOM \\
 \hline
 \end{tabular}
 \end{center}

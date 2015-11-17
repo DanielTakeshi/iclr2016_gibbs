@@ -41,9 +41,9 @@ legend_labels = [
     "m = 10",
 ]
 
-plt.plot(data[0], signals[0], label=legend_labels[0], linewidth=2.0)
-plt.plot(data[1], signals[1], label=legend_labels[1], linewidth=2.0)
-plt.plot(data[2], signals[2], label=legend_labels[2], linewidth=2.0)
+plt.plot(data[0], signals[0], label=legend_labels[0], linewidth=3.0)
+plt.plot(data[1], signals[1], label=legend_labels[1], linewidth=3.0)
+plt.plot(data[2], signals[2], label=legend_labels[2], linewidth=3.0)
 
 # Be sure to increase the font sizes! I might also have to experiment with a lot of other settings.
 plt.legend(loc='upper right', ncol=1)

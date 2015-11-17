@@ -276,30 +276,27 @@ explicit, and say that Figure 1 is only for intuition as most data will fit in m
 
 \section{Experiments}\label{sec:experiments}
 
-We benchmark our Gibbs sampler on one synthetic and one real dataset. We compare it with
+We benchmark our Gibbs sampler based on one synthetic and one real dataset. We compare it with
 JAGS~\citep{JAGS2003}, which is the most popular and efficient tool for Bayesian inference, and also
-uses Gibbs sampling as the primary inference algorithm. There are alternative software packages that
-could be used for parameter estimation, such as Bayes Net Toolbox~\citep{bnt2001}, but we could not
-find one that substantially outperformed JAGS.
+uses Gibbs sampling as the primary inference algorithm. We could not find another general-purpose
+software package that substantially out performed JAGS. % I don't think we need to reference BNT.
 
-We evaluate our sampler and JAGS on a PC equipped with a single 4-core CPU (Intel Core i7-3667U)
-and a dual-core GPU (Nvidia GTX-690). Only one core of GPU is used in the benchmark. We also use
-Intel VTune Amplifier to profile each program and measure the flops performance. VTune allows users
-to attach any running process and monitor all the hardware instructions executed, including both X87
-legacy floating point operations and SSE operations.
+For all JAGS experiments, we use a single computer with an Intel Core Xeon processor with eight
+cores and 2.20 GHz clock speed (E5-2650 Sandy Bridge). The computer also has 64 GB of (CPU) RAM. We
+run our Gibbs sampler on this same computer when we evaluate the speed of its CPU version, for the
+fairest comparision with JAGS. These benchmarks would be particularly relevant for those who do not
+have, or may not wish to use, a GPU.
+    
+When we are not directly comparing our sampler's speed with JAGS, or whenever we use its GPU
+version, we use a second machine. (Note that in terms of pure accuracy, the GPU and CPU versions are
+roughly equivalent.) This one has an Intel Core i7 processor with four cores and 3.40 GHz clock
+speed. It has a single NVIDIA GTX Titan X GPU with about 12 GB of RAM. It has 16 GB of CPU RAM. This
+computer is newer, but its processor is workstation rather than server grade, and has half the
+cores. We also noticed from our experiments that the CPU-only version of our Gibbs sampler seemed to
+run at the same speed on both computers.
 
-\textbf{Daniel: I need to fix the preceding paragraph to have the specs for Bitter. I know the GPU
-is a GeForce GTX Titan X, but what about the processor, and the number of cores, and anything else?
-Also, should we mention the gflops?}
-
-We emphasize that the use of one computer is deliberate and a strength of our sampler, as it is
-cheaper and simpler to run as compared to a computing cluster.
-
-\textbf{Daniel: some notes. Integrate this into the writeup: Bitter is quite a bit newer, but its
-processor is workstation rather than server grade and has half the cores. For stout: 64 GB of CPU
-RAM (according to the free -m command) CPU: Intel Core Xeon, eight cores, 2.20 GHz clock speed
-(E5-2650 Sandy Bridge) GPU: NVIDIA GTX 690 (2GB Ram per GPU).  For bitter: 16 GB of CPU RAM CPU:
-Intel Core i7, four cores, 3.40 GHz clock speed GPU: NVIDIA GTX Titan X (has about 12 GB of RAM)}
+We emphasize that the use of one computer at a time is deliberate and a strength of our sampler, as
+it is cheaper and simpler to run as compared to a computing cluster.
 
 \subsection{Synthetically Generated ``Koller'' Data}\label{ssec:koller_data}
 

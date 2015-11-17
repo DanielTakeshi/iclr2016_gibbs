@@ -1,5 +1,5 @@
 # exe file for jags
-# from ./smallNet/dag; ./smallNet/state
+# from smallNet/dag; smallNet/state
 model in "bugfile"
 data in "data.r"
 compile, nchains(1)

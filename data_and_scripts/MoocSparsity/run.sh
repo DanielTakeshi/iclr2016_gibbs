@@ -1,21 +1,31 @@
 #!/bin/bash
-echo "run the 2.5% with updates"
-cd m1_2
-t2="$(time (jags runJagsExe))"
-echo "run the 10% with updates"
-cd ../m1_10
+
+cd m1_10
+echo "run the 10% update"
 t10="$(time (jags runJagsExe))"
 
-cd ../m1_30
-echo "run the 30% with updates"
-t30="$(time (jags runJagsExe))"
+echo "run the 2.0% with updates"
+cd ../m1_2_0
+t20="$(time (jags runJagsExe))"
 
-cd ../m1_60
-echo "run the 60% update"
-t60="$(time (jags runJagsExe))"
+echo "run the 2.2% randomly with updates"
+cd ../m1_2_2
+t22="$(time (jags runJagsExe))"
 
-cd ../m1_100
-echo "run the 100% update"
-t100="$(time (jags runJagsExe))"
-cd ../
-echo "$t2 $t10 $t30 $t60 $t100" > ./log
+cd ../m1_2_2_mooc_sparse
+echo "run the 2.2% with true updates"
+t22_mooc="$(time (jags runJagsExe))"
+
+cd ../m1_2_5
+echo "run the 2.5% update"
+t25="$(time (jags runJagsExe))"
+
+cd ../m1_5
+echo "run the 5% update"
+t5="$(time (jags runJagsExe))"
+
+cd ../mooc_true
+echo "run the true mooc data"
+tture="$(time (jags runJagsExe))"
+cd ..
+echo "$t20 $t22 $t22_mooc $t25 $t5 $t10 $tture" > ./log

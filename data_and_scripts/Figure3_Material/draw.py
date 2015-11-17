@@ -3,14 +3,14 @@ import matplotlib.pyplot as plt
 import csv
 
 
-with open('./50PercentFile/m1/kldiv', 'rb') as csvfile:
+with open('./50PercentFile/m1/divRes', 'rb') as csvfile:
     spamreader = csv.reader(csvfile, delimiter=',', quotechar=',')
     for row in spamreader:
         x = row
 x = np.array(x)
 kl_50_1 = x.astype(np.float)
 
-with open('./50PercentFile/m5/kldiv', 'rb') as csvfile:
+with open('./50PercentFile/m5/divRes', 'rb') as csvfile:
     spamreader = csv.reader(csvfile, delimiter=',', quotechar=',')
     for row in spamreader:
         x = row
@@ -18,7 +18,7 @@ x = np.array(x)
 kl_50_5 = x.astype(np.float)
 
 
-with open('./50PercentFile/m10/kldiv', 'rb') as csvfile:
+with open('./50PercentFile/m10/divRes', 'rb') as csvfile:
     spamreader = csv.reader(csvfile, delimiter=',', quotechar=',')
     for row in spamreader:
         x = row
@@ -59,11 +59,11 @@ data = [kl_50_1, kl_50_5, kl_50_10]
 i = 0
 for i in xrange(3):
     linewidth_num = 3
-    plt.plot(data[i][:100], signals[i], label=legend_labels[i], linewidth=linewidth_num)
+    plt.plot(data[i][:200], signals[i], label=legend_labels[i], linewidth=linewidth_num)
 
 # Be sure to increase the font sizes! I might also have to experiment with a lot of other settings.
 plt.legend(loc='upper right', ncol=1)
-plt.title('Average KL Divergence on Student Data', fontsize='xx-large')
+plt.title('Average KL Divergence on Koller Data', fontsize='xx-large')
 plt.yscale('log')
 plt.xlabel('Number of Passes Over the Data', fontsize='x-large')
 plt.ylabel('Average KL Divergence', fontsize='x-large')

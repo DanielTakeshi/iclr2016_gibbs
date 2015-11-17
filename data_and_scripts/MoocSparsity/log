@@ -1,26 +1,37 @@
-th updates
+ll@stout MoocSparsity]$ ./run.sh
+run the 10% update
 
-real	15m4.950s
-user	15m2.537s
-sys	0m2.263s
-run the 10% with updates
+real    13m9.887s
+user    13m8.897s
+sys     0m0.861s
+run the 2.0% with updates
 
-real	12m40.240s
-user	12m37.663s
-sys	0m2.421s
-run the 30% with updates
+real    17m16.737s
+user    17m15.582s
+sys     0m0.991s
+run the 2.2% randomly with updates
 
-real	9m26.399s
-user	9m23.741s
-sys	0m2.106s
-run the 60% update
+real    16m49.034s
+user    16m47.938s
+sys     0m0.929s
+run the 2.2% with true updates
 
-real	6m22.562s
-user	6m20.859s
-sys	0m1.328s
-run the 100% update
+real    16m59.006s
+user    16m57.928s
+sys     0m0.851s
+run the 2.5% update
 
-real	1m29.799s
-user	1m28.602s
-sys	0m1.114s
+real    15m15.633s
+user    15m14.505s
+sys     0m0.899s
+run the 5% update
+
+real    14m37.027s
+user    14m36.032s
+sys     0m0.798s
+run the true mooc data
+
+real    16m16.286s
+user    16m15.222s
+sys     0m0.870s
 

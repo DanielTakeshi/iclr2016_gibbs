@@ -1,5 +1,5 @@
-# the dag file is from ./smallNet/dag
-# the state file is from ./smallNet/state
+# the dag file is from smallNet/dag
+# the state file is from smallNet/state
 var
 	m0n0[N], m0n1[N], m0n2[N], m0n3[N], m0n4[N], 
 	n0.alpha[2], n1.alpha[2], n2.alpha[2,2], n3.alpha[2,2,3], n4.alpha[3,2], n0.prob[2], n1.prob[2], n2.prob[2,2], n3.prob[2,2,3], n4.prob[3,2]

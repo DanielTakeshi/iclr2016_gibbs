@@ -1,0 +1,502 @@
+Loading /home/seita/BIDMach/lib/bidmach_init.scala...
+import BIDMat.{CMat, CSMat, DMat, Dict, FMat, FND, GMat, GDMat, GIMat, GLMat, GSMat, GSDMat, HMat, IDict, Image, IMat, LMat, Mat, SMat, SBMat, SDMat}
+import BIDMat.MatFunctions._
+import BIDMat.SciFunctions._
+import BIDMat.Solvers._
+import BIDMat.Plotting._
+import BIDMach.Learner
+import BIDMach.models.{FM, GLM, KMeans, KMeansw, LDA, LDAgibbs, Model, NMF, SFA, RandomForest}
+import BIDMach.networks.DNN
+import BIDMach.datasources.{DataSource, MatDS, FilesDS, SFilesDS}
+import BIDMach.mixins.{CosineSim, Perplexity, Top, L1Regularizer, L2Regularizer}
+import BIDMach.updaters.{ADAGrad, Batch, BatchNorm, IncMult, IncNorm, Telescoping}
+import BIDMach.causal.IPTW
+1 CUDA device found, CUDA version 7.0
+
+Loading scripts/bn_test.ssc...
+data: BIDMat.SMat =
+(   52,    0)    1
+(   53,    0)    1
+(   54,    0)    1
+(   52,    1)    1
+(   53,    1)    1
+(   54,    1)    2
+(  140,    1)    1
+(  141,    1)    1
+   ...   ...   ...
+dag: BIDMat.SMat =
+(   0,   2)   1
+(   1,   2)   1
+(   0,   3)   1
+(   1,   3)   1
+(   4,   5)   1
+(   4,   6)   1
+(   6,   7)   1
+(   2,   8)   1
+  ...  ...  ...
+states: BIDMat.IMat =
+   2
+   2
+   2
+  ..
+nn: BIDMach.Learner = Learner(BIDMach.datasources.MatDS@296fa767,BIDMach.models.BayesNet@61577071,null,BIDMach.updaters.IncNorm@33973ca4,BIDMach.models.BayesNet$xopts$1@e0e4d72)
+opts: BIDMach.Learner.Options with BIDMach.models.BayesNet.Opts with BIDMach.datasources.MatDS.Opts with BIDMach.updaters.IncNorm.Opts = BIDMach.models.BayesNet$xopts$1@e0e4d72
+opts.npasses: Int = 102
+opts.useGPU: Boolean = true
+opts.batchSize: Int = 3000
+opts.updateAll: Boolean = false
+Option Name       Type          Value
+===========       ====          =====
+addConstFeat      boolean       false
+autoReset         boolean       true
+batchSize         int           3000
+checkPointFile    String        null
+checkPointInterval  float         0.0
+copiesForSAME     int           1
+cumScore          int           0
+debug             int           0
+debugMem          boolean       false
+dim               int           334
+doubleScore       boolean       false
+evalStep          int           11
+featThreshold     Mat           null
+featType          int           1
+initSmoothFactor  int           0
+isprob            boolean       false
+npasses           int           102
+numSamplesBurn    int           0
+nzPerColumn       int           0
+power             float         0.0
+pstep             float         0.01
+putBack           int           1
+resFile           String        null
+sample            float         1.0
+samplingRate      int           1
+sizeMargin        float         3.0
+startBlock        int           8000
+updateAll         boolean       false
+useCache          boolean       true
+useDouble         boolean       false
+useGPU            boolean       true
+warmup            long          0
+randSeed = 777
+pass= 0
+threshold = 250.0
+Acc: 0.4993699 = 3170.0 / 6348. Total 0/1 = 3430,2918
+100.00%, ll=0.00000, gf=3.607, secs=14.7, GB=0.01, MB/s= 0.41, GPUmem=0.914982
+pass= 1
+threshold = 250.0
+Acc: 0.5118148 = 3249.0 / 6348. Total 0/1 = 3367,2981
+100.00%, ll=0.00000, gf=3.718, secs=28.6, GB=0.01, MB/s= 0.43, GPUmem=0.914982
+pass= 2
+threshold = 250.0
+Acc: 0.5189036 = 3294.0 / 6348. Total 0/1 = 3368,2980
+100.00%, ll=0.00000, gf=3.769, secs=42.3, GB=0.02, MB/s= 0.43, GPUmem=0.914982
+pass= 3
+threshold = 250.0
+Acc: 0.5179584 = 3288.0 / 6348. Total 0/1 = 3314,3034
+100.00%, ll=0.00000, gf=3.799, secs=55.9, GB=0.02, MB/s= 0.44, GPUmem=0.914982
+pass= 4
+threshold = 250.0
+Acc: 0.53371143 = 3388.0 / 6348. Total 0/1 = 3184,3164
+100.00%, ll=0.00000, gf=3.818, secs=69.5, GB=0.03, MB/s= 0.44, GPUmem=0.914982
+pass= 5
+threshold = 250.0
+Acc: 0.5420605 = 3441.0 / 6348. Total 0/1 = 3137,3211
+100.00%, ll=0.00000, gf=3.829, secs=83.2, GB=0.04, MB/s= 0.44, GPUmem=0.914982
+pass= 6
+threshold = 250.0
+Acc: 0.544581 = 3457.0 / 6348. Total 0/1 = 3081,3267
+100.00%, ll=0.00000, gf=3.835, secs=96.9, GB=0.04, MB/s= 0.44, GPUmem=0.914982
+pass= 7
+threshold = 250.0
+Acc: 0.549937 = 3491.0 / 6348. Total 0/1 = 2985,3363
+100.00%, ll=0.00000, gf=3.839, secs=110.6, GB=0.05, MB/s= 0.44, GPUmem=0.914982
+pass= 8
+threshold = 250.0
+Acc: 0.5556081 = 3527.0 / 6348. Total 0/1 = 2977,3371
+100.00%, ll=0.00000, gf=3.843, secs=124.3, GB=0.05, MB/s= 0.44, GPUmem=0.914982
+pass= 9
+threshold = 250.0
+Acc: 0.5519849 = 3504.0 / 6348. Total 0/1 = 2916,3432
+100.00%, ll=0.00000, gf=3.845, secs=138.1, GB=0.06, MB/s= 0.44, GPUmem=0.914982
+pass=10
+threshold = 250.0
+Acc: 0.55403274 = 3517.0 / 6348. Total 0/1 = 2875,3473
+100.00%, ll=0.00000, gf=3.848, secs=151.8, GB=0.07, MB/s= 0.44, GPUmem=0.914982
+pass=11
+threshold = 250.0
+Acc: 0.5637996 = 3579.0 / 6348. Total 0/1 = 2861,3487
+100.00%, ll=0.00000, gf=3.850, secs=165.5, GB=0.07, MB/s= 0.44, GPUmem=0.914982
+pass=12
+threshold = 250.0
+Acc: 0.56915563 = 3613.0 / 6348. Total 0/1 = 2805,3543
+100.00%, ll=0.00000, gf=3.851, secs=179.2, GB=0.08, MB/s= 0.44, GPUmem=0.914982
+pass=13
+threshold = 250.0
+Acc: 0.5727788 = 3636.0 / 6348. Total 0/1 = 2784,3564
+100.00%, ll=0.00000, gf=3.853, secs=192.9, GB=0.09, MB/s= 0.44, GPUmem=0.914982
+pass=14
+threshold = 250.0
+Acc: 0.56884056 = 3611.0 / 6348. Total 0/1 = 2793,3555
+100.00%, ll=0.00000, gf=3.854, secs=206.6, GB=0.09, MB/s= 0.44, GPUmem=0.914982
+pass=15
+threshold = 250.0
+Acc: 0.5746692 = 3648.0 / 6348. Total 0/1 = 2740,3608
+100.00%, ll=0.00000, gf=3.855, secs=220.4, GB=0.10, MB/s= 0.44, GPUmem=0.914982
+pass=16
+threshold = 250.0
+Acc: 0.57829237 = 3671.0 / 6348. Total 0/1 = 2703,3645
+100.00%, ll=0.00000, gf=3.856, secs=234.1, GB=0.10, MB/s= 0.44, GPUmem=0.914982
+pass=17
+threshold = 250.0
+Acc: 0.5768746 = 3662.0 / 6348. Total 0/1 = 2678,3670
+100.00%, ll=0.00000, gf=3.857, secs=247.8, GB=0.11, MB/s= 0.44, GPUmem=0.914982
+pass=18
+threshold = 250.0
+Acc: 0.5822306 = 3696.0 / 6348. Total 0/1 = 2630,3718
+100.00%, ll=0.00000, gf=3.857, secs=261.5, GB=0.12, MB/s= 0.44, GPUmem=0.914982
+pass=19
+threshold = 250.0
+Acc: 0.58144295 = 3691.0 / 6348. Total 0/1 = 2551,3797
+100.00%, ll=0.00000, gf=3.858, secs=275.2, GB=0.12, MB/s= 0.44, GPUmem=0.914982
+pass=20
+threshold = 250.0
+Acc: 0.5874291 = 3729.0 / 6348. Total 0/1 = 2565,3783
+100.00%, ll=0.00000, gf=3.858, secs=288.9, GB=0.13, MB/s= 0.44, GPUmem=0.914982
+pass=21
+threshold = 250.0
+Acc: 0.5919975 = 3758.0 / 6348. Total 0/1 = 2476,3872
+100.00%, ll=0.00000, gf=3.859, secs=302.7, GB=0.13, MB/s= 0.44, GPUmem=0.914982
+pass=22
+threshold = 250.0
+Acc: 0.5866415 = 3724.0 / 6348. Total 0/1 = 2536,3812
+100.00%, ll=0.00000, gf=3.859, secs=316.4, GB=0.14, MB/s= 0.44, GPUmem=0.914982
+pass=23
+threshold = 250.0
+Acc: 0.58553874 = 3717.0 / 6348. Total 0/1 = 2491,3857
+100.00%, ll=0.00000, gf=3.859, secs=330.1, GB=0.15, MB/s= 0.44, GPUmem=0.914982
+pass=24
+threshold = 250.0
+Acc: 0.5883743 = 3735.0 / 6348. Total 0/1 = 2461,3887
+100.00%, ll=0.00000, gf=3.860, secs=343.9, GB=0.15, MB/s= 0.44, GPUmem=0.914982
+pass=25
+threshold = 250.0
+Acc: 0.5849086 = 3713.0 / 6348. Total 0/1 = 2469,3879
+100.00%, ll=0.00000, gf=3.860, secs=357.6, GB=0.16, MB/s= 0.44, GPUmem=0.914982
+pass=26
+threshold = 250.0
+Acc: 0.592155 = 3759.0 / 6348. Total 0/1 = 2433,3915
+100.00%, ll=0.00000, gf=3.860, secs=371.3, GB=0.16, MB/s= 0.44, GPUmem=0.914982
+pass=27
+threshold = 250.0
+Acc: 0.589477 = 3742.0 / 6348. Total 0/1 = 2414,3934
+100.00%, ll=0.00000, gf=3.860, secs=385.1, GB=0.17, MB/s= 0.44, GPUmem=0.914982
+pass=28
+threshold = 250.0
+Acc: 0.5885318 = 3736.0 / 6348. Total 0/1 = 2442,3906
+100.00%, ll=0.00000, gf=3.860, secs=398.9, GB=0.18, MB/s= 0.44, GPUmem=0.914982
+pass=29
+threshold = 250.0
+Acc: 0.5883743 = 3735.0 / 6348. Total 0/1 = 2471,3877
+100.00%, ll=0.00000, gf=3.860, secs=412.6, GB=0.18, MB/s= 0.44, GPUmem=0.914982
+pass=30
+threshold = 250.0
+Acc: 0.58679897 = 3725.0 / 6348. Total 0/1 = 2437,3911
+100.00%, ll=0.00000, gf=3.860, secs=426.4, GB=0.19, MB/s= 0.44, GPUmem=0.914982
+pass=31
+threshold = 250.0
+Acc: 0.58884686 = 3738.0 / 6348. Total 0/1 = 2422,3926
+100.00%, ll=0.00000, gf=3.859, secs=440.2, GB=0.20, MB/s= 0.44, GPUmem=0.914982
+pass=32
+threshold = 250.0
+Acc: 0.5872716 = 3728.0 / 6348. Total 0/1 = 2444,3904
+100.00%, ll=0.00000, gf=3.859, secs=453.9, GB=0.20, MB/s= 0.44, GPUmem=0.914982
+pass=33
+threshold = 250.0
+Acc: 0.58758664 = 3730.0 / 6348. Total 0/1 = 2444,3904
+100.00%, ll=0.00000, gf=3.859, secs=467.7, GB=0.21, MB/s= 0.44, GPUmem=0.914982
+pass=34
+threshold = 250.0
+Acc: 0.59388787 = 3770.0 / 6348. Total 0/1 = 2420,3928
+100.00%, ll=0.00000, gf=3.859, secs=481.5, GB=0.21, MB/s= 0.44, GPUmem=0.914982
+pass=35
+threshold = 250.0
+Acc: 0.59294266 = 3764.0 / 6348. Total 0/1 = 2412,3936
+100.00%, ll=0.00000, gf=3.859, secs=495.2, GB=0.22, MB/s= 0.44, GPUmem=0.914982
+pass=36
+threshold = 250.0
+Acc: 0.59247005 = 3761.0 / 6348. Total 0/1 = 2459,3889
+100.00%, ll=0.00000, gf=3.859, secs=509.0, GB=0.23, MB/s= 0.44, GPUmem=0.914982
+pass=37
+threshold = 250.0
+Acc: 0.5956207 = 3781.0 / 6348. Total 0/1 = 2421,3927
+100.00%, ll=0.00000, gf=3.859, secs=522.7, GB=0.23, MB/s= 0.44, GPUmem=0.914982
+pass=38
+threshold = 250.0
+Acc: 0.5907372 = 3750.0 / 6348. Total 0/1 = 2494,3854
+100.00%, ll=0.00000, gf=3.859, secs=536.5, GB=0.24, MB/s= 0.44, GPUmem=0.914982
+pass=39
+threshold = 250.0
+Acc: 0.5890044 = 3739.0 / 6348. Total 0/1 = 2531,3817
+100.00%, ll=0.00000, gf=3.859, secs=550.2, GB=0.24, MB/s= 0.44, GPUmem=0.914982
+pass=40
+threshold = 250.0
+Acc: 0.5923125 = 3760.0 / 6348. Total 0/1 = 2522,3826
+100.00%, ll=0.00000, gf=3.859, secs=564.0, GB=0.25, MB/s= 0.44, GPUmem=0.914982
+pass=41
+threshold = 250.0
+Acc: 0.5967234 = 3788.0 / 6348. Total 0/1 = 2522,3826
+100.00%, ll=0.00000, gf=3.859, secs=577.8, GB=0.26, MB/s= 0.44, GPUmem=0.914982
+pass=42
+threshold = 250.0
+Acc: 0.59294266 = 3764.0 / 6348. Total 0/1 = 2470,3878
+100.00%, ll=0.00000, gf=3.859, secs=591.5, GB=0.26, MB/s= 0.44, GPUmem=0.914982
+pass=43
+threshold = 250.0
+Acc: 0.6017643 = 3820.0 / 6348. Total 0/1 = 2510,3838
+100.00%, ll=0.00000, gf=3.859, secs=605.3, GB=0.27, MB/s= 0.44, GPUmem=0.914982
+pass=44
+threshold = 250.0
+Acc: 0.59751105 = 3793.0 / 6348. Total 0/1 = 2443,3905
+100.00%, ll=0.00000, gf=3.859, secs=619.0, GB=0.27, MB/s= 0.44, GPUmem=0.914982
+pass=45
+threshold = 250.0
+Acc: 0.5932577 = 3766.0 / 6348. Total 0/1 = 2490,3858
+100.00%, ll=0.00000, gf=3.859, secs=632.8, GB=0.28, MB/s= 0.44, GPUmem=0.914982
+pass=46
+threshold = 250.0
+Acc: 0.59861374 = 3800.0 / 6348. Total 0/1 = 2520,3828
+100.00%, ll=0.00000, gf=3.859, secs=646.6, GB=0.29, MB/s= 0.44, GPUmem=0.914982
+pass=47
+threshold = 250.0
+Acc: 0.6022369 = 3823.0 / 6348. Total 0/1 = 2435,3913
+100.00%, ll=0.00000, gf=3.859, secs=660.3, GB=0.29, MB/s= 0.44, GPUmem=0.914982
+pass=48
+threshold = 250.0
+Acc: 0.60239446 = 3824.0 / 6348. Total 0/1 = 2530,3818
+100.00%, ll=0.00000, gf=3.859, secs=674.1, GB=0.30, MB/s= 0.44, GPUmem=0.914982
+pass=49
+threshold = 250.0
+Acc: 0.5987713 = 3801.0 / 6348. Total 0/1 = 2487,3861
+100.00%, ll=0.00000, gf=3.859, secs=687.8, GB=0.30, MB/s= 0.44, GPUmem=0.914982
+pass=50
+threshold = 250.0
+Acc: 0.59751105 = 3793.0 / 6348. Total 0/1 = 2455,3893
+100.00%, ll=0.00000, gf=3.859, secs=701.6, GB=0.31, MB/s= 0.44, GPUmem=0.914982
+pass=51
+threshold = 250.0
+Acc: 0.594833 = 3776.0 / 6348. Total 0/1 = 2372,3976
+100.00%, ll=0.00000, gf=3.859, secs=715.4, GB=0.32, MB/s= 0.44, GPUmem=0.914982
+pass=52
+threshold = 250.0
+Acc: 0.5987713 = 3801.0 / 6348. Total 0/1 = 2441,3907
+100.00%, ll=0.00000, gf=3.859, secs=729.1, GB=0.32, MB/s= 0.44, GPUmem=0.914982
+pass=53
+threshold = 250.0
+Acc: 0.5931002 = 3765.0 / 6348. Total 0/1 = 2403,3945
+100.00%, ll=0.00000, gf=3.859, secs=742.9, GB=0.33, MB/s= 0.44, GPUmem=0.914982
+pass=54
+threshold = 250.0
+Acc: 0.5962508 = 3785.0 / 6348. Total 0/1 = 2499,3849
+100.00%, ll=0.00000, gf=3.859, secs=756.7, GB=0.34, MB/s= 0.44, GPUmem=0.914982
+pass=55
+threshold = 250.0
+Acc: 0.5997164 = 3807.0 / 6348. Total 0/1 = 2449,3899
+100.00%, ll=0.00000, gf=3.859, secs=770.4, GB=0.34, MB/s= 0.44, GPUmem=0.914982
+pass=56
+threshold = 250.0
+Acc: 0.59609324 = 3784.0 / 6348. Total 0/1 = 2406,3942
+100.00%, ll=0.00000, gf=3.859, secs=784.2, GB=0.35, MB/s= 0.44, GPUmem=0.914982
+pass=57
+threshold = 250.0
+Acc: 0.5984562 = 3799.0 / 6348. Total 0/1 = 2293,4055
+100.00%, ll=0.00000, gf=3.859, secs=797.9, GB=0.35, MB/s= 0.44, GPUmem=0.914982
+pass=58
+threshold = 250.0
+Acc: 0.602552 = 3825.0 / 6348. Total 0/1 = 2273,4075
+100.00%, ll=0.00000, gf=3.859, secs=811.7, GB=0.36, MB/s= 0.44, GPUmem=0.914982
+pass=59
+threshold = 250.0
+Acc: 0.59861374 = 3800.0 / 6348. Total 0/1 = 2186,4162
+100.00%, ll=0.00000, gf=3.859, secs=825.5, GB=0.37, MB/s= 0.44, GPUmem=0.914982
+pass=60
+threshold = 250.0
+Acc: 0.5987713 = 3801.0 / 6348. Total 0/1 = 2165,4183
+100.00%, ll=0.00000, gf=3.859, secs=839.2, GB=0.37, MB/s= 0.44, GPUmem=0.914982
+pass=61
+threshold = 250.0
+Acc: 0.5953056 = 3779.0 / 6348. Total 0/1 = 2169,4179
+100.00%, ll=0.00000, gf=3.859, secs=853.0, GB=0.38, MB/s= 0.44, GPUmem=0.914982
+pass=62
+threshold = 250.0
+Acc: 0.60034657 = 3811.0 / 6348. Total 0/1 = 2221,4127
+100.00%, ll=0.00000, gf=3.859, secs=866.7, GB=0.38, MB/s= 0.44, GPUmem=0.914982
+pass=63
+threshold = 250.0
+Acc: 0.6031821 = 3829.0 / 6348. Total 0/1 = 2197,4151
+100.00%, ll=0.00000, gf=3.859, secs=880.5, GB=0.39, MB/s= 0.44, GPUmem=0.914982
+pass=64
+threshold = 250.0
+Acc: 0.589477 = 3742.0 / 6348. Total 0/1 = 2246,4102
+100.00%, ll=0.00000, gf=3.859, secs=894.3, GB=0.40, MB/s= 0.44, GPUmem=0.914982
+pass=65
+threshold = 250.0
+Acc: 0.5953056 = 3779.0 / 6348. Total 0/1 = 2267,4081
+100.00%, ll=0.00000, gf=3.859, secs=908.0, GB=0.40, MB/s= 0.44, GPUmem=0.914982
+pass=66
+threshold = 250.0
+Acc: 0.5927851 = 3763.0 / 6348. Total 0/1 = 2177,4171
+100.00%, ll=0.00000, gf=3.859, secs=921.8, GB=0.41, MB/s= 0.44, GPUmem=0.914982
+pass=67
+threshold = 250.0
+Acc: 0.597196 = 3791.0 / 6348. Total 0/1 = 2151,4197
+100.00%, ll=0.00000, gf=3.859, secs=935.5, GB=0.41, MB/s= 0.44, GPUmem=0.914982
+pass=68
+threshold = 250.0
+Acc: 0.6000315 = 3809.0 / 6348. Total 0/1 = 2155,4193
+100.00%, ll=0.00000, gf=3.859, secs=949.3, GB=0.42, MB/s= 0.44, GPUmem=0.914982
+pass=69
+threshold = 250.0
+Acc: 0.59861374 = 3800.0 / 6348. Total 0/1 = 2132,4216
+100.00%, ll=0.00000, gf=3.859, secs=963.0, GB=0.43, MB/s= 0.44, GPUmem=0.914982
+pass=70
+threshold = 250.0
+Acc: 0.59908634 = 3803.0 / 6348. Total 0/1 = 2111,4237
+100.00%, ll=0.00000, gf=3.859, secs=976.8, GB=0.43, MB/s= 0.44, GPUmem=0.914982
+pass=71
+threshold = 250.0
+Acc: 0.6061752 = 3848.0 / 6348. Total 0/1 = 2182,4166
+100.00%, ll=0.00000, gf=3.859, secs=990.6, GB=0.44, MB/s= 0.44, GPUmem=0.914982
+pass=72
+threshold = 250.0
+Acc: 0.5910523 = 3752.0 / 6348. Total 0/1 = 2160,4188
+100.00%, ll=0.00000, gf=3.859, secs=1004.3, GB=0.45, MB/s= 0.44, GPUmem=0.914982
+pass=73
+threshold = 250.0
+Acc: 0.602552 = 3825.0 / 6348. Total 0/1 = 2163,4185
+100.00%, ll=0.00000, gf=3.858, secs=1018.3, GB=0.45, MB/s= 0.44, GPUmem=0.914982
+pass=74
+threshold = 250.0
+Acc: 0.6017643 = 3820.0 / 6348. Total 0/1 = 2202,4146
+100.00%, ll=0.00000, gf=3.858, secs=1032.1, GB=0.46, MB/s= 0.44, GPUmem=0.914982
+pass=75
+threshold = 250.0
+Acc: 0.59609324 = 3784.0 / 6348. Total 0/1 = 2196,4152
+100.00%, ll=0.00000, gf=3.858, secs=1045.8, GB=0.46, MB/s= 0.44, GPUmem=0.914982
+pass=76
+threshold = 250.0
+Acc: 0.60554504 = 3844.0 / 6348. Total 0/1 = 2190,4158
+100.00%, ll=0.00000, gf=3.858, secs=1059.6, GB=0.47, MB/s= 0.44, GPUmem=0.914982
+pass=77
+threshold = 250.0
+Acc: 0.5987713 = 3801.0 / 6348. Total 0/1 = 2213,4135
+100.00%, ll=0.00000, gf=3.858, secs=1073.3, GB=0.48, MB/s= 0.44, GPUmem=0.914982
+pass=78
+threshold = 250.0
+Acc: 0.5973535 = 3792.0 / 6348. Total 0/1 = 2196,4152
+100.00%, ll=0.00000, gf=3.858, secs=1087.1, GB=0.48, MB/s= 0.44, GPUmem=0.914982
+pass=79
+threshold = 250.0
+Acc: 0.6036547 = 3832.0 / 6348. Total 0/1 = 2162,4186
+100.00%, ll=0.00000, gf=3.858, secs=1100.9, GB=0.49, MB/s= 0.44, GPUmem=0.914982
+pass=80
+threshold = 250.0
+Acc: 0.60507244 = 3841.0 / 6348. Total 0/1 = 2117,4231
+100.00%, ll=0.00000, gf=3.858, secs=1114.7, GB=0.49, MB/s= 0.44, GPUmem=0.914982
+pass=81
+threshold = 250.0
+Acc: 0.60601765 = 3847.0 / 6348. Total 0/1 = 2123,4225
+100.00%, ll=0.00000, gf=3.858, secs=1128.4, GB=0.50, MB/s= 0.44, GPUmem=0.914982
+pass=82
+threshold = 250.0
+Acc: 0.60239446 = 3824.0 / 6348. Total 0/1 = 2162,4186
+100.00%, ll=0.00000, gf=3.858, secs=1142.2, GB=0.51, MB/s= 0.44, GPUmem=0.914982
+pass=83
+threshold = 250.0
+Acc: 0.6041273 = 3835.0 / 6348. Total 0/1 = 2153,4195
+100.00%, ll=0.00000, gf=3.858, secs=1155.9, GB=0.51, MB/s= 0.44, GPUmem=0.914982
+pass=84
+threshold = 250.0
+Acc: 0.60286707 = 3827.0 / 6348. Total 0/1 = 2109,4239
+100.00%, ll=0.00000, gf=3.858, secs=1169.6, GB=0.52, MB/s= 0.44, GPUmem=0.914982
+pass=85
+threshold = 250.0
+Acc: 0.6112161 = 3880.0 / 6348. Total 0/1 = 2130,4218
+100.00%, ll=0.00000, gf=3.858, secs=1183.4, GB=0.52, MB/s= 0.44, GPUmem=0.914982
+pass=86
+threshold = 250.0
+Acc: 0.597196 = 3791.0 / 6348. Total 0/1 = 2033,4315
+100.00%, ll=0.00000, gf=3.858, secs=1197.1, GB=0.53, MB/s= 0.44, GPUmem=0.914982
+pass=87
+threshold = 250.0
+Acc: 0.6012917 = 3817.0 / 6348. Total 0/1 = 2083,4265
+100.00%, ll=0.00000, gf=3.858, secs=1210.8, GB=0.54, MB/s= 0.44, GPUmem=0.914982
+pass=88
+threshold = 250.0
+Acc: 0.60066164 = 3813.0 / 6348. Total 0/1 = 2047,4301
+100.00%, ll=0.00000, gf=3.858, secs=1224.6, GB=0.54, MB/s= 0.44, GPUmem=0.914982
+pass=89
+threshold = 250.0
+Acc: 0.6009767 = 3815.0 / 6348. Total 0/1 = 1973,4375
+100.00%, ll=0.00000, gf=3.858, secs=1238.4, GB=0.55, MB/s= 0.44, GPUmem=0.914982
+pass=90
+threshold = 250.0
+Acc: 0.60192186 = 3821.0 / 6348. Total 0/1 = 1979,4369
+100.00%, ll=0.00000, gf=3.858, secs=1252.1, GB=0.55, MB/s= 0.44, GPUmem=0.914982
+pass=91
+threshold = 250.0
+Acc: 0.60916823 = 3867.0 / 6348. Total 0/1 = 1865,4483
+100.00%, ll=0.00000, gf=3.858, secs=1265.9, GB=0.56, MB/s= 0.44, GPUmem=0.914982
+pass=92
+threshold = 250.0
+Acc: 0.60964084 = 3870.0 / 6348. Total 0/1 = 1930,4418
+100.00%, ll=0.00000, gf=3.858, secs=1279.7, GB=0.57, MB/s= 0.44, GPUmem=0.914982
+pass=93
+threshold = 250.0
+Acc: 0.6045999 = 3838.0 / 6348. Total 0/1 = 1912,4436
+100.00%, ll=0.00000, gf=3.858, secs=1293.4, GB=0.57, MB/s= 0.44, GPUmem=0.914982
+pass=94
+threshold = 250.0
+Acc: 0.6042848 = 3836.0 / 6348. Total 0/1 = 1904,4444
+100.00%, ll=0.00000, gf=3.858, secs=1307.1, GB=0.58, MB/s= 0.44, GPUmem=0.914982
+pass=95
+threshold = 250.0
+Acc: 0.6086956 = 3864.0 / 6348. Total 0/1 = 1930,4418
+100.00%, ll=0.00000, gf=3.858, secs=1320.8, GB=0.59, MB/s= 0.44, GPUmem=0.914982
+pass=96
+threshold = 250.0
+Acc: 0.6045999 = 3838.0 / 6348. Total 0/1 = 1920,4428
+100.00%, ll=0.00000, gf=3.858, secs=1334.6, GB=0.59, MB/s= 0.44, GPUmem=0.914982
+pass=97
+threshold = 250.0
+Acc: 0.6012917 = 3817.0 / 6348. Total 0/1 = 1935,4413
+100.00%, ll=0.00000, gf=3.858, secs=1348.4, GB=0.60, MB/s= 0.44, GPUmem=0.914982
+pass=98
+threshold = 250.0
+Acc: 0.6061752 = 3848.0 / 6348. Total 0/1 = 1954,4394
+100.00%, ll=0.00000, gf=3.858, secs=1362.1, GB=0.60, MB/s= 0.44, GPUmem=0.914982
+pass=99
+threshold = 250.0
+Acc: 0.6115312 = 3882.0 / 6348. Total 0/1 = 1944,4404
+100.00%, ll=0.00000, gf=3.858, secs=1375.8, GB=0.61, MB/s= 0.44, GPUmem=0.914982
+pass=100
+
+Our thresholds: 50,100,150,200,250,300,350,400,450
+Total test cases: 6348
+Note that # of (+) and (-) tests cases are 3660 and 2688, respectively.
+
+numCases = 0,66,183,648,1089,1548,940,823,1051,0
+
+infoMatrix, where rows are (TP,TN,FP,FN), and first col is the one that picks 2s (+) *most* frequently:
+3660 3645 3583 3293 2773 1960 1400 864 178 
+0 51 172 530 1099 1834 2214 2501 2664 
+2688 2637 2516 2158 1589 854 474 187 24 
+0 15 77 367 887 1700 2260 2796 3482 
+
+Sum of each column, should be the same: 6348,6348,6348,6348,6348,6348,6348,6348,6348
+Now divide with TP/(TP+FN) = TP/3660 and TN/(TN+FP) = TN/2688:
+
+specif = 0,0.018973,0.063988,0.19717,0.40885,0.68229,0.82366,0.93043,0.99107
+1-specif (x-coord) = 1,0.98103,0.93601,0.80283,0.59115,0.31771,0.17634,0.069568,0.0089286
+recall (y-coord)   = 1,0.99590,0.97896,0.89973,0.75765,0.53552,0.38251,0.23607,0.048634

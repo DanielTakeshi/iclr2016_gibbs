@@ -32,10 +32,10 @@ legend_labels = ["2.2% known", "5% known", "10% known", "25% known"]
 
 plt.figure()
 for i in range(len(output_files)):
-    plt.plot(data[i][:500], signals[i], label=legend_labels[i], linewidth=3.0)
+    plt.plot(data[i][:200], signals[i], label=legend_labels[i], linewidth=3.0)
 
 # Be sure to increase the font sizes! I might also have to experiment with a lot of other settings.
-plt.legend(loc='upper right', ncol=1)
+plt.legend(loc='upper right', ncol=2)
 plt.title('BIDMach Performance (Synthetic MOOC)', fontsize='xx-large')
 plt.xlabel('Number of Passes Over the Data', fontsize='x-large')
 plt.ylabel('Average KL Divergence', fontsize='x-large')

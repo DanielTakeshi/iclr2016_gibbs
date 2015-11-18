@@ -80,7 +80,7 @@ linewidth=2pt % Width of the border lines around content boxes
 %	INTRODUCTION
 %----------------------------------------------------------------------------------------
 
-\headerbox{introduction}{name=objectives,column=0,row=0}{
+\headerbox{introduction}{name=introduction,column=0,row=0}{
 
 A fundamental task in machine learning and related fields is to perform inference on Bayesian networks. Since exact inference takes exponential time, it is common to use an approximate algorithm such as Gibbs sampling, but this can still be intractable for graphical models with just a few hundred binary random variables. In this project, we:
 
@@ -97,16 +97,16 @@ A fundamental task in machine learning and related fields is to perform inferenc
 %	SAME SAMPLING
 %----------------------------------------------------------------------------------------
 
-\headerbox{SAME sampling}{name=introduction,column=1,row=0,bottomaligned=objectives}{
+\headerbox{SAME sampling}{name=samesampling,column=1,row=0,bottomaligned=introduction}{
 
-Aliquam non lacus dolor, \textit{a aliquam quam}. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla in nibh mauris. Donec vel ligula nisi, a lacinia arcu. Sed mi dui, malesuada vel consectetur et, egestas porta nisi. Sed eleifend pharetra dolor, et dapibus est vulputate eu. \textbf{Integer faucibus elementum felis vitae fringilla.} In hac habitasse platea dictumst. Duis tristique rutrum nisl, nec vulputate elit porta ut. Donec sodales sollicitudin turpis sed convallis. Etiam mauris ligula, blandit adipiscing condimentum eu, dapibus pellentesque risus.
+SAME (State Augmentation for Marginal Estimation) [14, 8] is an approach to MAP parameter estimation which gives improved parameter estimates over direct Gibbs sampling. SAME can be viewed as cooling the posterior parameter distribution and allows annealed search for the MAP parameters, often yielding very high quality (lower loss) estimates.
 }
 
 %----------------------------------------------------------------------------------------
 %	KOLLER RESULTS
 %----------------------------------------------------------------------------------------
 
-\headerbox{experiments on synthetically generated "koller" data}{name=results,column=2,span=2,row=0}{
+\headerbox{experiments on synthetically generated "koller" data}{name=koller,column=2,span=2,row=0}{
 
 \begin{multicols}{2}
 \vspace{1em}
@@ -175,7 +175,7 @@ Maecenas viverra ligula a risus blandit vel tincidunt est adipiscing. Suspendiss
 %	MOOC DATA
 %----------------------------------------------------------------------------------------
 
-\headerbox{experiments on real dynamic learning maps "MOOC" data}{name=conclusion,column=2,span=2,row=0,below=results,above=references}{
+\headerbox{experiments on real dynamic learning maps "MOOC" data}{name=mooc,column=2,span=2,row=0,below=koller,above=references}{
 
 \begin{multicols}{2}
 
@@ -184,18 +184,18 @@ Maecenas viverra ligula a risus blandit vel tincidunt est adipiscing. Suspendiss
 \tikzstyle{line} = [draw, -latex']
 \tikzstyle{cloud} = [draw, ellipse, fill=red!20, node distance=3cm, minimum height=2em]
 
-\begin{tikzpicture}[node distance = 2cm, auto]
-\node [block] (init) {Initialize Model};
-\node [cloud, left of=init] (Start) {Start};
-\node [cloud, right of=init] (Start2) {Start Two};
-\node [block, below of=init] (init2) {Initialize Two};
-\node [decision, below of=init2] (End) {End};
-\path [line] (init) -- (init2);
-\path [line] (init2) -- (End);
-\path [line, dashed] (Start) -- (init);
-\path [line, dashed] (Start2) -- (init);
-\path [line, dashed] (Start2) |- (init2);
-\end{tikzpicture}
+%\begin{tikzpicture}[node distance = 2cm, auto]
+%\node [block] (init) {Initialize Model};
+%\node [cloud, left of=init] (Start) {Start};
+%\node [cloud, right of=init] (Start2) {Start Two};
+%\node [block, below of=init] (init2) {Initialize Two};
+%\node [decision, below of=init2] (End) {End};
+%\path [line] (init) -- (init2);
+%\path [line] (init2) -- (End);
+%\path [line, dashed] (Start) -- (init);
+%\path [line, dashed] (Start2) -- (init);
+%\path [line, dashed] (Start2) |- (init2);
+%\end{tikzpicture}
 
 %------------------------------------------------
 
@@ -217,12 +217,12 @@ Maecenas viverra ligula a risus blandit vel tincidunt est adipiscing. Suspendiss
 
 The following materials were required to complete the research:
 
-\begin{itemize}\compresslist
-\item Curabitur pellentesque dignissim
-\item Eu facilisis est tempus quis
-\item Duis porta consequat lorem
-\item Eu facilisis est tempus quis
-\end{itemize}
+%\begin{itemize}\compresslist
+%\item Curabitur pellentesque dignissim
+%\item Eu facilisis est tempus quis
+%\item Duis porta consequat lorem
+%\item Eu facilisis est tempus quis
+%\end{itemize}
 
 The following equations were used for statistical analysis:
 
@@ -247,18 +247,18 @@ Phasellus imperdiet, tortor vitae congue bibendum, felis enim sagittis lorem, et
 
 Donec faucibus purus at tortor egestas eu fermentum dolor facilisis. Maecenas tempor dui eu neque fringilla rutrum. Mauris \emph{lobortis} nisl accumsan.
 
-\begin{center}
-\begin{tabular}{l l l}
-\toprule
-\textbf{Treatments} & \textbf{Response 1} & \textbf{Response 2}\\
-\midrule
-Treatment 1 & 0.0003262 & 0.562 \\
-Treatment 2 & 0.0015681 & 0.910 \\
-Treatment 3 & 0.0009271 & 0.296 \\
-\bottomrule
-\end{tabular}
-\captionof{table}{Table caption}
-\end{center}
+%\begin{center}
+%\begin{tabular}{l l l}
+%\toprule
+%\textbf{Treatments} & \textbf{Response 1} & \textbf{Response 2}\\
+%\midrule
+%Treatment 1 & 0.0003262 & 0.562 \\
+%Treatment 2 & 0.0015681 & 0.910 \\
+%Treatment 3 & 0.0009271 & 0.296 \\
+%\bottomrule
+%\end{tabular}
+%\captionof{table}{Table caption}
+%\end{center}
 
 Nulla ut porttitor enim. Suspendisse venenatis dui eget eros gravida tempor. Mauris feugiat elit et augue placerat ultrices. Morbi accumsan enim nec tortor consectetur non commodo.
 

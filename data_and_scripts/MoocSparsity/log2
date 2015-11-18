@@ -1,0 +1,21 @@
+500 updates
+2.2% mooc data structure
+real    19m23.616s
+user    19m22.513s
+sys     0m0.901s
+run the 5% with updates
+
+real    17m50.979s
+user    17m49.949s
+sys     0m0.852s
+run the 10% with updates
+
+real    15m40.784s
+user    15m39.704s
+sys     0m0.896s
+run the 25% with updates
+
+real    12m10.346s
+user    12m9.372s
+sys     0m0.725s
+

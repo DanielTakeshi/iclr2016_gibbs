@@ -545,6 +545,10 @@ data. What is interesting is that the performance of $m=10$ is \emph{worse} than
 thousands of iterations, the $m=10$ curve was essentially neck-to-neck with the $m=1$ curve, but
 corresponds to a much slower runtime.
 
+\textbf{Daniel: the above needs to be revised based on the new plot we have (3(a) and 3(b)).}
+
+\textbf{Daniel: now I have to figure out how to describe the kl-time tradeoff.}
+
 \begin{figure}[t]
 \centering
 \begin{subfigure}{.5\textwidth}
@@ -583,6 +587,9 @@ plotted here). This is likely because sampling 500 times to determine our predic
 convergence to a result invariant to minor differences in CPTs.  Sampling only one time to determine
 prediction accuracy resulted in about 56\% accuracy for $m=1$, and beyond 500 samples, we did not
 observe improvements.
+
+\textbf{Daniel: The last two paragraphs are not yet complete because I have to describe the ROC
+curve.}
 
 \subsection{Runtime vs. Throughput Tradeoff}\label{ssec:tradeoff}
 
@@ -675,11 +682,11 @@ graphical model inference on larger datasets.
 
 \section{Conclusions}\label{sec:conclusions}
 
-We conclude that our Gibbs sampler is much faster than the state of the art (JAGS) in Gibbs sampling
-and can be applied to data with several hundreds of variables. We also argue that SAME is beneficial
-for Gibbs sampling, and that it should be the go-to method for researchers who wish to perform
-inference on (discrete) Bayesian networks. Future work will explore the application of our sampler
-to a wider class of real-world datasets.
+We conclude that our Gibbs sampler is much faster than the state of the art (JAGS) and can be
+applied to data with hundreds of binary variables. We also argue that SAME is beneficial for Gibbs
+sampling, and that SAME Gibbs sampling should be the go-to method for researchers who wish to
+perform inference on (discrete) Bayesian networks. Future work will explore the application of our
+sampler to a wider class of real-world datasets.
 
 
 \subsubsection*{Acknowledgments}

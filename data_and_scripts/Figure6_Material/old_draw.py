@@ -27,6 +27,7 @@ data that involves forward sampling, then doing KL divergences, etc. Notes:
   better relatively (so what we show, which is NOT the random seed of 0, if that is good, we should
   say that we could have gotten even better if we had truly optimized).
 
+EDIT 11/17/15 much of the above is not relevant any more.
 """
 
 import matplotlib.pyplot as plt
@@ -80,7 +81,7 @@ plt.yscale('log')
 plt.ylim([0.1,0.4])
 plt.xlabel('Number of Passes Over the Data', fontsize='x-large')
 plt.ylabel('Average KL Divergence', fontsize='x-large')
-plt.yticks(np.arange(0.1, 0.6, 0.05))
+plt.yticks(np.arange(0.1, 1, 0.05))
 # print plt.xaxis.get_ticklabels()
 plt.savefig('fig_mooc_kl_div.png')
 

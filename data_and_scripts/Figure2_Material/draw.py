@@ -46,9 +46,10 @@ plt.plot(data[1], signals[1], label=legend_labels[1], linewidth=3.0)
 plt.plot(data[2], signals[2], label=legend_labels[2], linewidth=3.0)
 
 # Be sure to increase the font sizes! I might also have to experiment with a lot of other settings.
-plt.legend(loc='upper right', ncol=1)
+plt.legend(loc='upper right', ncol=1, borderpad=1)
 plt.title('BIDMach Performance (Koller)', fontsize='xx-large')
 plt.yscale('log')
+plt.ylim([0.00001, 0.1])
 plt.xlabel('Number of Passes Over the Data', fontsize='x-large')
 plt.ylabel('Average KL Divergence', fontsize='x-large')
 plt.savefig('fig_kldiv_koller_mb4_gpu.png')

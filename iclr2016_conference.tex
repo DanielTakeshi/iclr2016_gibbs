@@ -299,19 +299,19 @@ sampler, as it is cheaper and simpler to run as compared to using a computing cl
 \centering
 \begin{subfigure}{.5\textwidth}
   \centering
-  \includegraphics[width=1\linewidth]{fig_kldiv_koller_mb4_gpu}
+  \includegraphics[width=0.9\linewidth]{fig_kldiv_koller_mb4_gpu}
   \caption{The $KL_{\rm avg}$ from BIDMach.}
   \label{fig:kl_bidmach}
 \end{subfigure}%
 \begin{subfigure}{.5\textwidth}
   \centering
-  \includegraphics[width=1\linewidth]{fig_kl_div_25_50_perc_jags}
+  \includegraphics[width=0.9\linewidth]{fig_kldiv_50perc_jags}
   \caption{The $KL_{\rm avg}$ from JAGS.}
   \label{fig:kl_jags}
 \end{subfigure}
-\caption{Plots of our $KL_{\rm avg}$ curves as a function of the iteration, on Koller Data. Both
-BIDMach and JAGS converge to the true CPTs quickly. (These must be viewed in color.)}
-\label{fig:test}
+\caption{Plots of our $KL_{\rm avg}$ curves as a function of the iteration, on Koller Data (these
+must be viewed in color). Both BIDMach and JAGS converge to the true CPTs quickly.}
+\label{fig:first_set}
 \end{figure}
 
 % BIDMach (CPU) vs JAGS for the Koller data. This one only has 50k columns now!
@@ -452,19 +452,22 @@ make it clear that runtimes in JAGS *include* initialization.}
 % be done to get high quality models. We should mention that we do not know why JAGS converges
 % faster, and analyzing the source code did not help.
 \begin{figure}[t]
+\centering
+\begin{subfigure}{.5\textwidth}
   \centering
-  \begin{minipage}{.5\textwidth}
-    \centering
-    \includegraphics[width=1\textwidth]{fig_diff_sparsity_bidmach}
-    \caption{Time and $KL_{\rm avg}$ (BIDMach).}
-    \label{fig:kl_time_bidmach}
-  \end{minipage}\hfill
-    \begin{minipage}{.5\textwidth}
-    \centering
-    \includegraphics[width=1\textwidth]{fig_diff_sparsity_jags}
-    \caption{Time and $KL_{\rm avg}$ (JAGS).}
-    \label{fig:kl_time_jags}
-  \end{minipage}
+  \includegraphics[width=0.9\textwidth]{fig_diff_sparsity_bidmach}
+  \caption{The $KL_{\rm avg}$ from BIDMach.}
+  \label{fig:kl_time_bidmach}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=0.9\textwidth]{fig_diff_sparsity_jags}
+  \caption{The $KL_{\rm avg}$ from JAGS.}
+  \label{fig:kl_time_jags}
+\end{subfigure}
+\caption{Plots of our $KL_{\rm avg}$ curves as a function of the iteration, on Synthetic MOOC Data
+with different sparsity levels (these must be viewed in color).}
+\label{fig:second_set}
 \end{figure}
 
 
@@ -542,27 +545,24 @@ data. What is interesting is that the performance of $m=10$ is \emph{worse} than
 thousands of iterations, the $m=10$ curve was essentially neck-to-neck with the $m=1$ curve, but
 corresponds to a much slower runtime.
 
-\textbf{Daniel: We are planning on including one JAGS curve ($m=1$) in Figure~\ref{fig:mooc_kl}. We
-will need to explicitly state the runtimes for BIDMach/JAGS, probably just here in the text and not
-in a figure/table. Also, I should explain the ``long term'' trend stuff better, perhaps even
-extending the plot a bit. Finally, like before, I want to give an intuitive feel of the accuracy,
-i.e., how many decimal points of accuracy?}
-
 \begin{figure}[t]
+\centering
+\begin{subfigure}{.5\textwidth}
   \centering
-  \begin{minipage}{.5\textwidth}
-    \centering
-    \includegraphics[width=1\textwidth]{fig_kltime_tradeoff_mooc}
-    \caption{Time and $KL_{\rm avg}$ tradeoff.}
-    \label{fig:mooc_kl}
-  \end{minipage}\hfill
-    \begin{minipage}{.5\textwidth}
-    \centering
-    \includegraphics[width=1\textwidth]{fig_bidmach_real_mooc_roc_curve}
-    \caption{MOOC data ROC curve.}
-    \label{fig:mooc_accuracy}
-  \end{minipage}
+  \includegraphics[width=0.9\textwidth]{fig_kltime_tradeoff_mooc}
+  \caption{The $KL_{\rm avg}$ from BIDMach.}
+  \label{fig:mooc_kl}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=0.9\textwidth]{fig_bidmach_real_mooc_roc_curve}
+  \caption{MOOC data ROC curve.}
+  \label{fig:mooc_accuracy}
+\end{subfigure}
+\caption{A more in-depth look at our sampler on Synthetic and Real MOOC data.}
+\label{fig:third_set}
 \end{figure}
+
 
 The second way we evaluate our sampler is with prediction accuracy. We divide the original
 data into a training and testing batch so that 80\% of the known data is in training. The training

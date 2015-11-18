@@ -1,0 +1,878 @@
+Loading /home/seita/BIDMach/lib/bidmach_init.scala...
+import BIDMat.{CMat, CSMat, DMat, Dict, FMat, FND, GMat, GDMat, GIMat, GLMat, GSMat, GSDMat, HMat, IDict, Image, IMat, LMat, Mat, SMat, SBMat, SDMat}
+import BIDMat.MatFunctions._
+import BIDMat.SciFunctions._
+import BIDMat.Solvers._
+import BIDMat.Plotting._
+import BIDMach.Learner
+import BIDMach.models.{FM, GLM, KMeans, KMeansw, LDA, LDAgibbs, Model, NMF, SFA, RandomForest}
+import BIDMach.networks.DNN
+import BIDMach.datasources.{DataSource, MatDS, FilesDS, SFilesDS}
+import BIDMach.mixins.{CosineSim, Perplexity, Top, L1Regularizer, L2Regularizer}
+import BIDMach.updaters.{ADAGrad, Batch, BatchNorm, IncMult, IncNorm, Telescoping}
+import BIDMach.causal.IPTW
+1 CUDA device found, CUDA version 7.0
+
+Loading scripts/bn_test.ssc...
+data: BIDMat.FMat =
+   0   2   1   1   0   2   0   0   0   0   0   0   0   0   0   1   0   1   0   0   0   0   0   0   0   0   0   2   0   0   0   0   0   0   0   1   0   0   0   0   1   0   0   0   2   0   0   0   0...
+   0   0   0   1   0   2   0   0   0   0   0   0   2   0   0   0   0   0   1   0   0   0   0   2   0   0   0   0   0   0   0   0   1   1   0   1   0   0   0   0   0   0   0   0   0   0   0   0   0...
+   0   1   0   0   0   0   0   0   0   0   0   0   1   2   2   0   0   0   0   0   0   0   0   1   0   0   0   0   0   0   0   0   0   0   0   0   0   0   1   0   0   1   0   0   0   0   1   0   0...
+  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  ..  .. ...dag: BIDMat.SMat =
+(   0,   2)   1
+(   1,   2)   1
+(   0,   3)   1
+(   1,   3)   1
+(   4,   5)   1
+(   4,   6)   1
+(   6,   7)   1
+(   2,   8)   1
+  ...  ...  ...
+states: BIDMat.IMat =
+   2
+   2
+   2
+  ..
+nn: BIDMach.Learner = Learner(BIDMach.datasources.MatDS@53039bb7,BIDMach.models.BayesNet@11e435f5,null,BIDMach.updaters.IncNorm@1d927100,BIDMach.models.BayesNet$xopts$1@7938c62a)
+opts: BIDMach.Learner.Options with BIDMach.models.BayesNet.Opts with BIDMach.datasources.MatDS.Opts with BIDMach.updaters.IncNorm.Opts = BIDMach.models.BayesNet$xopts$1@7938c62a
+opts.npasses: Int = 200
+opts.useGPU: Boolean = true
+opts.batchSize: Int = 2184
+opts.updateAll: Boolean = true
+Option Name       Type          Value
+===========       ====          =====
+addConstFeat      boolean       false
+autoReset         boolean       true
+batchSize         int           2184
+checkPointFile    String        null
+checkPointInterval  float         0.0
+copiesForSAME     int           1
+cumScore          int           0
+debug             int           0
+debugMem          boolean       false
+dim               int           334
+doubleScore       boolean       false
+evalStep          int           11
+featThreshold     Mat           null
+featType          int           1
+initSmoothFactor  int           1
+isprob            boolean       false
+npasses           int           200
+numSamplesBurn    int           0
+nzPerColumn       int           0
+power             float         0.0
+pstep             float         0.01
+putBack           int           1
+resFile           String        null
+sample            float         1.0
+samplingRate      int           1
+sizeMargin        float         3.0
+startBlock        int           8000
+updateAll         boolean       true
+useCache          boolean       true
+useDouble         boolean       false
+useGPU            boolean       true
+warmup            long          0
+randSeed = 777
+pass= 0
+0.066415  0 KLDiv
+0.046165  0 KLDiv
+100.00%, ll=0.00000, gf=0.317, secs=0.8, GB=0.01, MB/s=14.11, GPUmem=0.913324
+pass= 1
+0.039602  1 KLDiv
+0.032923  1 KLDiv
+100.00%, ll=0.00000, gf=0.359, secs=1.3, GB=0.02, MB/s=17.42, GPUmem=0.913324
+pass= 2
+0.028720  2 KLDiv
+0.025255  2 KLDiv
+100.00%, ll=0.00000, gf=0.385, secs=1.8, GB=0.04, MB/s=19.31, GPUmem=0.913324
+pass= 3
+0.022993  3 KLDiv
+0.021092  3 KLDiv
+100.00%, ll=0.00000, gf=0.403, secs=2.3, GB=0.05, MB/s=20.53, GPUmem=0.913324
+pass= 4
+0.020129  4 KLDiv
+0.018771  4 KLDiv
+100.00%, ll=0.00000, gf=0.419, secs=2.7, GB=0.06, MB/s=21.54, GPUmem=0.913324
+pass= 5
+0.018198  5 KLDiv
+0.017693  5 KLDiv
+100.00%, ll=0.00000, gf=0.432, secs=3.1, GB=0.07, MB/s=22.33, GPUmem=0.913324
+pass= 6
+0.017324  6 KLDiv
+0.016885  6 KLDiv
+100.00%, ll=0.00000, gf=0.442, secs=3.6, GB=0.08, MB/s=22.95, GPUmem=0.913324
+pass= 7
+0.016211  7 KLDiv
+0.015742  7 KLDiv
+100.00%, ll=0.00000, gf=0.450, secs=4.0, GB=0.09, MB/s=23.47, GPUmem=0.913324
+pass= 8
+0.015121  8 KLDiv
+0.014698  8 KLDiv
+100.00%, ll=0.00000, gf=0.458, secs=4.4, GB=0.11, MB/s=23.93, GPUmem=0.913324
+pass= 9
+0.014721  9 KLDiv
+0.013912  9 KLDiv
+100.00%, ll=0.00000, gf=0.464, secs=4.8, GB=0.12, MB/s=24.32, GPUmem=0.913324
+pass=10
+0.014007  10 KLDiv
+0.013115  10 KLDiv
+100.00%, ll=0.00000, gf=0.470, secs=5.2, GB=0.13, MB/s=24.65, GPUmem=0.913324
+pass=11
+0.012417  11 KLDiv
+0.012667  11 KLDiv
+100.00%, ll=0.00000, gf=0.474, secs=5.6, GB=0.14, MB/s=24.93, GPUmem=0.913324
+pass=12
+0.012246  12 KLDiv
+0.011414  12 KLDiv
+100.00%, ll=0.00000, gf=0.478, secs=6.0, GB=0.15, MB/s=25.18, GPUmem=0.913324
+pass=13
+0.011339  13 KLDiv
+0.010738  13 KLDiv
+100.00%, ll=0.00000, gf=0.482, secs=6.4, GB=0.16, MB/s=25.41, GPUmem=0.913324
+pass=14
+0.010041  14 KLDiv
+0.0096936  14 KLDiv
+100.00%, ll=0.00000, gf=0.486, secs=6.8, GB=0.18, MB/s=25.61, GPUmem=0.913324
+pass=15
+0.0097736  15 KLDiv
+0.0090650  15 KLDiv
+100.00%, ll=0.00000, gf=0.489, secs=7.2, GB=0.19, MB/s=25.80, GPUmem=0.913324
+pass=16
+0.010064  16 KLDiv
+0.0092248  16 KLDiv
+100.00%, ll=0.00000, gf=0.492, secs=7.6, GB=0.20, MB/s=25.99, GPUmem=0.913324
+pass=17
+0.0093030  17 KLDiv
+0.0094656  17 KLDiv
+100.00%, ll=0.00000, gf=0.495, secs=8.0, GB=0.21, MB/s=26.15, GPUmem=0.913324
+pass=18
+0.0096812  18 KLDiv
+0.0090147  18 KLDiv
+100.00%, ll=0.00000, gf=0.497, secs=8.4, GB=0.22, MB/s=26.30, GPUmem=0.913324
+pass=19
+0.0095857  19 KLDiv
+0.0098885  19 KLDiv
+100.00%, ll=0.00000, gf=0.500, secs=8.8, GB=0.23, MB/s=26.44, GPUmem=0.913324
+pass=20
+0.0090089  20 KLDiv
+0.0079773  20 KLDiv
+100.00%, ll=0.00000, gf=0.499, secs=9.3, GB=0.25, MB/s=26.41, GPUmem=0.913324
+pass=21
+0.0082963  21 KLDiv
+0.0085312  21 KLDiv
+100.00%, ll=0.00000, gf=0.501, secs=9.7, GB=0.26, MB/s=26.53, GPUmem=0.913324
+pass=22
+0.0075159  22 KLDiv
+0.0074747  22 KLDiv
+100.00%, ll=0.00000, gf=0.503, secs=10.1, GB=0.27, MB/s=26.64, GPUmem=0.913324
+pass=23
+0.0074047  23 KLDiv
+0.0073802  23 KLDiv
+100.00%, ll=0.00000, gf=0.505, secs=10.5, GB=0.28, MB/s=26.74, GPUmem=0.913324
+pass=24
+0.0072651  24 KLDiv
+0.0070453  24 KLDiv
+100.00%, ll=0.00000, gf=0.506, secs=10.9, GB=0.29, MB/s=26.83, GPUmem=0.913324
+pass=25
+0.0078079  25 KLDiv
+0.0077816  25 KLDiv
+100.00%, ll=0.00000, gf=0.508, secs=11.3, GB=0.30, MB/s=26.92, GPUmem=0.913324
+pass=26
+0.0078479  26 KLDiv
+0.0077479  26 KLDiv
+100.00%, ll=0.00000, gf=0.509, secs=11.7, GB=0.32, MB/s=27.00, GPUmem=0.913324
+pass=27
+0.0073571  27 KLDiv
+0.0078960  27 KLDiv
+100.00%, ll=0.00000, gf=0.510, secs=12.1, GB=0.33, MB/s=27.07, GPUmem=0.913324
+pass=28
+0.0076557  28 KLDiv
+0.0069707  28 KLDiv
+100.00%, ll=0.00000, gf=0.511, secs=12.5, GB=0.34, MB/s=27.14, GPUmem=0.913324
+pass=29
+0.0065686  29 KLDiv
+0.0070297  29 KLDiv
+100.00%, ll=0.00000, gf=0.513, secs=12.9, GB=0.35, MB/s=27.21, GPUmem=0.913324
+pass=30
+0.0075216  30 KLDiv
+0.0072961  30 KLDiv
+100.00%, ll=0.00000, gf=0.514, secs=13.3, GB=0.36, MB/s=27.27, GPUmem=0.913324
+pass=31
+0.0072639  31 KLDiv
+0.0071236  31 KLDiv
+100.00%, ll=0.00000, gf=0.515, secs=13.7, GB=0.37, MB/s=27.33, GPUmem=0.913324
+pass=32
+0.0072895  32 KLDiv
+0.0071515  32 KLDiv
+100.00%, ll=0.00000, gf=0.516, secs=14.1, GB=0.39, MB/s=27.39, GPUmem=0.913324
+pass=33
+0.0068519  33 KLDiv
+0.0068209  33 KLDiv
+100.00%, ll=0.00000, gf=0.516, secs=14.5, GB=0.40, MB/s=27.44, GPUmem=0.913324
+pass=34
+0.0074245  34 KLDiv
+0.0070111  34 KLDiv
+100.00%, ll=0.00000, gf=0.517, secs=14.9, GB=0.41, MB/s=27.49, GPUmem=0.913324
+pass=35
+0.0076413  35 KLDiv
+0.0073542  35 KLDiv
+100.00%, ll=0.00000, gf=0.518, secs=15.3, GB=0.42, MB/s=27.53, GPUmem=0.913324
+pass=36
+0.0072888  36 KLDiv
+0.0072724  36 KLDiv
+100.00%, ll=0.00000, gf=0.519, secs=15.7, GB=0.43, MB/s=27.57, GPUmem=0.913324
+pass=37
+0.0073470  37 KLDiv
+0.0074949  37 KLDiv
+100.00%, ll=0.00000, gf=0.520, secs=16.1, GB=0.44, MB/s=27.62, GPUmem=0.913324
+pass=38
+0.0078469  38 KLDiv
+0.0072766  38 KLDiv
+100.00%, ll=0.00000, gf=0.520, secs=16.5, GB=0.46, MB/s=27.66, GPUmem=0.913324
+pass=39
+0.0073398  39 KLDiv
+0.0070460  39 KLDiv
+100.00%, ll=0.00000, gf=0.521, secs=16.9, GB=0.47, MB/s=27.70, GPUmem=0.913324
+pass=40
+0.0064681  40 KLDiv
+0.0068242  40 KLDiv
+100.00%, ll=0.00000, gf=0.521, secs=17.3, GB=0.48, MB/s=27.73, GPUmem=0.913324
+pass=41
+0.0072357  41 KLDiv
+0.0066036  41 KLDiv
+100.00%, ll=0.00000, gf=0.522, secs=17.7, GB=0.49, MB/s=27.77, GPUmem=0.913324
+pass=42
+0.0065990  42 KLDiv
+0.0069708  42 KLDiv
+100.00%, ll=0.00000, gf=0.523, secs=18.0, GB=0.50, MB/s=27.80, GPUmem=0.913324
+pass=43
+0.0075360  43 KLDiv
+0.0077855  43 KLDiv
+100.00%, ll=0.00000, gf=0.523, secs=18.4, GB=0.51, MB/s=27.83, GPUmem=0.913324
+pass=44
+0.0076698  44 KLDiv
+0.0085220  44 KLDiv
+100.00%, ll=0.00000, gf=0.524, secs=18.8, GB=0.53, MB/s=27.86, GPUmem=0.913324
+pass=45
+0.0072671  45 KLDiv
+0.0074205  45 KLDiv
+100.00%, ll=0.00000, gf=0.524, secs=19.2, GB=0.54, MB/s=27.89, GPUmem=0.913324
+pass=46
+0.0079946  46 KLDiv
+0.0080425  46 KLDiv
+100.00%, ll=0.00000, gf=0.525, secs=19.6, GB=0.55, MB/s=27.92, GPUmem=0.913324
+pass=47
+0.0086328  47 KLDiv
+0.0081949  47 KLDiv
+100.00%, ll=0.00000, gf=0.525, secs=20.0, GB=0.56, MB/s=27.94, GPUmem=0.913324
+pass=48
+0.0080811  48 KLDiv
+0.0083193  48 KLDiv
+100.00%, ll=0.00000, gf=0.525, secs=20.4, GB=0.57, MB/s=27.97, GPUmem=0.913324
+pass=49
+0.0083687  49 KLDiv
+0.0081806  49 KLDiv
+100.00%, ll=0.00000, gf=0.526, secs=20.8, GB=0.58, MB/s=27.99, GPUmem=0.913324
+pass=50
+0.0081039  50 KLDiv
+0.0077072  50 KLDiv
+100.00%, ll=0.00000, gf=0.526, secs=21.2, GB=0.60, MB/s=28.02, GPUmem=0.913324
+pass=51
+0.0080048  51 KLDiv
+0.0073615  51 KLDiv
+100.00%, ll=0.00000, gf=0.527, secs=21.6, GB=0.61, MB/s=28.04, GPUmem=0.913324
+pass=52
+0.0077646  52 KLDiv
+0.0080920  52 KLDiv
+100.00%, ll=0.00000, gf=0.527, secs=22.0, GB=0.62, MB/s=28.06, GPUmem=0.913324
+pass=53
+0.0077396  53 KLDiv
+0.0083921  53 KLDiv
+100.00%, ll=0.00000, gf=0.527, secs=22.4, GB=0.63, MB/s=28.08, GPUmem=0.913324
+pass=54
+0.0081655  54 KLDiv
+0.0080716  54 KLDiv
+100.00%, ll=0.00000, gf=0.528, secs=22.8, GB=0.64, MB/s=28.10, GPUmem=0.913324
+pass=55
+0.0079774  55 KLDiv
+0.0083539  55 KLDiv
+100.00%, ll=0.00000, gf=0.528, secs=23.2, GB=0.65, MB/s=28.12, GPUmem=0.913324
+pass=56
+0.0080293  56 KLDiv
+0.0080633  56 KLDiv
+100.00%, ll=0.00000, gf=0.528, secs=23.6, GB=0.67, MB/s=28.14, GPUmem=0.913324
+pass=57
+0.0081403  57 KLDiv
+0.0082665  57 KLDiv
+100.00%, ll=0.00000, gf=0.529, secs=24.0, GB=0.68, MB/s=28.16, GPUmem=0.913324
+pass=58
+0.0077113  58 KLDiv
+0.0090874  58 KLDiv
+100.00%, ll=0.00000, gf=0.529, secs=24.4, GB=0.69, MB/s=28.18, GPUmem=0.913324
+pass=59
+0.0094084  59 KLDiv
+0.0091655  59 KLDiv
+100.00%, ll=0.00000, gf=0.529, secs=24.8, GB=0.70, MB/s=28.19, GPUmem=0.913324
+pass=60
+0.0089307  60 KLDiv
+0.0093362  60 KLDiv
+100.00%, ll=0.00000, gf=0.530, secs=25.2, GB=0.71, MB/s=28.21, GPUmem=0.913324
+pass=61
+0.0096904  61 KLDiv
+0.010555  61 KLDiv
+100.00%, ll=0.00000, gf=0.530, secs=25.6, GB=0.72, MB/s=28.23, GPUmem=0.913324
+pass=62
+0.0099678  62 KLDiv
+0.010461  62 KLDiv
+100.00%, ll=0.00000, gf=0.530, secs=26.0, GB=0.74, MB/s=28.24, GPUmem=0.913324
+pass=63
+0.010064  63 KLDiv
+0.0091727  63 KLDiv
+100.00%, ll=0.00000, gf=0.530, secs=26.4, GB=0.75, MB/s=28.26, GPUmem=0.913324
+pass=64
+0.0087418  64 KLDiv
+0.0082366  64 KLDiv
+100.00%, ll=0.00000, gf=0.531, secs=26.8, GB=0.76, MB/s=28.27, GPUmem=0.913324
+pass=65
+0.0092607  65 KLDiv
+0.0090391  65 KLDiv
+100.00%, ll=0.00000, gf=0.531, secs=27.2, GB=0.77, MB/s=28.28, GPUmem=0.913324
+pass=66
+0.0092004  66 KLDiv
+0.011256  66 KLDiv
+100.00%, ll=0.00000, gf=0.531, secs=27.6, GB=0.78, MB/s=28.30, GPUmem=0.913324
+pass=67
+0.0088257  67 KLDiv
+0.0087689  67 KLDiv
+100.00%, ll=0.00000, gf=0.531, secs=28.0, GB=0.79, MB/s=28.31, GPUmem=0.913324
+pass=68
+0.0090779  68 KLDiv
+0.0087743  68 KLDiv
+100.00%, ll=0.00000, gf=0.532, secs=28.4, GB=0.81, MB/s=28.33, GPUmem=0.913324
+pass=69
+0.0094210  69 KLDiv
+0.0081926  69 KLDiv
+100.00%, ll=0.00000, gf=0.532, secs=28.8, GB=0.82, MB/s=28.34, GPUmem=0.913324
+pass=70
+0.0087936  70 KLDiv
+0.0092966  70 KLDiv
+100.00%, ll=0.00000, gf=0.532, secs=29.2, GB=0.83, MB/s=28.35, GPUmem=0.913324
+pass=71
+0.0098203  71 KLDiv
+0.0095454  71 KLDiv
+100.00%, ll=0.00000, gf=0.532, secs=29.6, GB=0.84, MB/s=28.36, GPUmem=0.913324
+pass=72
+0.010439  72 KLDiv
+0.0098905  72 KLDiv
+100.00%, ll=0.00000, gf=0.532, secs=30.0, GB=0.85, MB/s=28.37, GPUmem=0.913324
+pass=73
+0.0097608  73 KLDiv
+0.0088715  73 KLDiv
+100.00%, ll=0.00000, gf=0.533, secs=30.4, GB=0.86, MB/s=28.39, GPUmem=0.913324
+pass=74
+0.0085441  74 KLDiv
+0.0080302  74 KLDiv
+100.00%, ll=0.00000, gf=0.533, secs=30.8, GB=0.88, MB/s=28.40, GPUmem=0.913324
+pass=75
+0.0083818  75 KLDiv
+0.0079736  75 KLDiv
+100.00%, ll=0.00000, gf=0.533, secs=31.2, GB=0.89, MB/s=28.41, GPUmem=0.913324
+pass=76
+0.0079187  76 KLDiv
+0.0077443  76 KLDiv
+100.00%, ll=0.00000, gf=0.533, secs=31.6, GB=0.90, MB/s=28.42, GPUmem=0.913324
+pass=77
+0.0074947  77 KLDiv
+0.0081330  77 KLDiv
+100.00%, ll=0.00000, gf=0.533, secs=32.0, GB=0.91, MB/s=28.43, GPUmem=0.913324
+pass=78
+0.0081686  78 KLDiv
+0.0076163  78 KLDiv
+100.00%, ll=0.00000, gf=0.534, secs=32.4, GB=0.92, MB/s=28.44, GPUmem=0.913324
+pass=79
+0.0072345  79 KLDiv
+0.0083656  79 KLDiv
+100.00%, ll=0.00000, gf=0.534, secs=32.8, GB=0.93, MB/s=28.45, GPUmem=0.913324
+pass=80
+0.0078200  80 KLDiv
+0.0079347  80 KLDiv
+100.00%, ll=0.00000, gf=0.534, secs=33.2, GB=0.95, MB/s=28.46, GPUmem=0.913324
+pass=81
+0.0082584  81 KLDiv
+0.0084257  81 KLDiv
+100.00%, ll=0.00000, gf=0.534, secs=33.6, GB=0.96, MB/s=28.47, GPUmem=0.913324
+pass=82
+0.0084569  82 KLDiv
+0.0077441  82 KLDiv
+100.00%, ll=0.00000, gf=0.534, secs=34.0, GB=0.97, MB/s=28.48, GPUmem=0.913324
+pass=83
+0.0075755  83 KLDiv
+0.0081649  83 KLDiv
+100.00%, ll=0.00000, gf=0.534, secs=34.4, GB=0.98, MB/s=28.49, GPUmem=0.913324
+pass=84
+0.0081733  84 KLDiv
+0.0079957  84 KLDiv
+100.00%, ll=0.00000, gf=0.535, secs=34.8, GB=0.99, MB/s=28.50, GPUmem=0.913324
+pass=85
+0.0079518  85 KLDiv
+0.0081266  85 KLDiv
+100.00%, ll=0.00000, gf=0.535, secs=35.2, GB=1.00, MB/s=28.51, GPUmem=0.913324
+pass=86
+0.0078784  86 KLDiv
+0.0081759  86 KLDiv
+100.00%, ll=0.00000, gf=0.535, secs=35.6, GB=1.02, MB/s=28.52, GPUmem=0.913324
+pass=87
+0.0085439  87 KLDiv
+0.0082971  87 KLDiv
+100.00%, ll=0.00000, gf=0.535, secs=36.0, GB=1.03, MB/s=28.52, GPUmem=0.913324
+pass=88
+0.0081836  88 KLDiv
+0.0082866  88 KLDiv
+100.00%, ll=0.00000, gf=0.535, secs=36.4, GB=1.04, MB/s=28.53, GPUmem=0.913324
+pass=89
+0.0077045  89 KLDiv
+0.0082986  89 KLDiv
+100.00%, ll=0.00000, gf=0.535, secs=36.8, GB=1.05, MB/s=28.54, GPUmem=0.913324
+pass=90
+0.0085027  90 KLDiv
+0.0088519  90 KLDiv
+100.00%, ll=0.00000, gf=0.535, secs=37.2, GB=1.06, MB/s=28.55, GPUmem=0.913324
+pass=91
+0.0090084  91 KLDiv
+0.0084655  91 KLDiv
+100.00%, ll=0.00000, gf=0.535, secs=37.6, GB=1.07, MB/s=28.55, GPUmem=0.913324
+pass=92
+0.0085447  92 KLDiv
+0.0084346  92 KLDiv
+100.00%, ll=0.00000, gf=0.536, secs=38.0, GB=1.09, MB/s=28.56, GPUmem=0.913324
+pass=93
+0.0085737  93 KLDiv
+0.0079371  93 KLDiv
+100.00%, ll=0.00000, gf=0.536, secs=38.4, GB=1.10, MB/s=28.57, GPUmem=0.913324
+pass=94
+0.0087443  94 KLDiv
+0.0084091  94 KLDiv
+100.00%, ll=0.00000, gf=0.536, secs=38.8, GB=1.11, MB/s=28.58, GPUmem=0.913324
+pass=95
+0.0086090  95 KLDiv
+0.0085608  95 KLDiv
+100.00%, ll=0.00000, gf=0.536, secs=39.2, GB=1.12, MB/s=28.58, GPUmem=0.913324
+pass=96
+0.0086940  96 KLDiv
+0.0087507  96 KLDiv
+100.00%, ll=0.00000, gf=0.536, secs=39.6, GB=1.13, MB/s=28.59, GPUmem=0.913324
+pass=97
+0.0088933  97 KLDiv
+0.0089900  97 KLDiv
+100.00%, ll=0.00000, gf=0.536, secs=40.0, GB=1.14, MB/s=28.60, GPUmem=0.913324
+pass=98
+0.0083354  98 KLDiv
+0.0081135  98 KLDiv
+100.00%, ll=0.00000, gf=0.536, secs=40.4, GB=1.16, MB/s=28.60, GPUmem=0.913324
+pass=99
+0.0079175  99 KLDiv
+0.0080832  99 KLDiv
+100.00%, ll=0.00000, gf=0.536, secs=40.8, GB=1.17, MB/s=28.61, GPUmem=0.913324
+pass=100
+0.0081126  100 KLDiv
+0.0083442  100 KLDiv
+100.00%, ll=0.00000, gf=0.537, secs=41.2, GB=1.18, MB/s=28.62, GPUmem=0.913324
+pass=101
+0.0082929  101 KLDiv
+0.0079184  101 KLDiv
+100.00%, ll=0.00000, gf=0.537, secs=41.6, GB=1.19, MB/s=28.62, GPUmem=0.913324
+pass=102
+0.0075988  102 KLDiv
+0.0077878  102 KLDiv
+100.00%, ll=0.00000, gf=0.537, secs=42.0, GB=1.20, MB/s=28.63, GPUmem=0.913324
+pass=103
+0.0076383  103 KLDiv
+0.0075352  103 KLDiv
+100.00%, ll=0.00000, gf=0.537, secs=42.4, GB=1.21, MB/s=28.63, GPUmem=0.913324
+pass=104
+0.0072702  104 KLDiv
+0.0072375  104 KLDiv
+100.00%, ll=0.00000, gf=0.537, secs=42.8, GB=1.23, MB/s=28.64, GPUmem=0.913324
+pass=105
+0.0071509  105 KLDiv
+0.0077379  105 KLDiv
+100.00%, ll=0.00000, gf=0.537, secs=43.2, GB=1.24, MB/s=28.65, GPUmem=0.913324
+pass=106
+0.0070643  106 KLDiv
+0.0075734  106 KLDiv
+100.00%, ll=0.00000, gf=0.537, secs=43.6, GB=1.25, MB/s=28.65, GPUmem=0.913324
+pass=107
+0.0077938  107 KLDiv
+0.0073498  107 KLDiv
+100.00%, ll=0.00000, gf=0.537, secs=44.0, GB=1.26, MB/s=28.66, GPUmem=0.913324
+pass=108
+0.0079029  108 KLDiv
+0.0076059  108 KLDiv
+100.00%, ll=0.00000, gf=0.537, secs=44.4, GB=1.27, MB/s=28.66, GPUmem=0.913324
+pass=109
+0.0075535  109 KLDiv
+0.0070348  109 KLDiv
+100.00%, ll=0.00000, gf=0.537, secs=44.8, GB=1.28, MB/s=28.67, GPUmem=0.913324
+pass=110
+0.0074305  110 KLDiv
+0.0078456  110 KLDiv
+100.00%, ll=0.00000, gf=0.538, secs=45.2, GB=1.30, MB/s=28.67, GPUmem=0.913324
+pass=111
+0.0068269  111 KLDiv
+0.0076403  111 KLDiv
+100.00%, ll=0.00000, gf=0.538, secs=45.6, GB=1.31, MB/s=28.68, GPUmem=0.913324
+pass=112
+0.0075908  112 KLDiv
+0.0070681  112 KLDiv
+100.00%, ll=0.00000, gf=0.538, secs=46.0, GB=1.32, MB/s=28.68, GPUmem=0.913324
+pass=113
+0.0069802  113 KLDiv
+0.0070938  113 KLDiv
+100.00%, ll=0.00000, gf=0.538, secs=46.4, GB=1.33, MB/s=28.69, GPUmem=0.913324
+pass=114
+0.0068097  114 KLDiv
+0.0067944  114 KLDiv
+100.00%, ll=0.00000, gf=0.538, secs=46.8, GB=1.34, MB/s=28.69, GPUmem=0.913324
+pass=115
+0.0065919  115 KLDiv
+0.0068765  115 KLDiv
+100.00%, ll=0.00000, gf=0.538, secs=47.2, GB=1.35, MB/s=28.70, GPUmem=0.913324
+pass=116
+0.0068717  116 KLDiv
+0.0072026  116 KLDiv
+100.00%, ll=0.00000, gf=0.538, secs=47.6, GB=1.37, MB/s=28.70, GPUmem=0.913324
+pass=117
+0.0076169  117 KLDiv
+0.0067061  117 KLDiv
+100.00%, ll=0.00000, gf=0.538, secs=48.0, GB=1.38, MB/s=28.71, GPUmem=0.913324
+pass=118
+0.0072414  118 KLDiv
+0.0073444  118 KLDiv
+100.00%, ll=0.00000, gf=0.538, secs=48.4, GB=1.39, MB/s=28.71, GPUmem=0.913324
+pass=119
+0.0081241  119 KLDiv
+0.0083088  119 KLDiv
+100.00%, ll=0.00000, gf=0.538, secs=48.8, GB=1.40, MB/s=28.72, GPUmem=0.913324
+pass=120
+0.0082571  120 KLDiv
+0.0076717  120 KLDiv
+100.00%, ll=0.00000, gf=0.538, secs=49.2, GB=1.41, MB/s=28.72, GPUmem=0.913324
+pass=121
+0.0076433  121 KLDiv
+0.0073768  121 KLDiv
+100.00%, ll=0.00000, gf=0.538, secs=49.6, GB=1.42, MB/s=28.73, GPUmem=0.913324
+pass=122
+0.0071876  122 KLDiv
+0.0071941  122 KLDiv
+100.00%, ll=0.00000, gf=0.538, secs=50.0, GB=1.44, MB/s=28.73, GPUmem=0.913324
+pass=123
+0.0072977  123 KLDiv
+0.0072312  123 KLDiv
+100.00%, ll=0.00000, gf=0.539, secs=50.4, GB=1.45, MB/s=28.74, GPUmem=0.913324
+pass=124
+0.0071859  124 KLDiv
+0.0067663  124 KLDiv
+100.00%, ll=0.00000, gf=0.539, secs=50.8, GB=1.46, MB/s=28.74, GPUmem=0.913324
+pass=125
+0.0064091  125 KLDiv
+0.0066785  125 KLDiv
+100.00%, ll=0.00000, gf=0.539, secs=51.2, GB=1.47, MB/s=28.74, GPUmem=0.913324
+pass=126
+0.0066154  126 KLDiv
+0.0062105  126 KLDiv
+100.00%, ll=0.00000, gf=0.539, secs=51.5, GB=1.48, MB/s=28.75, GPUmem=0.913324
+pass=127
+0.0064882  127 KLDiv
+0.0066832  127 KLDiv
+100.00%, ll=0.00000, gf=0.539, secs=51.9, GB=1.49, MB/s=28.75, GPUmem=0.913324
+pass=128
+0.0069080  128 KLDiv
+0.0085896  128 KLDiv
+100.00%, ll=0.00000, gf=0.539, secs=52.3, GB=1.51, MB/s=28.76, GPUmem=0.913324
+pass=129
+0.0081392  129 KLDiv
+0.0080986  129 KLDiv
+100.00%, ll=0.00000, gf=0.539, secs=52.7, GB=1.52, MB/s=28.76, GPUmem=0.913324
+pass=130
+0.0083359  130 KLDiv
+0.0091972  130 KLDiv
+100.00%, ll=0.00000, gf=0.539, secs=53.1, GB=1.53, MB/s=28.76, GPUmem=0.913324
+pass=131
+0.0082890  131 KLDiv
+0.0084143  131 KLDiv
+100.00%, ll=0.00000, gf=0.539, secs=53.5, GB=1.54, MB/s=28.77, GPUmem=0.913324
+pass=132
+0.0087585  132 KLDiv
+0.0081972  132 KLDiv
+100.00%, ll=0.00000, gf=0.539, secs=53.9, GB=1.55, MB/s=28.77, GPUmem=0.913324
+pass=133
+0.0074799  133 KLDiv
+0.0071974  133 KLDiv
+100.00%, ll=0.00000, gf=0.539, secs=54.3, GB=1.56, MB/s=28.78, GPUmem=0.913324
+pass=134
+0.0075648  134 KLDiv
+0.0076409  134 KLDiv
+100.00%, ll=0.00000, gf=0.539, secs=54.7, GB=1.58, MB/s=28.78, GPUmem=0.913324
+pass=135
+0.0071018  135 KLDiv
+0.0071694  135 KLDiv
+100.00%, ll=0.00000, gf=0.539, secs=55.1, GB=1.59, MB/s=28.78, GPUmem=0.913324
+pass=136
+0.0076803  136 KLDiv
+0.0075746  136 KLDiv
+100.00%, ll=0.00000, gf=0.539, secs=55.5, GB=1.60, MB/s=28.79, GPUmem=0.913324
+pass=137
+0.0077368  137 KLDiv
+0.0074156  137 KLDiv
+100.00%, ll=0.00000, gf=0.540, secs=55.9, GB=1.61, MB/s=28.79, GPUmem=0.913324
+pass=138
+0.0082088  138 KLDiv
+0.0077035  138 KLDiv
+100.00%, ll=0.00000, gf=0.540, secs=56.3, GB=1.62, MB/s=28.79, GPUmem=0.913324
+pass=139
+0.0074048  139 KLDiv
+0.0076244  139 KLDiv
+100.00%, ll=0.00000, gf=0.540, secs=56.7, GB=1.63, MB/s=28.80, GPUmem=0.913324
+pass=140
+0.0082644  140 KLDiv
+0.0079707  140 KLDiv
+100.00%, ll=0.00000, gf=0.540, secs=57.1, GB=1.65, MB/s=28.80, GPUmem=0.913324
+pass=141
+0.0080080  141 KLDiv
+0.0088849  141 KLDiv
+100.00%, ll=0.00000, gf=0.540, secs=57.5, GB=1.66, MB/s=28.80, GPUmem=0.913324
+pass=142
+0.0074543  142 KLDiv
+0.0082972  142 KLDiv
+100.00%, ll=0.00000, gf=0.540, secs=57.9, GB=1.67, MB/s=28.81, GPUmem=0.913324
+pass=143
+0.0077794  143 KLDiv
+0.0079262  143 KLDiv
+100.00%, ll=0.00000, gf=0.540, secs=58.3, GB=1.68, MB/s=28.81, GPUmem=0.913324
+pass=144
+0.0077632  144 KLDiv
+0.0078648  144 KLDiv
+100.00%, ll=0.00000, gf=0.540, secs=58.7, GB=1.69, MB/s=28.81, GPUmem=0.913324
+pass=145
+0.0078633  145 KLDiv
+0.0079836  145 KLDiv
+100.00%, ll=0.00000, gf=0.540, secs=59.1, GB=1.70, MB/s=28.82, GPUmem=0.913324
+pass=146
+0.0079662  146 KLDiv
+0.0083574  146 KLDiv
+100.00%, ll=0.00000, gf=0.540, secs=59.5, GB=1.72, MB/s=28.82, GPUmem=0.913324
+pass=147
+0.0075213  147 KLDiv
+0.0077380  147 KLDiv
+100.00%, ll=0.00000, gf=0.540, secs=59.9, GB=1.73, MB/s=28.82, GPUmem=0.913324
+pass=148
+0.0082073  148 KLDiv
+0.0078037  148 KLDiv
+100.00%, ll=0.00000, gf=0.540, secs=60.3, GB=1.74, MB/s=28.83, GPUmem=0.913324
+pass=149
+0.0069577  149 KLDiv
+0.0070994  149 KLDiv
+100.00%, ll=0.00000, gf=0.540, secs=60.7, GB=1.75, MB/s=28.83, GPUmem=0.913324
+pass=150
+0.0075504  150 KLDiv
+0.0075994  150 KLDiv
+100.00%, ll=0.00000, gf=0.540, secs=61.1, GB=1.76, MB/s=28.83, GPUmem=0.913324
+pass=151
+0.0078130  151 KLDiv
+0.0077558  151 KLDiv
+100.00%, ll=0.00000, gf=0.540, secs=61.5, GB=1.77, MB/s=28.84, GPUmem=0.913324
+pass=152
+0.0079320  152 KLDiv
+0.0078375  152 KLDiv
+100.00%, ll=0.00000, gf=0.540, secs=61.9, GB=1.79, MB/s=28.84, GPUmem=0.913324
+pass=153
+0.0073824  153 KLDiv
+0.0070902  153 KLDiv
+100.00%, ll=0.00000, gf=0.540, secs=62.3, GB=1.80, MB/s=28.84, GPUmem=0.913324
+pass=154
+0.0074279  154 KLDiv
+0.0070353  154 KLDiv
+100.00%, ll=0.00000, gf=0.540, secs=62.7, GB=1.81, MB/s=28.84, GPUmem=0.913324
+pass=155
+0.0072617  155 KLDiv
+0.0079644  155 KLDiv
+100.00%, ll=0.00000, gf=0.541, secs=63.1, GB=1.82, MB/s=28.85, GPUmem=0.913324
+pass=156
+0.0077142  156 KLDiv
+0.0081862  156 KLDiv
+100.00%, ll=0.00000, gf=0.541, secs=63.5, GB=1.83, MB/s=28.85, GPUmem=0.913324
+pass=157
+0.0080661  157 KLDiv
+0.0096956  157 KLDiv
+100.00%, ll=0.00000, gf=0.541, secs=63.9, GB=1.84, MB/s=28.85, GPUmem=0.913324
+pass=158
+0.0087698  158 KLDiv
+0.0079467  158 KLDiv
+100.00%, ll=0.00000, gf=0.541, secs=64.3, GB=1.86, MB/s=28.85, GPUmem=0.913324
+pass=159
+0.0079221  159 KLDiv
+0.0076809  159 KLDiv
+100.00%, ll=0.00000, gf=0.541, secs=64.7, GB=1.87, MB/s=28.85, GPUmem=0.913324
+pass=160
+0.0085005  160 KLDiv
+0.0079387  160 KLDiv
+100.00%, ll=0.00000, gf=0.541, secs=65.1, GB=1.88, MB/s=28.85, GPUmem=0.913324
+pass=161
+0.0080266  161 KLDiv
+0.0078355  161 KLDiv
+100.00%, ll=0.00000, gf=0.541, secs=65.5, GB=1.89, MB/s=28.85, GPUmem=0.913324
+pass=162
+0.0074134  162 KLDiv
+0.0076771  162 KLDiv
+100.00%, ll=0.00000, gf=0.541, secs=65.9, GB=1.90, MB/s=28.85, GPUmem=0.913324
+pass=163
+0.0078842  163 KLDiv
+0.0074083  163 KLDiv
+100.00%, ll=0.00000, gf=0.541, secs=66.3, GB=1.91, MB/s=28.85, GPUmem=0.913324
+pass=164
+0.0072126  164 KLDiv
+0.0066016  164 KLDiv
+100.00%, ll=0.00000, gf=0.541, secs=66.7, GB=1.93, MB/s=28.86, GPUmem=0.913324
+pass=165
+0.0063631  165 KLDiv
+0.0067578  165 KLDiv
+100.00%, ll=0.00000, gf=0.541, secs=67.1, GB=1.94, MB/s=28.86, GPUmem=0.913324
+pass=166
+0.0064602  166 KLDiv
+0.0067843  166 KLDiv
+100.00%, ll=0.00000, gf=0.539, secs=67.7, GB=1.95, MB/s=28.78, GPUmem=0.913324
+pass=167
+0.0065299  167 KLDiv
+0.0064730  167 KLDiv
+100.00%, ll=0.00000, gf=0.539, secs=68.1, GB=1.96, MB/s=28.79, GPUmem=0.913324
+pass=168
+0.0065963  168 KLDiv
+0.0065719  168 KLDiv
+100.00%, ll=0.00000, gf=0.539, secs=68.5, GB=1.97, MB/s=28.79, GPUmem=0.913324
+pass=169
+0.0066183  169 KLDiv
+0.0068975  169 KLDiv
+100.00%, ll=0.00000, gf=0.539, secs=68.9, GB=1.98, MB/s=28.79, GPUmem=0.913324
+pass=170
+0.0069494  170 KLDiv
+0.0065664  170 KLDiv
+100.00%, ll=0.00000, gf=0.539, secs=69.3, GB=2.00, MB/s=28.79, GPUmem=0.913324
+pass=171
+0.0063501  171 KLDiv
+0.0067602  171 KLDiv
+100.00%, ll=0.00000, gf=0.539, secs=69.7, GB=2.01, MB/s=28.80, GPUmem=0.913324
+pass=172
+0.0068615  172 KLDiv
+0.0078534  172 KLDiv
+100.00%, ll=0.00000, gf=0.540, secs=70.1, GB=2.02, MB/s=28.80, GPUmem=0.913324
+pass=173
+0.0074219  173 KLDiv
+0.0071035  173 KLDiv
+100.00%, ll=0.00000, gf=0.540, secs=70.5, GB=2.03, MB/s=28.80, GPUmem=0.913324
+pass=174
+0.0073212  174 KLDiv
+0.0074036  174 KLDiv
+100.00%, ll=0.00000, gf=0.540, secs=70.9, GB=2.04, MB/s=28.81, GPUmem=0.913324
+pass=175
+0.0073957  175 KLDiv
+0.0068488  175 KLDiv
+100.00%, ll=0.00000, gf=0.540, secs=71.3, GB=2.05, MB/s=28.81, GPUmem=0.913324
+pass=176
+0.0067555  176 KLDiv
+0.0071574  176 KLDiv
+100.00%, ll=0.00000, gf=0.540, secs=71.7, GB=2.07, MB/s=28.81, GPUmem=0.913324
+pass=177
+0.0071176  177 KLDiv
+0.0072782  177 KLDiv
+100.00%, ll=0.00000, gf=0.540, secs=72.1, GB=2.08, MB/s=28.82, GPUmem=0.913324
+pass=178
+0.0075199  178 KLDiv
+0.0072611  178 KLDiv
+100.00%, ll=0.00000, gf=0.540, secs=72.5, GB=2.09, MB/s=28.82, GPUmem=0.913324
+pass=179
+0.0073793  179 KLDiv
+0.0080469  179 KLDiv
+100.00%, ll=0.00000, gf=0.540, secs=72.9, GB=2.10, MB/s=28.82, GPUmem=0.913324
+pass=180
+0.0072816  180 KLDiv
+0.0069937  180 KLDiv
+100.00%, ll=0.00000, gf=0.540, secs=73.3, GB=2.11, MB/s=28.83, GPUmem=0.913324
+pass=181
+0.0069100  181 KLDiv
+0.0070598  181 KLDiv
+100.00%, ll=0.00000, gf=0.540, secs=73.7, GB=2.12, MB/s=28.83, GPUmem=0.913324
+pass=182
+0.0068285  182 KLDiv
+0.0065207  182 KLDiv
+100.00%, ll=0.00000, gf=0.540, secs=74.1, GB=2.14, MB/s=28.83, GPUmem=0.913324
+pass=183
+0.0067441  183 KLDiv
+0.0065760  183 KLDiv
+100.00%, ll=0.00000, gf=0.540, secs=74.5, GB=2.15, MB/s=28.84, GPUmem=0.913324
+pass=184
+0.0063877  184 KLDiv
+0.0064625  184 KLDiv
+100.00%, ll=0.00000, gf=0.540, secs=74.8, GB=2.16, MB/s=28.84, GPUmem=0.913324
+pass=185
+0.0062795  185 KLDiv
+0.0066604  185 KLDiv
+100.00%, ll=0.00000, gf=0.540, secs=75.2, GB=2.17, MB/s=28.84, GPUmem=0.913324
+pass=186
+0.0061135  186 KLDiv
+0.0067280  186 KLDiv
+100.00%, ll=0.00000, gf=0.540, secs=75.6, GB=2.18, MB/s=28.85, GPUmem=0.913324
+pass=187
+0.0062762  187 KLDiv
+0.0062885  187 KLDiv
+100.00%, ll=0.00000, gf=0.540, secs=76.0, GB=2.19, MB/s=28.85, GPUmem=0.913324
+pass=188
+0.0064677  188 KLDiv
+0.0061637  188 KLDiv
+100.00%, ll=0.00000, gf=0.540, secs=76.4, GB=2.21, MB/s=28.85, GPUmem=0.913324
+pass=189
+0.0064365  189 KLDiv
+0.0064803  189 KLDiv
+100.00%, ll=0.00000, gf=0.541, secs=76.8, GB=2.22, MB/s=28.86, GPUmem=0.913324
+pass=190
+0.0060899  190 KLDiv
+0.0066351  190 KLDiv
+100.00%, ll=0.00000, gf=0.541, secs=77.2, GB=2.23, MB/s=28.86, GPUmem=0.913324
+pass=191
+0.0060182  191 KLDiv
+0.0064121  191 KLDiv
+100.00%, ll=0.00000, gf=0.541, secs=77.6, GB=2.24, MB/s=28.86, GPUmem=0.913324
+pass=192
+0.0060926  192 KLDiv
+0.0063783  192 KLDiv
+100.00%, ll=0.00000, gf=0.541, secs=78.0, GB=2.25, MB/s=28.87, GPUmem=0.913324
+pass=193
+0.0060840  193 KLDiv
+0.0065713  193 KLDiv
+100.00%, ll=0.00000, gf=0.541, secs=78.4, GB=2.26, MB/s=28.87, GPUmem=0.913324
+pass=194
+0.0060600  194 KLDiv
+0.0059230  194 KLDiv
+100.00%, ll=0.00000, gf=0.541, secs=78.8, GB=2.28, MB/s=28.87, GPUmem=0.913324
+pass=195
+0.0058698  195 KLDiv
+0.0058518  195 KLDiv
+100.00%, ll=0.00000, gf=0.541, secs=79.2, GB=2.29, MB/s=28.88, GPUmem=0.913324
+pass=196
+0.0058302  196 KLDiv
+0.0060747  196 KLDiv
+100.00%, ll=0.00000, gf=0.541, secs=79.6, GB=2.30, MB/s=28.88, GPUmem=0.913324
+pass=197
+0.0061619  197 KLDiv
+0.0059188  197 KLDiv
+100.00%, ll=0.00000, gf=0.541, secs=80.0, GB=2.31, MB/s=28.88, GPUmem=0.913324
+pass=198
+0.0058291  198 KLDiv
+0.0063138  198 KLDiv
+100.00%, ll=0.00000, gf=0.541, secs=80.4, GB=2.32, MB/s=28.89, GPUmem=0.913324
+pass=199
+0.0062403  199 KLDiv
+0.0063106  199 KLDiv
+100.00%, ll=0.00000, gf=0.541, secs=80.8, GB=2.33, MB/s=28.89, GPUmem=0.913324
+Time=80.7850 secs, gflops=0.54
+res4: BIDMat.Mat = 0.54415,0.45585,0.48606,0.51394,0.95690,0.043103,0.71586,0.28414,0.74626,0.25374,0.89738,0.10262,0.35522,0.64478,0.46473,0.53527,0.19101,0.80899,0.17938,0.82062,0.54112,0.45888,0.47261,0.52739,0.69936,0.30064,0.80752,0.19248,0.66348,0.33652,0.91553,0.084466,0.83265,0.16735,0.40500,0.59500,0.45160,0.54840,0.17761,0.82239,0.35209,0.64791,0.53696,0.46304,0.56649,0.43351,0.44364,0.55636,0.39096,0.60904,0.52068,0.47932,0.61924,0.38076,0.35948,0.64052,0.48286,0.51714,0.39666,0.60334,0.45346,0.54654,0.43595,0.56405,0.58606,0.41394,0.69878,0.30122,0.50247,0.49753,0.65463,0.34537,0.26372,0.73628,0.60450,0.39550,0.56729,0.43271,0.81713,0.18287,0.55063,0.44937,0.36420,0.63580,0.51235,0.48765,0.59290,0.40710,0.32160,0.67840,0.72456,0.27544,0.63311,0.36689,0.45879,0.54121,0.22475,...

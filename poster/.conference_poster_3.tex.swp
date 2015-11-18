@@ -80,7 +80,7 @@ A fundamental task in machine learning and related fields is to perform inferenc
 \begin{itemize}
 	\item Build a highly optimized Gibbs sampler
 	\item Apply SAME strategy to reduce variance
-	\item Use our Gibbs sampler on synthetically generated "Koller" data and real dynamic learning map "MOOC" data to reveal our benefits.
+	\item Use our Gibbs sampler on real dynamic learning map "MOOC" data to reveal our benefits.
 \end{itemize}
 
 }
@@ -108,7 +108,7 @@ which models $m$ copies of the distribution tied to the same set of parameters $
   \end{center}
   \caption{Gibbs sampler framework (m=2)}
 \end{wrapfigure} 
-In order to parallel the sampling, we apply graph coloring to the moralized graph of the original network, and within each color group, sample all the variables in parallel.
+In order to parallel the sampling, we apply graph coloring to the moralized graph of the original network, and within each color group, sample all the variables in parallel. Left figure shows a simple example of three color groups with m=2.
 
 
 

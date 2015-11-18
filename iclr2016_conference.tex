@@ -503,17 +503,17 @@ JAGS Time(sec)/Iter    & 4.876 & 13.745 & 29.150 & 94.075 &       & OOM   \\
 \end{table}
 
 We now benchmark our code on a Bayesian network with a nation-wide examination dataset from the
-Dynamic Learning Maps (DLM) project. The data contains the assessment (correct or not) of student
+Dynamic Learning Maps (DLM) project\footnote{URL: \url{http://dynamiclearningmaps.org/}. There is no
+official reference for this data.}. The data contains the assessment (correct or not) of student
 responses to questions from the DLM Alternate Assessment System. After our preprocessing, there were
 4367 students and 319 questions. From the DLM data source, each of the questions is considered to be
 derived from a set of 15 basic concepts. We encode questions and concepts as variables and describe
-their relationships with a Bayesian network from the DLM data. Each question is considered an
+their relationships with a Bayesian network from the DLM data.  Each question is considered an
 ``observed'' node in the Bayesian network, but with a very high missing value rate, as students only
 got to answer a fraction of the questions.  Our data matrix, which has dimensions $(334\times
-4367)$, ultimately ended up with a 2.2\% sparsity level. Furthermore, the first 15 rows in the data
-matrix are completely missing across all 4367 columns, since the 15 concepts are latent variables. The
-inference task is to learn the CPTs of the Bayesian network from this extremely sparse data.
-\textbf{Daniel: I need a reference (maybe we can ask Huasha?) to help me describe this data better.}
+4367)$, ultimately ended up with a 2.2\% sparsity level.  Furthermore, the first 15 rows in the data
+matrix are completely missing across all 4367 columns, since the 15 concepts are latent variables.
+The inference task is to learn the CPTs of the Bayesian network from this extremely sparse data.
 
 We evaluate our sampler on this MOOC data using two methods. The first involves running our sampler
 on the original data until convergence. Then, we use the estimated set of CPTs and sample from that
@@ -544,8 +544,8 @@ i.e., how many decimal points of accuracy?}
   \centering
   \begin{minipage}{.5\textwidth}
     \centering
-    \includegraphics[width=1\textwidth]{fig_mooc_kl_div.png}
-    \caption{MOOC Data $KL_{\rm avg}$. \textbf{Daniel: Don't worry, I will fix the y-axis labels.}}
+    \includegraphics[width=1\textwidth]{fig_kltime_tradeoff_mooc}
+    \caption{Time and $KL_{\rm avg}$ tradeoff.}
     \label{fig:mooc_kl}
   \end{minipage}\hfill
     \begin{minipage}{.5\textwidth}

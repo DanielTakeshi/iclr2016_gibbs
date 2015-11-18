@@ -264,47 +264,54 @@ explicit, and say that Figure 1 is only for intuition as most data will fit in m
 
 
 
+
 % Daniel: be sure to reference data correctly! Call it "Koller", "Synthetic MOOC", or "Real MOOC".
 \section{Experiments}\label{sec:experiments}
 
 We benchmark our Gibbs sampler based on one synthetic and one real dataset. We compare it with
 JAGS~\citep{JAGS2003}, which is the most popular and efficient tool for Bayesian inference, and also
 uses Gibbs sampling as the primary inference algorithm. We could not find another general-purpose
-software package that substantially out performed JAGS. % I don't think we need to reference BNT.
+software package that substantially outperformed JAGS. % I don't think we need to reference BNT.
 
 For all JAGS experiments, we use a single computer with an Intel Core Xeon processor with eight
-cores and 2.20 GHz clock speed (E5-2650 Sandy Bridge). The computer also has 64 GB of (CPU) RAM. We
-run our Gibbs sampler on this same computer when we evaluate the speed of its CPU version, for the
-fairest comparision with JAGS. These benchmarks would be particularly relevant for those who do not
-have, or may not wish to use, a GPU.
-    
-When we are not directly comparing our sampler's speed with JAGS, or whenever we use its GPU
-version, we use a second machine. (Note that in terms of pure accuracy, the GPU and CPU versions are
-roughly equivalent.) This one has an Intel Core i7 processor with four cores and 3.40 GHz clock
-speed. It has a single NVIDIA GTX Titan X GPU with about 12 GB of RAM. It has 16 GB of CPU RAM. This
-computer is newer, but its processor is workstation rather than server grade, and has half the
-cores. We also noticed from our experiments that the CPU-only version of our Gibbs sampler seemed to
-run at the same speed on both computers.
+cores and 2.20 GHz clock speed (E5-2650 Sandy Bridge). The computer has 64 GB of CPU RAM. We also
+run our Gibbs sampler on this machine when we evaluate the speed of its CPU version, for the fairest
+comparison with JAGS. These benchmarks would be particularly relevant for those who may only want to
+use the CPU version of our Gibbs sampler. The CPU version of the sampler does not require or use
+GPUs, though the GPU version requires the CPU during initialization.
 
-We emphasize that the use of one computer at a time is deliberate and a strength of our sampler, as
-it is cheaper and simpler to run as compared to a computing cluster.
+The GPU and CPU versions are equivalent up to their random number generators (CUDA and Java,
+respectively). Therefore, when we are not directly comparing our sampler's CPU speed with JAGS, or
+whenever we use its GPU version, we use a different machine with an Intel Core i7 processor with
+four cores, 3.40 GHz clock speed, and 16 GB of CPU RAM. Critically, it also has a high-end NVIDIA
+GTX Titan X GPU with 12 GB of RAM.  This computer is newer, but its processor is workstation rather
+than server grade, and has half the cores compared to our other machine. We observed that the CPU
+version of the sampler ran at roughly the same speed on both computers. This implies that the GPU is
+primarily responsible for any substantial time differences between the GPU version on the new
+machine and the CPU version on the old machine.
 
-\subsection{Synthetically Generated ``Koller'' Data}\label{ssec:koller_data}
+We emphasize that the use of single machines in our experiments is deliberate and a strength of our
+sampler, as it is cheaper and simpler to run as compared to using a computing cluster.
+
+\subsection{Synthetic ``Koller'' Data}\label{ssec:koller_data}
 
 \begin{figure}[t]
+\centering
+\begin{subfigure}{.5\textwidth}
   \centering
-  \begin{minipage}{.5\textwidth}
-    \centering
-    \includegraphics[width=1\textwidth]{fig_kldiv_koller_mb4_gpu}
-    \caption{The $KL_{\rm avg}$ from BIDMach.}
-    \label{fig:kl_bidmach}
-  \end{minipage}\hfill
-    \begin{minipage}{.5\textwidth}
-    \centering
-    \includegraphics[width=1\textwidth]{fig_kl_div_25_50_perc_jags}
-    \caption{The $KL_{\rm avg}$ from JAGS.}
-    \label{fig:kl_jags}
-  \end{minipage}
+  \includegraphics[width=1\linewidth]{fig_kldiv_koller_mb4_gpu}
+  \caption{The $KL_{\rm avg}$ from BIDMach.}
+  \label{fig:kl_bidmach}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=1\linewidth]{fig_kl_div_25_50_perc_jags}
+  \caption{The $KL_{\rm avg}$ from JAGS.}
+  \label{fig:kl_jags}
+\end{subfigure}
+\caption{Plots of our $KL_{\rm avg}$ curves as a function of the iteration, on Koller Data. Both
+BIDMach and JAGS converge to the true CPTs quickly. (These must be viewed in color.)}
+\label{fig:test}
 \end{figure}
 
 % BIDMach (CPU) vs JAGS for the Koller data. This one only has 50k columns now!
@@ -359,56 +366,65 @@ JAGS Time/Iter    & 0.210 & 0.491 & 1.406 & 2.675  & 5.188  \\
 \end{table}
 
 We first use synthetic data generated from a toy Bayesian network to show an example of correctness
-and the benefits of SAME. The network consists of five variables: $X_0 = {\rm Intelligence}$, $X_1 =
+and the use of SAME. The network has five variables: $X_0 = {\rm Intelligence}$, $X_1 =
 {\rm Difficulty},$ $X_2 = {\rm SAT}$, $X_3 = {\rm Grade}$, and $X_4 = {\rm Letter}$. The directed
 edges are $\mathcal{E} = \{(X_0, X_2), (X_0, X_3), (X_1,X_3), (X_3,X_4)\}$, where $(X_i,X_j)$ means
-an arrow points from $X_i$ to $X_j$.  Variable $X_3$ is ternary, and all others are binary. The goal
-with this network is to model a student taking a class, considering ability metrics (Intelligence
-and SAT score), the class difficulty, and the student's resulting grade, which subsequently affects
-the quality of a letter of recommendation. All this is from Chapter 3 of~\citet{Koller2009}, which
-also lists the true set of CPTs. Due to the name of the first author, we label this data ``Koller''
-data to distinguish it from the MOOC data we use in~(\ref{ssec:mooc_data}).
+an arrow points from $X_i$ to $X_j$.  Variable $X_3$ is ternary, and all others are binary. This
+network models a student taking a class, and considers ability metrics (Intelligence and SAT score),
+the class difficulty, and the student's resulting grade, which subsequently affects the quality of a
+letter of recommendation. This network, along with the true set of CPTs, is from Chapter 3
+of~\citet{Koller2009}. Due to the name of the author, we call this the ``Koller'' data to
+distinguish it from the MOOC data we use in~(\ref{ssec:mooc_data}).
 
-To generate the data for BIDMach, we listed the variables in a topological ordering and directly
-sampled their values, where $X_i$ got sampled according to the values of its parents (if any) based
-on the true distributions from~\citet{Koller2009}. For our initial experiments, we generated 50,000
-samples, so the data is formatted in a $(5\times 50,000)$-dimensional matrix\footnote{It should be
-noted that this is only for the sake of comparison with JAGS. BIDMach can handle millions of
-samples, but for JAGS, we limited the number of cases to a reasonable number to facilitate
-comparisons.}. Then, we randomly hid 50\% of the elements of the data matrix. The objective is to
-use Gibbs sampling to estimate the set of CPTs, and see how close they match the true ones.
+To generate the data for BIDMach, we use the standard technique of forward sampling, where $X_i$
+gets sampled based on the true distributions from~\citet{Koller2009}, which will depend on the
+parents of $X_i$ (if any). We repeated this process to get 50,000 samples, so the data is
+formatted in a $(5\times 50,000)$-dimensional matrix.  Then, we randomly hid 50\% of the elements of
+the data matrix to simulate missing data. The objective is to use Gibbs sampling to estimate the set
+of CPTs, and see how close they match the true ones. We use 50,000 cases only for the sake of
+comparison with JAGS, since BIDMach can handle millions of samples.
 
-There are several metrics to evaluate our sampler. The one we employ in this paper is the average
-Kullback-Liebler divergence of all the distributions in the set of CPTs, denoted as $KL_{\rm avg}$.
-For two distributions $p(x)$ and $q(x)$, the KL-divergence is $\sum_x p(x) \log(p(x)/q(x))$ where we
-iterate over $x$ such that $q(x) > 0$. In the ``student'' data, there are eleven probability
-distributions that form the set of CPTs. For instance, $X_4$ ``contributes'' three distributions:
-$\Pr(X_4 \mid X_3 = 0), \Pr(X_4 \mid X_3 = 1)$, and $\Pr(X_4 \mid X_3 = 2)$, where $X_3$ (the
-parent) is fixed. Considering all the variables means that $KL_{\rm avg} = \frac{1}{11}
-\sum_{i=1}^{11} p_i(x) \log(p_i(x)/q_i(x))$ with $q_i$ the distribution our sampler estimates. We do
-not work with the full joint distribution $P(X_1,X_2,X_3,X_4,X_5)$ since it is more straightforward
-to work with the ``projected'' CPTs, and because with higher dimensional data, computing the full
-joint is computationally intractable and almost all entries would have probabilities essentially at
-zero.
+There are several metrics to evaluate a Gibbs sampler. The one we employ is the average
+Kullback-Liebler Divergence of all the distributions in the set of CPTs, denoted as $KL_{\rm avg}$.
+For two distributions $p(x)$ and $q(x)$, the KL-divergence is $\sum_x p(x) \log(p(x)/q(x))$, summing
+over $x$ such that $q(x) > 0$. In the Koller data, there are eleven probability distributions that
+form the set of CPTs. For example, $X_4$ ``contributes'' three distributions: $\Pr(X_4 \mid X_3 =
+0), \Pr(X_4 \mid X_3 = 1)$, and $\Pr(X_4 \mid X_3 = 2)$, where $X_3$ (the parent) is fixed. For this
+network, we have $KL_{\rm avg} = \frac{1}{11} \sum_{i=1}^{11} p_i(x) \log(p_i(x)/q_i(x))$, where
+$q_i$ is the distribution our sampler estimates and $i$ is some arbitrary indexing notation. We do
+not use the KL-Divergence of the full joint distribution $P(X_1,X_2,X_3,X_4,X_5)$ since with
+high-dimensional data (e.g., the MOOC data in~(\ref{ssec:mooc_data})), computing the full joint is
+intractable and we wish to facilitate comparisons across different datasets.
 
 Figures~\ref{fig:kl_bidmach} and~\ref{fig:kl_jags} plot the $KL_{\rm avg}$ metric for the student
 data using BIDMach and JAGS, respectively (note the log scale), with three SAME replication factors.
 Our results indicate that the $KL_{\rm avg}$ for BIDMach and JAGS reach roughly the same values,
-with a slight advantage to JAGS, though this is in part because of the log scale on the graph. In
-practice, the difference between BIDMach and JAGS is indistinguishable to humans, and both versions
-are able to get to the true CPTs to within a tolerance of 0.005.  \textbf{Daniel: I need to
-formalize this ``tolerance'' and explain what this is like ``in practice'' since that will give more
-intuition.  This is in progress.} Both versions converge to the true distributions quickly after
-about ten passes. For BIDMach, we used two batches with 25,000 cases each (more batches result in
-faster convergence), but initialized the CPTs randomly, which may have slowed down the initial
-convergence.
+with a slight advantage to JAGS, though this is amplified because of the log scale. In practice, the
+difference between BIDMach and JAGS is indistinguishable to humans, and both versions are able to
+get to the true CPTs to within a tolerance of 0.005. Both versions converge to the true
+distributions in about ten passes. For BIDMach, we tuned the mini-batch size to be 12,500, so there
+are four mini-batches in all; using fewer mini-batches tends to result in slower convergence in
+terms of iterations (but results in faster time per iteration).
 
 In addition, we observe that increasing $m$ results in CPT estimates that more closely match the
-true CPTs. The red curves for Figures~\ref{fig:kl_bidmach} and~\ref{fig:kl_jags} correspond to
-substantially worse $KL_{\rm avg}$ than the respective yellow and blue curves. The increase from
-$m=1$ to $m=5$ has a much larger relative improvement than the increase from $m=5$ to $m=10$,
-consistent with our observations of diminishing returns.
+true CPTs. The red curves (i.e., $m=1$) for Figures~\ref{fig:kl_bidmach} and~\ref{fig:kl_jags}
+generally correspond to worse $KL_{\rm avg}$ than the respective yellow and blue curves, with the
+difference more noticeable for JAGS. The increase from $m=1$ to $m=5$ has a much larger relative
+improvement than the increase from $m=5$ to $m=10$ (again, more noticeable for JAGS), consistent
+with our observations of diminishing returns.
 
+We further benchmark the speed of our CPU Gibbs sampler with JAGS on this data. For a fair
+comparison, we keep our batch size to be 12,500 to match the runs from Figure~\ref{fig:kl_bidmach}.
+Table~\ref{tab:bidmach_jags_koller} shows that on a per-iteration basis, BIDMach is about 3-4 times
+faster than JAGS on the original data with $m=1$ (i.e., no replication). When SAME increases, the
+speed advantage of our sampler is more apparent, which is expected since our sampler is highly 
+scalable.
+
+\textbf{Daniel: run statistical significance tests on the $KL_{\rm avg}$ stuff. Also, check that the
+tolerance is 0.005 and quantify it a bit better to match intuition.}
+
+\textbf{Daniel: I think we need to describe how we implemented SAME in JAGS. We also need to really
+make it clear that runtimes in JAGS *include* initialization.}
 
 \subsection{Dynamic Learning Maps ``MOOC'' Data}\label{ssec:mooc_data}
 

@@ -49,8 +49,8 @@ approximate methods, and which is several orders of magnitude faster
 than current Gibbs samplers.  Our Gibbs sampler is GPU-accelerated,
 heavily parallelized, and uses state replication (SAME or State
 Augmented Marginal Estimation) to decrease convergence time. We find
-that SAME in general improves parameter estimate quality while it
-accelerates convergence.  Experiments on both synthetic and real data
+that SAME can improve the quality of parameter estimates while accelerating
+convergence.  Experiments on both synthetic and real data
 show that our Gibbs sampler is substantially faster than the state of
 the art sampler, JAGS, without sacrificing accuracy. Our ultimate
 objective is to introduce the Gibbs sampler to researchers in many
@@ -67,8 +67,8 @@ $P(X,Z \mid \Theta)$ where $X$ is observed data, $Z$ is hidden
 (latent) data, and $\Theta$ represents the model parameters. The goal
 is generally to find an optimal $\Theta$ with respect to $X$, while
 marginalizing out $Z$. To represent these problems, it is common to
-use graphical models.  Here we focus on discrete-state models,
-so node transitions are characterized by set of conditional
+use graphical models.  Here we focus on discrete-state models (``Discrete Bayesian Networks''),
+so node transitions are characterized by a set of conditional
 probability tables (CPTs). Each CPT represents a local probability
 distribution $\Pr(X_i \mid X_{\pi_i})$ where $X_i$ is a random
 variable, and $X_{\pi_i}$ represents its set of parent nodes in the
@@ -86,24 +86,22 @@ observed states, but also observations on an arbitrary
 Well-known strategies for parameter estimation with partially observed
 data include Expectation-Maximization~\citep{EMpaper} and variations
 of gradient ascent~\citep{Thiesson95}.  Parameter estimation using
-these methods marginalizing over missing states which typically
-dominates performances. Using Monte-Carlo methods for marginalization
+these methods marginalizes over missing states, which typically
+dominates the runtime. Using Monte-Carlo methods for marginalization
 leads to the MC-EM methods~\citep{MC-EM}.
 
-For parameter estimation with a Gibbs sampler, we sample both latent
-states and parameters from $P(Z,\Theta|\mathcal{D})$.  For the case of
-discrete node states, $Z$ follow multinomial distributions while the
-$\Theta$ are Dirichlet. Gibbs sampling is widely used in machine
-learning but has seen limited use on large datasets.  It is typically
-orders of magnitude slower than approximate methods such as {\bf
-  should list approx methods here, e.g.  from the KDD paper}. In a
-recent result,~\citet{SAME2015} showed that by combining the State
-Augmented Monte Carlo (SAME) technique~\citep{SAME2002} with Gibbs
-sampling, one can match the speed of approximate methods while
-obtaining higher quality estimates. But that paper was restricted to
-Latent Dirichlet Allocation and similar models.  In this paper, we
-build upon that result by presenting a SAME Gibbs sampler for general
-discrete Bayesian networks. The contributions of this paper are
+For Bayesian parameter estimation with a Gibbs sampler, we sample both latent states and parameters
+from $P(Z,\Theta \mid \mathcal{D})$.  For the case of discrete node states, the $Z$ follow
+multinomial distributions while the $\Theta$ are Dirichlet. Gibbs sampling is widely used in machine
+learning but has seen limited use on large datasets.  It is typically orders of magnitude slower
+than special-purpose, approximate methods; for Latent Dirichlet Allocation (LDA), these methods
+include Collapsed Gibbs Sampling (including parallel~\citep{Yan_LDA_2009} and
+cluster~\citep{ClusterCGS_2012} versions) and Walker's alias method~\citep{WalkersAlias_2014}.  In a
+recent result,~\citet{SAME2015} showed that by combining the State Augmented Monte Carlo (SAME)
+technique~\citep{SAME2002} with Gibbs sampling, one can match the speed of approximate methods while
+obtaining higher quality estimates. But that paper was restricted to LDA and similar models.  In
+this paper, we build upon that result by presenting a SAME Gibbs sampler for general discrete
+Bayesian networks. The contributions of this paper are:
 
 \begin{itemize}[noitemsep]
     \item A more general Gibbs sampler using SAME sampling with improved convergence and better-quality MAP or ML parameter
@@ -123,21 +121,18 @@ purpose methods while maintaining the accuracy of Gibbs sampling.
 
 \section{Related Work}\label{sec:related_work}
 
-The problem of Bayesian inference for graphical models is  well-studied (~\citet{Koller2009}
+The problem of Bayesian inference for graphical models is  well-studied (\citet{Koller2009}
 and~\citet{Wainwright2008} covers recent approximate and MCMC methods). Gibbs sampling has proved to
-be one of the most important practical techniques for large models. Collapsed samplers are widely
-used for LDA and related models~\citep{Griffiths_Steyvers}, parallelism have been improved using
-color groups~\citep{Gonzalez2011}, and approximate, uncoordinated parallelism has been shown to give
-good results in practice~\citep{Johnson2013}.  Gibbs sampling has been applied to large-scale
-databases in~\citep{Zhang2013}.
+be one of the most important practical techniques for large models; collapsed samplers are widely
+used for LDA and related models~\citep{Griffiths_Steyvers}. In addition, parallelism has been
+improved using color groups~\citep{Gonzalez2011}, and approximate, uncoordinated parallelism has
+been shown to give good results in practice~\citep{Johnson2013}.  Gibbs sampling has also been
+applied to large-scale databases in~\citep{Zhang2013}.
 % guys, you should compare your throughput with that paper. 
 
 Recently, Graphics Processing Units (GPUs) have proved valuable for deep learning, and are used in
 most toolkits including Theano \citep{Theano2012}, CAFFE ~\citep{jia2014caffe} and Torch
-\citep{Torch}. The Augur probabilistic programming language~\citep{Augur2014}, which generates
-inference code for Bayesian networks, demonstrates the importance of combining GPU code with extra
-parallelism introduced from exploiting conditional independence assumptions.
-% Why is augur discussed here? 
+\citep{Torch}. We continue this trend by using GPU acceleration for our sampler.
 
 The result most directly related to our paper, as briefly mentioned in Section~\ref{sec:intro}, is
 one that shows how the addition of SAME to a GPU-accelerated Gibbs sampler can be very fast for

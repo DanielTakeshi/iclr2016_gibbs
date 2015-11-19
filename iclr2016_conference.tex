@@ -468,6 +468,25 @@ with different sparsity levels (these must be viewed in color).}
 \label{fig:second_set}
 \end{figure}
 
+\begin{figure}[t]
+\centering
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=0.9\textwidth]{fig_kltime_tradeoff_mooc}
+  \caption{The $KL_{\rm avg}$ from BIDMach.}
+  \label{fig:mooc_kl}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=0.9\textwidth]{fig_bidmach_real_mooc_roc_curve_v2}
+  \caption{MOOC data ROC curve.}
+  \label{fig:mooc_accuracy}
+\end{subfigure}
+\caption{Some more results ($KL_{\rm avg}$ and ROCs) of our sampler on Synthetic/Real MOOC data.}
+\label{fig:third_set}
+\end{figure}
+
+
 We now benchmark our code on a Bayesian network with a nation-wide examination dataset from the
 Dynamic Learning Maps (DLM) project\footnote{URL: \url{http://dynamiclearningmaps.org/}. There is no
 official paper reference for this data.}. The data contains the assessment (correct or not) of
@@ -476,7 +495,7 @@ are 4367 students and 319 questions. Each of the questions is derived from a set
 concepts. We encode questions and concepts as variables and describe their relationships with a
 Bayesian network from the DLM data. (The 15 concepts are latent variables across all students.) Each
 question is a variable with a very high missing value rate.  Our corresponding data matrix, which
-has dimensions $(334\times 4367)$, has a 2.2\% sparsity level.The inference task is to learn the
+has dimensions $(334\times 4367)$, has a 2.2\% sparsity level. The inference task is to learn the
 CPTs of the Bayesian network from this extremely sparse data.
 
 We evaluate our sampler using two methods. The first involves running it on the original data until
@@ -514,37 +533,21 @@ binary prediction task, and we assign ``1'' to be a ``positive/true'' sample. Fo
 test points, we compute the number of 1s sampled. Letting this value be $n$, our prediction that a
 point is positive is $n/500$.
 
-In the training data, 62.8\% of the known data points are positive, (That value is 57.6\% for the
-testing data.) Due to this imbalance, we do not use raw accuracy as a predictor and instead turn to
-the Receiver Operating Characteristic curve. Fig~\ref{fig:mooc_accuracy} shows the ROC curve.
-
-\textbf{Daniel: OK, I updated the ROC plot. I should also mention that I ran this for 1000 passes,
-and the AUC for that is 0.63792, so I did not include that. (It might be overfitting, or that might
-be the theoretical limit.) Also, I'll need to explain what I mean by the percentage points on the
-red circles.}
-
-\begin{figure}[t]
-\centering
-\begin{subfigure}{.5\textwidth}
-  \centering
-  \includegraphics[width=0.9\textwidth]{fig_kltime_tradeoff_mooc}
-  \caption{The $KL_{\rm avg}$ from BIDMach.}
-  \label{fig:mooc_kl}
-\end{subfigure}%
-\begin{subfigure}{.5\textwidth}
-  \centering
-  \includegraphics[width=0.9\textwidth]{fig_bidmach_real_mooc_roc_curve_v2}
-  \caption{MOOC data ROC curve.}
-  \label{fig:mooc_accuracy}
-\end{subfigure}
-\caption{A more in-depth look at our sampler on Synthetic and Real MOOC data.}
-\label{fig:third_set}
-\end{figure}
+The training and testing data have 62.8\% and 57.6\% of known data points in the positive class,
+respectively. Due to this imbalance, we do not use raw accuracy as a predictor and instead turn to
+the Receiver Operating Characteristic (ROC) curve. Figure~\ref{fig:mooc_accuracy} shows the ROC
+curves obtained after 10 passes and 100 passes through the data. After 100 passes, the ROC has an
+AUC of 0.65741. This is our best result; we tested at other points, such as 1000 passes (AUC of
+0.63792), but did not find any curve with an AUC exceeding 0.65741, possibly due to overfitting
+after 100 passes. Figure~\ref{fig:mooc_accuracy} also has five labeled dots, from 40\% to 80\%.
+These indicate different decision point cutoffs. For instance, the point labeled at 50\% is the
+point on the ROC curve that corresponds to the decision threshold being positive if we have at least
+50\% of our samples as positive (out of 500, meaning we need at least 250). The 0\% decision
+threshold (not shown) would correspond to the point $(1,1)$.
 
 
 
-
-\section{Scaling BIDMach to Larger Data}\label{sec:scaling_large_data}
+\section{BIDMach on Large Data}\label{sec:scaling_large_data}
 
 % BIDMach (CPU) vs JAGS for the Real MOOC data *replicated*, with SAME=1.
 % Batch size: we'll use 2184 (approx 4367/2) to be a fair comparision with previous table with
@@ -589,40 +592,6 @@ JAGS Time(sec) / Iter    & 4.876 & 13.745 & 29.150 & 94.075 & 171.545 & OOM   \\
 \end{table}
 
 
-We now discuss the impact of the SAME parameter in terms of runtime and throughput. We measure the
-throughput and speed of our Gibbs sampler in terms of GigaFlops (gflops), a billion floating point
-operations per second. It is possible to compute reasonable estimates of the maximum gflops
-attainable for a computer. Therefore, in order for us to claim that the Gibbs sampler is as
-optimized as it could be, we should argue that it attains gflops values that are close to the
-theoretical limit, indicating that further improvement is unlikely beyond simply upgrading the
-hardware.
-
-\textbf{Daniel: We should compute the theoretical gflops limit.}
-
-As the SAME parameter increases, it increases both the throughput (good) and runtime (bad) by
-increasing the number of data points in our computations. The results from~\citep{SAME2015} suggest
-that increasing $m$ for small values will increase throughput while not costing too much in runtime.
-As one increases $m$ beyond a certain data-dependent value, then SAME ``saturates'' the algorithm
-and results in stagnant throughput while significantly increasing runtime. It follows that a
-reasonable objective for an experimenter is to run the Gibbs sampler on data with varying values of
-$m$, and identify the point where further increases in $m$ start having an unfavorable runtime and
-throughput tradeoff.
-
-As an example, we used the Koller data from~(\ref{ssec:koller_data}), with 50\% of the data known
-versus missing, but with \emph{one million} cases, beyond the feasible datasets of standard Gibbs
-samplers. We ran the Gibbs sampler for 200 iterations on this data with a batch size of 50,000.
-Table~\ref{tab:tradeoff} shows the time and gflops of the Gibbs sampler using different values of
-$m$.  One can see that increasing $m$ for $m < 30$ results in steady gflops increases but
-\emph{without} a substantial increase in time. Then SAME saturates the algorithm and the runtime
-increases while the gflops stalls, reinforcing the conclusions from~\citep{SAME2015} and argues for
-the importance of testing with a variety of $m$ values.
-
-Notice that the runtimes listed are in seconds, and even with $m=50$, 200 iterations takes less than
-10 minutes to complete --- we have barely scratched the limit of our sampler. In fact, one of the
-main things that limits our sampler is the memory of GPUs, since we need to shrink the batch size
-with large $m$. As memory on GPUs becomes cheaper, we will be able to run Gibbs sampling and perform
-graphical model inference on larger datasets.
-
 % This should be in another section. We might consider splitting this in two if we have space. For
 % both of these, I chose the largest batch size that we could do m = 50.
 %
@@ -632,6 +601,7 @@ graphical model inference on larger datasets.
 % graphical model, technically speaking) we were getting 13.90 for m = 50.
 % Final statistics from BIDMach:
 % Time=61.4750 secs, gflops=2.38 (m=1)
+% Time=71.8440 secs, gflops=4.07 (m=2)
 % Time=104.6140 secs, gflops=6.98 (m=5)
 % Time=160.8270 secs, gflops=9.08 (m=10)
 % Time=265.6820 secs, gflops=11.00 (m=20)
@@ -656,24 +626,90 @@ graphical model inference on larger datasets.
 % Time=750.6940 secs, gflops=11.62 (m=40)
 % Time=907.2790 secs, gflops=12.02 (m=50)
 %
-% Now for the actual table itself:
+% Now for the actual table itself EDIT this was the old table. I have a new one now.
+%\begin{table}[t]
+%\caption{BIDMach (GPU) Runtime vs. GigaFlops on Large Data}
+%\label{tab:tradeoff}
+%\begin{center}
+%\begin{tabular}{ |c|c|c|c|c|c|c|c| } 
+%\hline
+%               & $m=1$ & $m=5$ & $m=10$ & $m=20$ & $m=30$ & $m=40$ & $m=50$  \\
+%\hline \hline
+%GigaFlops (K)  & 2.38  & 6.98  & 9.08   & 11.00  & 11.70  & 12.27  & 12.35   \\ 
+%Time/Iter (K)  & 0.307 & 0.523 & 0.804  & 1.328  & 1.872  & 2.380  & 2.957   \\
+%\hline 
+%GigaFlops (RM) & 1.65  & 4.58  & 7.08   & 9.69   & 10.92  & 11.62  & 12.02   \\ 
+%Time/Iter (RM) & 0.666 & 1.192 & 1.541  & 2.252  & 2.998  & 3.753  & 4.536   \\
+%\hline
+%\end{tabular}
+%\end{center}
+%\end{table}
+ 
+% New table. The Koller data is similar, but the BIDMach data is different.  We're using 30 TIMES
+% the data, with a batch size of 1000. For SAME = 10, this uses up 95% of the GPU memory. Times:
+%
+%
+%
+%
+% Time=1262.6890 secs, gflops=10.37 (m=10)
+%
 \begin{table}[t]
-\caption{BIDMach (GPU) Runtime vs. GigaFlops on Large Data}
+\caption{BIDMach (GPU) Runtime and GigaFlops on Large Data}
 \label{tab:tradeoff}
 \begin{center}
-\begin{tabular}{ |c|c|c|c|c|c|c|c| } 
+\begin{tabular}{ |c|c|c|c|c|c| } 
 \hline
-               & $m=1$ & $m=5$ & $m=10$ & $m=20$ & $m=30$ & $m=40$ & $m=50$  \\
+               & $m=1$ & $m=2$ & $m=5$ & $m=10$ \\
 \hline \hline
-GigaFlops (K)  & 2.38  & 6.98  & 9.08   & 11.00  & 11.70  & 12.27  & 12.35   \\ 
-Time/Iter (K)  & 0.307 & 0.523 & 0.804  & 1.328  & 1.872  & 2.380  & 2.957   \\
-\hline 
-GigaFlops (RM) & 1.65  & 4.58  & 7.08   & 9.69   & 10.92  & 11.62  & 12.02   \\ 
-Time/Iter (RM) & 0.666 & 1.192 & 1.541  & 2.252  & 2.998  & 3.753  & 4.536   \\
+GigaFlops (Koller, 1M)         & 2.38  & 4.07  &  6.98  &  9.08  \\ 
+Time(sec) / Iter (Koller, 1M)  & 0.307 & 0.359 &  0.523 &  0.804 \\
+\hline
+GigaFlops (Replicated MOOC)        &  &  &   & 10.37   \\ 
+Time(sec) / Iter (Replicated MOOC) &  &  &   &    \\
 \hline
 \end{tabular}
 \end{center}
 \end{table}
+
+We now discuss the extent to which BIDMach can scale up to larger datasets, as it would be useful to
+identify the limits of our code. We were unable to obtain any larger real datasets than the MOOC
+data from~(\ref{ssec:mooc_data}), so we formed ``larger datasets'' by replicating the MOOC data
+horizontally. That is, we took the data matrix and made $n$ copies to get a $(334\times
+4367n)$-dimensional data matrix. In Table~\ref{tab:bidmach_jags_realmooc}, we We first compare
+BIDMach and JAGS on replicated
+
+
+
+
+
+
+We now discuss the impact of the SAME parameter in terms of runtime and throughput. We measure the
+throughput and speed of our Gibbs sampler in terms of GigaFlops (gflops), a billion floating point
+operations per second. As the SAME parameter increases, it increases both the throughput (good) and
+runtime (bad) by increasing the number of data points in our computations. The results
+from~\citep{SAME2015} suggest that increasing $m$ for small values will increase throughput while
+not costing too much in runtime.  As one increases $m$ beyond a certain data-dependent value, then
+SAME ``saturates'' the algorithm and results in stagnant throughput while significantly increasing
+runtime. It follows that a reasonable objective for an experimenter is to run the Gibbs sampler on
+data with varying values of $m$, and identify the point where further increases in $m$ start having
+an unfavorable runtime and throughput tradeoff.
+
+As an example, we used the Koller data from~(\ref{ssec:koller_data}), with 50\% of the data known
+versus missing, but with \emph{one million} cases, beyond the feasible datasets of standard Gibbs
+samplers. We ran the Gibbs sampler for 200 iterations on this data with a batch size of 50,000.
+Table~\ref{tab:tradeoff} shows the time and gflops of the Gibbs sampler using different values of
+$m$.  One can see that increasing $m$ for $m < 30$ results in steady gflops increases but
+\emph{without} a substantial increase in time. Then SAME saturates the algorithm and the runtime
+increases while the gflops stalls, reinforcing the conclusions from~\citep{SAME2015} and argues for
+the importance of testing with a variety of $m$ values.
+
+Notice that the runtimes listed are in seconds, and even with $m=50$, 200 iterations takes less than
+10 minutes to complete --- we have barely scratched the limit of our sampler. In fact, one of the
+main things that limits our sampler is the memory of GPUs, since we need to shrink the batch size
+with large $m$. As memory on GPUs becomes cheaper, we will be able to run Gibbs sampling and perform
+graphical model inference on larger datasets.
+
+
 
 \section{Conclusions}\label{sec:conclusions}
 

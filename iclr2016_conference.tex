@@ -517,8 +517,11 @@ point is positive is $n/500$.
 In the training data, 62.8\% of the known data points are positive, (That value is 57.6\% for the
 testing data.) Due to this imbalance, we do not use raw accuracy as a predictor and instead turn to
 the Receiver Operating Characteristic curve. Fig~\ref{fig:mooc_accuracy} shows the ROC curve.
-\textbf{Daniel: Fix description and also get an updated ROC plot! Report the AUC for different
-times.}
+
+\textbf{Daniel: OK, I updated the ROC plot. I should also mention that I ran this for 1000 passes,
+and the AUC for that is 0.63792, so I did not include that. (It might be overfitting, or that might
+be the theoretical limit.) Also, I'll need to explain what I mean by the percentage points on the
+red circles.}
 
 \begin{figure}[t]
 \centering
@@ -530,7 +533,7 @@ times.}
 \end{subfigure}%
 \begin{subfigure}{.5\textwidth}
   \centering
-  \includegraphics[width=0.9\textwidth]{fig_bidmach_real_mooc_roc_curve}
+  \includegraphics[width=0.9\textwidth]{fig_bidmach_real_mooc_roc_curve_v2}
   \caption{MOOC data ROC curve.}
   \label{fig:mooc_accuracy}
 \end{subfigure}

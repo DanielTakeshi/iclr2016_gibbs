@@ -166,7 +166,7 @@ for Gibbs sampling, and that it should be the go-to method for researchers who w
   \end{center}
   \caption{Gibbs sampler framework}
 \end{wrapfigure}
-Our Gibbs sampler is implemented and integrated as part of the open-source BIDMach library for machine learning.  Figure 2 shows a visualization of how it works on real data. Our sampler expects a (usually sparse) data matrix, with rows representing variables and columns representing cases. BIDMach divides data into same-sized "mini-batches" and iterates through them to update parameters. Going through all mini-batches is one full pass over the data. 
+Our Gibbs sampler is implemented and integrated as part of the open-source BIDMach library for machine learning.  Figure 2 shows a visualization of how it works on real data. Our sampler expects a (usually sparse) data matrix, with rows representing variables and columns representing cases. BIDMach divides data into same-sized ``mini-batches'' and iterates through them to update parameters. Going through all mini-batches is one full pass over the data. 
 
 %\begin{center}
 %\includegraphics[width=0.60\linewidth]{fig_BIDMach_final}
@@ -195,7 +195,7 @@ Our Gibbs sampler is implemented and integrated as part of the open-source BIDMa
 
 \headerbox{Experiments}{name=results2,span=2,column=1,below=results1,above=bottom}{ % To reduce this block to 1 column width, remove 'span=2'
 
-We benchmark our code on a nation-wide examination dataset, which contains the assessment (correct or not) of student responses to questions. There were 4367 students and 319 questions. Each question is considered an ''observed'' node in the Bayesian network. We only know 2.2\% of the data. We call the student responses data "MOOC" data. We compare our sampler with JAGS.
+We benchmark our code on a nation-wide examination dataset, which contains the assessment (correct or not) of student responses to questions. There were 4367 students and 319 questions. Each question is considered an ``observed'' node in the Bayesian network. We only know 2.2\% of the data. We call the student responses data ``MOOC'' data. We compare our sampler with JAGS.
 
 %------------------------------------------------
 
@@ -210,7 +210,7 @@ We benchmark our code on a nation-wide examination dataset, which contains the a
 
 \begin{center}
 \includegraphics[width=0.45\linewidth]{fig_kltime_tradeoff_mooc.png}
-\includegraphics[width=0.45\linewidth]{test.png}
+\includegraphics[width=0.45\linewidth]{fig_bidmach_real_mooc_roc_curve_v2.png}
 \captionof{figure}{The $KL_{\rm avg}$ vs. runtime for BIDMach. (left); Prediction accuracy of BIDMach(right)}
 \end{center}
 

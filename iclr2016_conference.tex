@@ -401,21 +401,23 @@ random number in the sampled CPT and its corresponding number in the true CPT fo
 respectively, is 0.0039 and 0.0043. Thus, both BIDMach and JAGS will sample CPTs that are accurate
 to two/three decimal places.
 
-For BIDMach, we tuned the mini-batch size to be 12,500, so there are four mini-batches in all; using
-fewer mini-batches tends to result in slower convergence in terms of iterations, but results in
-faster time per iteration. In addition, we observed that increasing $m$ results in CPT estimates
-that more closely match the true CPTs. The red curves (i.e., $m=1$) for Figures~\ref{fig:kl_bidmach}
+For BIDMach, we tuned the mini-batch size to be 12,500. Using a smaller size means that, for a fixed
+number of passes, we tend to get faster convergence, but this often comes with slower runtime per
+iteration. In addition, we observed that increasing $m$ results in CPT estimates that more closely
+match the true CPTs. The red curves (i.e., $m=1$) for Figures~\ref{fig:kl_bidmach}
 and~\ref{fig:kl_jags} generally correspond to worse $KL_{\rm avg}$ than the respective yellow and
-blue curves, with the difference more noticeable for JAGS. The increase from $m=1$ to $m=5$ has a
-much larger relative improvement than the increase from $m=5$ to $m=10$ (again, more noticeable for
-JAGS), consistent with our observations of diminishing returns.
+blue curves, with the difference more noticeable for JAGS. Also, going from $m=5$ to $m=10$ seems to
+have a negligible benefit.
 
 We further benchmark the speed of our CPU Gibbs sampler with JAGS on this data. For a fair
-comparison, we keep our batch size to be 12,500 to match the runs from Figure~\ref{fig:kl_bidmach}.
-Table~\ref{tab:bidmach_jags_koller} shows that on a per-iteration basis, BIDMach is about 3-4 times
-faster than JAGS on the original data with $m=1$ (i.e., no replication). When SAME increases, the
-speed advantage of our sampler is more apparent, which is expected since our sampler is designed to
-scale nicely with $m$. EDIT We are using total time now ...
+comparison, we keep our mini-batch size to be 12,500 to match the runs from
+Figure~\ref{fig:kl_bidmach}.  Table~\ref{tab:bidmach_jags_koller} shows the total runtime on the
+data with different $m$. We used total runtime because the JAGS API does not enable us to separate
+the initialization time from the updating/sampling time. (JAGS spends a substantial amount of time
+initializing here since it needs to form a graph, but BIDMach uses matrices and spends less than one
+second in initialization.) The results demonstrate that BIDMach is almost four times faster than
+JAGS on the original data, and when the SAME parameter increases, the gap widens (up to a factor of
+nine with $m=20$).
 
 \subsection{Dynamic Learning Maps ``MOOC'' Data}\label{ssec:mooc_data}
 

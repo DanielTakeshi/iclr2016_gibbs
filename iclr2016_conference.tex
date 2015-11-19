@@ -206,49 +206,51 @@ on what we want to discuss?}
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.8\textwidth]{fig_BIDMach_final}
+\includegraphics[width=0.75\textwidth]{fig_BIDMach_final}
 \caption{This visualizes our Gibbs sampler at work. The original data is split into four
 mini-batches of equal sizes (for caching purposes), with each having some known data (shaded gray)
-and unknown data (white). For each batch, the sampler replicates the data with SAME $m=3$, samples
-the unknown values, then uses those to update the CPTs. The resulting samples are stored in memory
-and are used as the starting point for when we sample this batch again.}
+and unknown data (white). For each mini-batch, the sampler replicates the data three times ($m=3$),
+samples the unknown values, and then uses those with the prior to update its estimate of the CPTs.}
 \label{fig:BIDMach}
 \end{figure}
 
 Our Gibbs sampler is implemented as part of the open-source BIDMach library~\citep{bidmach} for
 machine learning.  Figure~\ref{fig:BIDMach} shows a visualization of how it might work on real data.
 Our sampler expects a data matrix (typically sparse), with rows representing variables and columns
-representing cases. BIDMach divides data into same-sized ``mini-batches'' and iterates through them
-to update parameters. Going through all mini-batches is one full pass over the data.
+representing cases. BIDMach divides data into same-sized \emph{mini-batches} and iterates through
+them to update parameters. Going through all mini-batches is one full pass over the data.
 
 Our Gibbs sampler is augmented with SAME. Consequently, if $m$ is the SAME parameter, for each
 mini-batch our sampler forms $m$ copies of the known data.  Then, it performs Gibbs sampling to fill
-in the missing data in each copy of the mini-batch using the same set of CPTs.  These sampled
-results are combined with an adjustable Dirichlet prior and the current CPTs to form a set of
-discrete counts, which are them sampled from to estimate the updated CPTs. To preserve samples
-across runs, each time the sampler processes a mini-batch, it stores the sampled results in memory.
-Then during the next \emph{pass} over the data, when it reaches this corresponding mini-batch again,
-it starts the Gibbs sampling process from that stored data. It is possible to skip the first few
-samples (the \emph{burn-in} period) and also to only update the parameters every $N^{\rm th}$
-iteration to reduce correlated samples.
+in the missing data in each copy of the mini-batch using the current CPTs.  These sampled results
+are combined with an adjustable Dirichlet prior and the current CPTs to form a set of discrete
+counts, which are them sampled from to estimate the updated CPTs. To preserve samples across runs,
+each time the sampler processes a mini-batch, it stores the sampled results in memory\footnote{In
+Section~\ref{sec:intro}, we said that our sampler can run on data too large to fit in RAM.
+Technically, the approach described here and visualized in Figure~\ref{fig:BIDMach} requires data to
+fit in RAM, but BIDMach can instead have the data as files on the disk, rather than as matrices in
+RAM. Due to space constraints, we omit details on this feature.}.  Then during the next \emph{pass}
+over the data, when it reaches this corresponding mini-batch again, it starts the Gibbs sampling
+process from that stored data. It is possible to skip the first few samples (the \emph{burn-in}
+period) and also to only update the parameters every $N^{\rm th}$ iteration to reduce correlated
+samples.
 
 There are many ways in which the sampler is optimized to maximize throughput on one computer and to
 avoid excess memory allocation. First, it is GPU accelerated and takes advantage of parallelism in
 modern hardware by implementing the sampling process using matrix operations. Since memory is scarce
 on GPUs (3-12 GB is typical), BIDMach use a matrix caching strategy to reuse memory for matrices of
-the same dimensions. This is why the mini-batches need to be of the same size, since the batches and
-all other matrices used as part of the sampling computation will be of fixed size. It is possible to
-save even more memory by decreasing the number of cases (i.e., columns) per mini-batch. This step is
-often necessary if one wishes to use a high SAME parameter.
+the same dimensions. This is why the mini-batches need to be of the same size, since those
+mini-batches and all other matrices used as part of the sampling computation will be of fixed size.
+It is possible to save even more memory by decreasing the number of cases (i.e., columns) per
+mini-batch. This step is often necessary if one wishes to use a high SAME parameter.
 
 As mentioned in Section~\ref{sec:related_work}, we further parallelize Gibbs sampling in an
-exact manner via chromatic sampling. In Bayesian networks, nodes $u, v \in \mathcal{V}$ are
-independent conditioning on a set of variables $\mathcal{C}$ if $\mathcal{C}$ includes at least one
-variable on every path connecting $u$ and $v$ in $\tilde{\mathcal{G}}$, which is the \emph{moralized
-graph} of the network, which is the graph formed by connecting parents and dropping edge
-orientations. That is, vertex set $\mathcal{C}$ separates the dependency between $u$ and $v$.
+exact manner via chromatic sampling. In Bayesian networks, nodes $u$ and $v$ are independent
+conditioned on a set of variables $\mathcal{C}$ if $\mathcal{C}$ includes at least one variable on
+every path connecting $u$ and $v$ in the \emph{moralized graph} of the network, which is the graph
+formed by connecting parents and dropping edge orientations.
 
-Suppose there is a $k$-coloring of $\tilde{\mathcal{G}}$ such that each vertex is assigned one of $k$
+Suppose there is a $k$-coloring of the moralized graph such that each vertex is assigned one of $k$
 colors and adjacent vertices have different colors. Denote $\mathcal{V}_c$ the set of variables
 assigned color $c$ where $1 \leq c \leq k$. One can sample sequentially from $\mathcal{V}_1$ to
 $\mathcal{V}_k$, where within each color group, it samples all the variables in parallel. This
@@ -257,10 +259,6 @@ permutation over the variables and will converge to the desired distribution bec
 within one color group are independent to each other given all the other variables. Finding the
 optimal coloring of a general graph is NP-complete, but efficient heuristics for balanced graph
 coloring perform well in many problems.
-
-\textbf{Daniel: TODO Ahhh, I forgot! The stuff in Figure 1 does actually require data to fit in
-memory. There are ways we can get around this with more efficient storage but we should make that
-explicit, and say that Figure 1 is only for intuition as most data will fit in memory anyway!}
 
 
 
@@ -310,7 +308,8 @@ sampler, as it is cheaper and simpler to run as compared to using a computing cl
   \label{fig:kl_jags}
 \end{subfigure}
 \caption{Plots of our $KL_{\rm avg}$ curves as a function of the iteration, on Koller Data (these
-must be viewed in color). Both BIDMach and JAGS converge to the true CPTs quickly.}
+must be viewed in color). Both BIDMach and JAGS converge to the true CPTs quickly, but JAGS appears
+to benefit more from the extra data replication with SAME parameters $m=5$ and $m=10$.}
 \label{fig:first_set}
 \end{figure}
 
@@ -356,10 +355,10 @@ must be viewed in color). Both BIDMach and JAGS converge to the true CPTs quickl
 \begin{center}
 \begin{tabular}{ |c|c|c|c|c|c|c| } 
 \hline
-                  & $m=1$ & $m=2$ & $m=5$ & $m=10$ & $m=20$ \\
+                         & $m=1$ & $m=2$ & $m=5$ & $m=10$ & $m=20$ \\
 \hline \hline
-BIDMach Time/Iter & 0.055 & 0.090 & 0.165 & 0.311  & 0.577  \\ 
-JAGS Time/Iter    & 0.210 & 0.491 & 1.406 & 2.675  & 5.188  \\
+BIDMach Time(sec) / Iter & 0.055 & 0.090 & 0.165 & 0.311  & 0.577  \\ 
+JAGS Time(sec) / Iter    & 0.210 & 0.491 & 1.406 & 2.675  & 5.188  \\
 \hline
 \end{tabular}
 \end{center}
@@ -376,35 +375,34 @@ letter of recommendation. This network, along with the true set of CPTs, is from
 of~\citet{Koller2009}. Due to the name of the author, we call this the ``Koller'' data to
 distinguish it from the MOOC data we use in~(\ref{ssec:mooc_data}).
 
-To generate the data for BIDMach, we use the standard technique of forward sampling, where $X_i$
-gets sampled based on the true distributions from~\citet{Koller2009}, which will depend on the
-parents of $X_i$ (if any). We repeated this process to get 50,000 samples, so the data is
-formatted in a $(5\times 50,000)$-dimensional matrix.  Then, we randomly hid 50\% of the elements of
-the data matrix to simulate missing data. The objective is to use Gibbs sampling to estimate the set
-of CPTs, and see how close they match the true ones. We use 50,000 cases only for the sake of
-comparison with JAGS, since BIDMach can handle millions of samples.
+To generate the data, we use the standard technique of forward sampling, where $X_i$ gets sampled
+based on the true distributions from~\citet{Koller2009}, which depends on the parents of $X_i$ (if
+any). We repeat this to get 50,000 samples, so the data is a $(5\times 50,000)$-dimensional matrix.
+Then, we randomly hide 50\% of the elements to simulate missing data. The objective is to use Gibbs
+sampling to estimate the set of CPTs, and see how close they match the true ones. BIDMach can handle
+millions of samples but we use only 50,000 for the sake of benchmarking with JAGS.
 
-There are several metrics to evaluate a Gibbs sampler. The one we employ is the average
-Kullback-Liebler Divergence of all the distributions in the set of CPTs, denoted as $KL_{\rm avg}$.
-For two distributions $p(x)$ and $q(x)$, the KL-divergence is $\sum_x p(x) \log(p(x)/q(x))$, summing
-over $x$ such that $q(x) > 0$. In the Koller data, there are eleven probability distributions that
-form the set of CPTs. For example, $X_4$ ``contributes'' three distributions: $\Pr(X_4 \mid X_3 =
-0), \Pr(X_4 \mid X_3 = 1)$, and $\Pr(X_4 \mid X_3 = 2)$, where $X_3$ (the parent) is fixed. For this
-network, we have $KL_{\rm avg} = \frac{1}{11} \sum_{i=1}^{11} p_i(x) \log(p_i(x)/q_i(x))$, where
-$q_i$ is the distribution our sampler estimates and $i$ is some arbitrary indexing notation. We do
-not use the KL-Divergence of the full joint distribution $P(X_1,X_2,X_3,X_4,X_5)$ since with
-high-dimensional data (e.g., the MOOC data in~(\ref{ssec:mooc_data})), computing the full joint is
-intractable and we wish to facilitate comparisons across different datasets.
+To evaluate the ``accuracy'' of our Gibbs sampler, we compute the average KL Divergences of all the
+distributions in the set of CPTs, denoted as $KL_{\rm avg}$.  For two distributions $p(x)$ and
+$q(x)$, the KL divergence is $\sum_x p(x) \log(p(x)/q(x))$, summing over $x$ such that $q(x) > 0$.
+In the Koller data, there are eleven probability distributions that form the set of CPTs. For
+example, $X_4$ ``contributes'' three distributions: $\Pr(X_4 \mid X_3 = 0), \Pr(X_4 \mid X_3 = 1)$,
+and $\Pr(X_4 \mid X_3 = 2)$, where $X_3$ (the parent) is fixed. For this network, we have $KL_{\rm
+avg} = \frac{1}{11} \sum_{i=1}^{11} p_i(x) \log(p_i(x)/q_i(x))$, where $q_i$ is the distribution our
+sampler estimates and $i$ is some arbitrary indexing notation. We do not use the KL Divergence of
+the full joint distribution $P(X_1,X_2,X_3,X_4,X_5)$ since with high-dimensional data (e.g., the
+MOOC data in~(\ref{ssec:mooc_data})), computing the full joint is intractable and we wish to
+facilitate comparisons across different datasets.
 
 Figures~\ref{fig:kl_bidmach} and~\ref{fig:kl_jags} plot the $KL_{\rm avg}$ metric for the student
-data using BIDMach and JAGS, respectively (note the log scale), with three SAME replication factors.
-Our results indicate that the $KL_{\rm avg}$ for BIDMach and JAGS reach roughly the same values,
-with a slight advantage to JAGS, though this is amplified because of the log scale. In practice, the
-difference between BIDMach and JAGS is indistinguishable to humans, and both versions are able to
-get to the true CPTs to within a tolerance of 0.005. Both versions converge to the true
-distributions in about ten passes. For BIDMach, we tuned the mini-batch size to be 12,500, so there
-are four mini-batches in all; using fewer mini-batches tends to result in slower convergence in
-terms of iterations (but results in faster time per iteration).
+data using BIDMach and JAGS, respectively (note the log scale), with three SAME factors. The plots
+indicate that the $KL_{\rm avg}$ for BIDMach and JAGS reach roughly the same values, with a slight
+advantage to JAGS, though this is amplified because of the log scale. In practice, the difference
+between BIDMach and JAGS is indistinguishable to humans, and both versions are able to get to the
+true CPTs to within a tolerance of 0.005. Both versions converge to the true distributions in about
+ten passes. For BIDMach, we tuned the mini-batch size to be 12,500, so there are four mini-batches
+in all; using fewer mini-batches tends to result in slower convergence in terms of iterations (but
+results in faster time per iteration).
 
 In addition, we observe that increasing $m$ results in CPT estimates that more closely match the
 true CPTs. The red curves (i.e., $m=1$) for Figures~\ref{fig:kl_bidmach} and~\ref{fig:kl_jags}
@@ -457,19 +455,96 @@ make it clear that runtimes in JAGS *include* initialization.}
   \centering
   \includegraphics[width=0.9\textwidth]{fig_diff_sparsity_bidmach}
   \caption{The $KL_{\rm avg}$ from BIDMach.}
-  \label{fig:kl_time_bidmach}
+  \label{fig:kl_bidmach_mooc}
 \end{subfigure}%
 \begin{subfigure}{.5\textwidth}
   \centering
   \includegraphics[width=0.9\textwidth]{fig_diff_sparsity_jags}
   \caption{The $KL_{\rm avg}$ from JAGS.}
-  \label{fig:kl_time_jags}
+  \label{fig:kl_jags_mooc}
 \end{subfigure}
 \caption{Plots of our $KL_{\rm avg}$ curves as a function of the iteration, on Synthetic MOOC Data
 with different sparsity levels (these must be viewed in color).}
 \label{fig:second_set}
 \end{figure}
 
+We now benchmark our code on a Bayesian network with a nation-wide examination dataset from the
+Dynamic Learning Maps (DLM) project\footnote{URL: \url{http://dynamiclearningmaps.org/}. There is no
+official paper reference for this data.}. The data contains the assessment (correct or not) of
+student responses to questions from the DLM Alternate Assessment System. After preprocessing, there
+are 4367 students and 319 questions. Each of the questions is derived from a set of 15 basic
+concepts. We encode questions and concepts as variables and describe their relationships with a
+Bayesian network from the DLM data. (The 15 concepts are latent variables across all students.) Each
+question is a variable with a very high missing value rate.  Our corresponding data matrix, which
+has dimensions $(334\times 4367)$, has a 2.2\% sparsity level.The inference task is to learn the
+CPTs of the Bayesian network from this extremely sparse data.
+
+We evaluate our sampler using two methods. The first involves running it on the original data until
+convergence. Then, we use the resulting estimated set of CPTs and sample from that via forward
+sampling to generate ``Synthetic MOOC'' data, also of dimension $(334 \times 4367)$. We create
+several versions of this data, each with a different fraction of missing data. Then we re-run
+BIDMach on this data and compare the CPTs we get with the old one using the same $KL_{\rm avg}$
+metric from~(\ref{ssec:koller_data}). Computing $KL_{\rm avg}$ involves averaging over 682
+distributions based on the Bayesian network, which has relatively few edges (the most amount of
+parents any node has is three).
+
+Figures~\ref{fig:kl_bidmach_mooc} and~\ref{fig:kl_jags_mooc} plot the $KL_{\rm avg}$ for BIDMach and
+JAGS, respectively (note again the log scale) on four different levels of sparsity. As expected,
+BIDMach and JAGS converge to roughly the same results. Furthermore, ``denser'' data allows the Gibbs
+sampler to get closer to the true CPTs. BIDMach and JAGS start at different $KL_{\rm avg}$ values
+due to different initializations; JAGS tends to initialize at $50-50$, roughly matching the real
+CPTs, while BIDMach initializes randomly.
+
+We also analyze the tradeoffs involved in increasing the SAME factor $m$. While increasing $m$
+intuitively (and theoretically) should lead to faster convergence to higher quality parameter
+estimates, it is possible that increasing $m$ too much will result in getting stuck in a local
+maxima since this is a highly noncovex problem. Figure~\ref{fig:mooc_kl} plots the runtime versus
+$KL_{\rm avg}$. (The non-replicated data $m=1$ is larger for readability.) With $m=2$, the curve is
+clearly better as for a fixed time $t$, it has lower $KL_{\rm avg}$ than $m=1$, despite how the
+$m=1$ curve will have had more full passes over the data. Interestingly enough, even $m=5$ results
+in getting trapped in local optima, and the $m=20$ curve indicates that higher $m$ will not benefit.
+We ran the experiment for Figure~\ref{fig:mooc_kl} for 300 seconds and the longer-term trend was
+that the $KL_{\rm avg}$ values tended to stay at where they were at 50 seconds.
+
+The second way we evaluate our sampler is with prediction accuracy. We divide the original
+data into a training and testing batch so that 80\% of the known data is in training. The training
+set is for updating the CPTs. During the testing batch, we sample for 500 iterations using the
+current CPTs (but \emph{without updating} them). The sampled values are either 0 or 1, as this is a
+binary prediction task, and we assign ``1'' to be a ``positive/true'' sample. For each of the known
+test points, we compute the number of 1s sampled. Letting this value be $n$, our prediction that a
+point is positive is $n/500$.
+
+In the training data, 62.8\% of the known data points are positive, (That value is 57.6\% for the
+testing data.) Due to this imbalance, we do not use raw accuracy as a predictor and instead turn to
+the Receiver Operating Characteristic curve. Fig~\ref{fig:mooc_accuracy} shows the ROC curve.
+
+\textbf{Daniel: OK, I updated the ROC plot. I should also mention that I ran this for 1000 passes,
+and the AUC for that is 0.63792, so I did not include that. (It might be overfitting, or that might
+be the theoretical limit.) Also, I'll need to explain what I mean by the percentage points on the
+red circles.}
+
+\begin{figure}[t]
+\centering
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=0.9\textwidth]{fig_kltime_tradeoff_mooc}
+  \caption{The $KL_{\rm avg}$ from BIDMach.}
+  \label{fig:mooc_kl}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=0.9\textwidth]{fig_bidmach_real_mooc_roc_curve_v2}
+  \caption{MOOC data ROC curve.}
+  \label{fig:mooc_accuracy}
+\end{subfigure}
+\caption{A more in-depth look at our sampler on Synthetic and Real MOOC data.}
+\label{fig:third_set}
+\end{figure}
+
+
+
+
+\section{Scaling BIDMach to Larger Data}\label{sec:scaling_large_data}
 
 % BIDMach (CPU) vs JAGS for the Real MOOC data *replicated*, with SAME=1.
 % Batch size: we'll use 2184 (approx 4367/2) to be a fair comparision with previous table with
@@ -504,94 +579,49 @@ with different sparsity levels (these must be viewed in color).}
 \begin{center}
 \begin{tabular}{ |c|c|c|c|c|c|c| } 
 \hline
-                       & 1x    & 2x     & 5x     & 10x    & 20x   & 40x   \\
+                         & 1x    & 2x     & 5x     & 10x    & 20x     & 40x   \\
 \hline \hline
-BIDMach Time(sec)/Iter & 0.182 & 0.375  & 0.931  & 1.792  & 3.501 & 7.181 \\ 
-JAGS Time(sec)/Iter    & 4.876 & 13.745 & 29.150 & 94.075 & 171.545      & OOM   \\
+BIDMach Time(sec) / Iter & 0.182 & 0.375  & 0.931  & 1.792  & 3.501   & 7.181 \\ 
+JAGS Time(sec) / Iter    & 4.876 & 13.745 & 29.150 & 94.075 & 171.545 & OOM   \\
 \hline
 \end{tabular}
 \end{center}
 \end{table}
 
-We now benchmark our code on a Bayesian network with a nation-wide examination dataset from the
-Dynamic Learning Maps (DLM) project\footnote{URL: \url{http://dynamiclearningmaps.org/}. There is no
-official reference for this data.}. The data contains the assessment (correct or not) of student
-responses to questions from the DLM Alternate Assessment System. After our preprocessing, there were
-4367 students and 319 questions. From the DLM data source, each of the questions is considered to be
-derived from a set of 15 basic concepts. We encode questions and concepts as variables and describe
-their relationships with a Bayesian network from the DLM data.  Each question is considered an
-``observed'' node in the Bayesian network, but with a very high missing value rate, as students only
-got to answer a fraction of the questions.  Our data matrix, which has dimensions $(334\times
-4367)$, ultimately ended up with a 2.2\% sparsity level.  Furthermore, the first 15 rows in the data
-matrix are completely missing across all 4367 columns, since the 15 concepts are latent variables.
-The inference task is to learn the CPTs of the Bayesian network from this extremely sparse data.
 
-We evaluate our sampler on this MOOC data using two methods. The first involves running our sampler
-on the original data until convergence. Then, we use the estimated set of CPTs and sample from that
-via direct sampling to generate synthetic data, also of dimension $(334 \times 4367)$. We modify
-that synthetic data matrix so that it also has a 2.2\% sparsity level and has missing data at the
-same elements as the original data matrix. Then we re-run BIDMach on that data and test using the
-same $KL_{\rm avg}$ metric from~(\ref{ssec:koller_data}), since we know the CPTs that ``generated''
-the data.
+We now discuss the impact of the SAME parameter in terms of runtime and throughput. We measure the
+throughput and speed of our Gibbs sampler in terms of GigaFlops (gflops), a billion floating point
+operations per second. It is possible to compute reasonable estimates of the maximum gflops
+attainable for a computer. Therefore, in order for us to claim that the Gibbs sampler is as
+optimized as it could be, we should argue that it attains gflops values that are close to the
+theoretical limit, indicating that further improvement is unlikely beyond simply upgrading the
+hardware.
 
-Figure~\ref{fig:mooc_kl} plots the $KL_{\rm avg}$ for BIDMach with varying $m$ values. We ran the
-sampler for several thousands of iterations but only show the first 300 for the sake of readability.
-We see that, indeed, using $m=1$ as a reference, the Gibbs sampler appears to converge quickly to
-the true distribution. It seems like the curve gets worse after the first 100 iterations, but
-the long term trend (not shown here) is that it settles down at the same $KL_{\rm avg}$ from the 100
-iteration point. It is also apparent from Figure~\ref{fig:mooc_kl} (and the long-term trend) that
-$m=2$ and $m=5$ are better, showing that there is indeed a benefit to SAME with extremely sparse
-data. What is interesting is that the performance of $m=10$ is \emph{worse} than $m=1$. Even after
-thousands of iterations, the $m=10$ curve was essentially neck-to-neck with the $m=1$ curve, but
-corresponds to a much slower runtime.
+\textbf{Daniel: We should compute the theoretical gflops limit.}
 
-\textbf{Daniel: the above needs to be revised based on the new plot we have (3(a) and 3(b)).}
+As the SAME parameter increases, it increases both the throughput (good) and runtime (bad) by
+increasing the number of data points in our computations. The results from~\citep{SAME2015} suggest
+that increasing $m$ for small values will increase throughput while not costing too much in runtime.
+As one increases $m$ beyond a certain data-dependent value, then SAME ``saturates'' the algorithm
+and results in stagnant throughput while significantly increasing runtime. It follows that a
+reasonable objective for an experimenter is to run the Gibbs sampler on data with varying values of
+$m$, and identify the point where further increases in $m$ start having an unfavorable runtime and
+throughput tradeoff.
 
-\textbf{Daniel: now I have to figure out how to describe the kl-time tradeoff.}
+As an example, we used the Koller data from~(\ref{ssec:koller_data}), with 50\% of the data known
+versus missing, but with \emph{one million} cases, beyond the feasible datasets of standard Gibbs
+samplers. We ran the Gibbs sampler for 200 iterations on this data with a batch size of 50,000.
+Table~\ref{tab:tradeoff} shows the time and gflops of the Gibbs sampler using different values of
+$m$.  One can see that increasing $m$ for $m < 30$ results in steady gflops increases but
+\emph{without} a substantial increase in time. Then SAME saturates the algorithm and the runtime
+increases while the gflops stalls, reinforcing the conclusions from~\citep{SAME2015} and argues for
+the importance of testing with a variety of $m$ values.
 
-\begin{figure}[t]
-\centering
-\begin{subfigure}{.5\textwidth}
-  \centering
-  \includegraphics[width=0.9\textwidth]{fig_kltime_tradeoff_mooc}
-  \caption{The $KL_{\rm avg}$ from BIDMach.}
-  \label{fig:mooc_kl}
-\end{subfigure}%
-\begin{subfigure}{.5\textwidth}
-  \centering
-  \includegraphics[width=0.9\textwidth]{fig_bidmach_real_mooc_roc_curve}
-  \caption{MOOC data ROC curve.}
-  \label{fig:mooc_accuracy}
-\end{subfigure}
-\caption{A more in-depth look at our sampler on Synthetic and Real MOOC data.}
-\label{fig:third_set}
-\end{figure}
-
-
-The second way we evaluate our sampler is with prediction accuracy. We divide the original
-data into a training and testing batch so that 80\% of the known data is in training. The training
-set is for updating the CPTs. During the testing batch, we sample for 500 iterations using the
-current CPTs (but \emph{without updating} them). For each of the known test points, we compute the
-number of 0s and 1s sampled (from the 500 iterations), pick the majority to be our prediction,
-and then compare it with the true value. Since only 2.2\% of the data is known, this is a challenging
-prediction problem. Moreover, we divide the training and testing data into batches, so for each
-student (i.e., column) in the test data matrix, we have no evidence.  Random guessing is equivalent
-to 50\% accuracy since this is a binary prediction task.
-
-We ran the prediction accuracy algorithm with SAME parameters $m=1$ and $m=5$ using three different
-random seeds for each, to reduce the chances of one trial skewing the results.
-Figure~\ref{fig:mooc_accuracy} plots the mean prediction accuracy (among three trials) for both SAME
-parameters. Our sampler indeed learns to predict reasonably well and reaches roughly 61\% accuracy.
-SAME is not beneficial in terms of accuracy or even the standard deviation of the accuracies (not
-plotted here). This is likely because sampling 500 times to determine our prediction may cause
-convergence to a result invariant to minor differences in CPTs.  Sampling only one time to determine
-prediction accuracy resulted in about 56\% accuracy for $m=1$, and beyond 500 samples, we did not
-observe improvements.
-
-\textbf{Daniel: The last two paragraphs are not yet complete because I have to describe the ROC
-curve.}
-
-\subsection{Runtime vs. Throughput Tradeoff}\label{ssec:tradeoff}
+Notice that the runtimes listed are in seconds, and even with $m=50$, 200 iterations takes less than
+10 minutes to complete --- we have barely scratched the limit of our sampler. In fact, one of the
+main things that limits our sampler is the memory of GPUs, since we need to shrink the batch size
+with large $m$. As memory on GPUs becomes cheaper, we will be able to run Gibbs sampling and perform
+graphical model inference on larger datasets.
 
 % This should be in another section. We might consider splitting this in two if we have space. For
 % both of these, I chose the largest batch size that we could do m = 50.
@@ -644,41 +674,6 @@ Time/Iter (RM) & 0.666 & 1.192 & 1.541  & 2.252  & 2.998  & 3.753  & 4.536   \\
 \end{tabular}
 \end{center}
 \end{table}
-
-We now discuss the impact of the SAME parameter in terms of runtime and throughput. We measure the
-throughput and speed of our Gibbs sampler in terms of GigaFlops (gflops), a billion floating point
-operations per second. It is possible to compute reasonable estimates of the maximum gflops
-attainable for a computer. Therefore, in order for us to claim that the Gibbs sampler is as
-optimized as it could be, we should argue that it attains gflops values that are close to the
-theoretical limit, indicating that further improvement is unlikely beyond simply upgrading the
-hardware.
-
-\textbf{Daniel: We should compute the theoretical gflops limit.}
-
-As the SAME parameter increases, it increases both the throughput (good) and runtime (bad) by
-increasing the number of data points in our computations. The results from~\citep{SAME2015} suggest
-that increasing $m$ for small values will increase throughput while not costing too much in runtime.
-As one increases $m$ beyond a certain data-dependent value, then SAME ``saturates'' the algorithm
-and results in stagnant throughput while significantly increasing runtime. It follows that a
-reasonable objective for an experimenter is to run the Gibbs sampler on data with varying values of
-$m$, and identify the point where further increases in $m$ start having an unfavorable runtime and
-throughput tradeoff.
-
-As an example, we used the Koller data from~(\ref{ssec:koller_data}), with 50\% of the data known
-versus missing, but with \emph{one million} cases, beyond the feasible datasets of standard Gibbs
-samplers. We ran the Gibbs sampler for 200 iterations on this data with a batch size of 50,000.
-Table~\ref{tab:tradeoff} shows the time and gflops of the Gibbs sampler using different values of
-$m$.  One can see that increasing $m$ for $m < 30$ results in steady gflops increases but
-\emph{without} a substantial increase in time. Then SAME saturates the algorithm and the runtime
-increases while the gflops stalls, reinforcing the conclusions from~\citep{SAME2015} and argues for
-the importance of testing with a variety of $m$ values.
-
-Notice that the runtimes listed are in seconds, and even with $m=50$, 200 iterations takes less than
-10 minutes to complete --- we have barely scratched the limit of our sampler. In fact, one of the
-main things that limits our sampler is the memory of GPUs, since we need to shrink the batch size
-with large $m$. As memory on GPUs becomes cheaper, we will be able to run Gibbs sampling and perform
-graphical model inference on larger datasets.
-
 
 \section{Conclusions}\label{sec:conclusions}
 

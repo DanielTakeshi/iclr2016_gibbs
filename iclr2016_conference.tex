@@ -67,7 +67,7 @@ $P(X,Z \mid \Theta)$ where $X$ is observed data, $Z$ is hidden
 (latent) data, and $\Theta$ represents the model parameters. The goal
 is generally to find an optimal $\Theta$ with respect to $X$, while
 marginalizing out $Z$. To represent these problems, it is common to
-use graphical models.  Here we focus on discrete-state models (``Discrete Bayesian Networks''),
+use graphical models.  Here we focus on discrete-state models,
 so node transitions are characterized by a set of conditional
 probability tables (CPTs). Each CPT represents a local probability
 distribution $\Pr(X_i \mid X_{\pi_i})$ where $X_i$ is a random
@@ -95,9 +95,8 @@ from $P(Z,\Theta \mid \mathcal{D})$.  For the case of discrete node states, the 
 multinomial distributions while the $\Theta$ are Dirichlet. Gibbs sampling is widely used in machine
 learning but has seen limited use on large datasets.  It is typically orders of magnitude slower
 than special-purpose, approximate methods; for Latent Dirichlet Allocation (LDA), these methods
-include Collapsed Gibbs Sampling (including parallel~\citep{Yan_LDA_2009} and
-cluster~\citep{ClusterCGS_2012} versions) and Walker's alias method~\citep{WalkersAlias_2014}.  In a
-recent result,~\citet{SAME2015} showed that by combining the State Augmented Monte Carlo (SAME)
+include Variational Bayes~\citep{Blei2003} and Walker's alias method~\citep{WalkersAlias_2014}.  In
+a recent result,~\citet{SAME2015} showed that by combining the State Augmented Monte Carlo (SAME)
 technique~\citep{SAME2002} with Gibbs sampling, one can match the speed of approximate methods while
 obtaining higher quality estimates. But that paper was restricted to LDA and similar models.  In
 this paper, we build upon that result by presenting a SAME Gibbs sampler for general discrete
@@ -127,10 +126,10 @@ be one of the most important practical techniques for large models; collapsed sa
 used for LDA and related models~\citep{Griffiths_Steyvers}. In addition, parallelism has been
 improved using color groups~\citep{Gonzalez2011}, and approximate, uncoordinated parallelism has
 been shown to give good results in practice~\citep{Johnson2013}.  Gibbs sampling has also been
-applied to large-scale databases in~\citep{Zhang2013}.
+applied to large-scale databases~\citep{Zhang2013}.
 % guys, you should compare your throughput with that paper. 
 
-Recently, Graphics Processing Units (GPUs) have proved valuable for deep learning, and are used in
+Recently, Graphics Processing Units (GPUs) have been valuable for deep learning, and are used in
 most toolkits including Theano \citep{Theano2012}, CAFFE ~\citep{jia2014caffe} and Torch
 \citep{Torch}. We continue this trend by using GPU acceleration for our sampler.
 
@@ -186,8 +185,8 @@ low-variance, high-quality parameter estimate.
 \centering
 \includegraphics[width=0.75\textwidth]{fig_BIDMach_final}
 \caption{This visualizes our Gibbs sampler at work. The original data is split into four
-mini-batches of equal sizes (for caching purposes), with each having some known data (shaded gray)
-and unknown data (white). For each mini-batch, the sampler replicates the data three times ($m=3$),
+minibatches of equal sizes (for caching purposes), with each having some known data (shaded gray)
+and unknown data (white). For each minibatch, the sampler replicates the data three times ($m=3$),
 samples the unknown values, and then uses those with the prior to update its estimate of the CPTs.}
 \label{fig:BIDMach}
 \end{figure}
@@ -195,29 +194,27 @@ samples the unknown values, and then uses those with the prior to update its est
 Our Gibbs sampler is implemented as part of the open-source BIDMach library~\citep{bidmach} for
 machine learning.  Figure~\ref{fig:BIDMach} shows a visualization of how it works on a large dataset.
 Our sampler expects a data matrix (typically sparse), with rows representing variables and columns
-representing cases. BIDMach divides data into same-sized \emph{mini-batches} and iterates through
+representing cases. BIDMach divides data into same-sized \emph{minibatches} and iterates through
 them to update parameters. If there are $M$ minibatches in the entire dataset, we maintain a moving
 sum of the state counts for the $M$ most-recently processed minibatches. Updating this average requires 
 us to maintain the state counts for each minibatch from the last iteration. We subtract these from
-the total state counts before adding in the updated counts for this minibatch from the current iteration.
-\footnote{For larger
-datasets, this state is not saved and instead the counts are maintained using an exponential moving sum. Thus the memory require scales only with model size, not dataset size.}
+the total state counts before adding in the updated counts for this minibatch from the current
+iteration\footnote{For larger datasets, this state is not saved and instead the counts are
+maintained using an exponential moving sum. Thus the memory require scales only with model size, not
+dataset size.}.
 
 Our Gibbs sampler is augmented with SAME. Consequently, if $m$ is the SAME parameter, for each
-mini-batch our sampler forms $m$ copies of the known data.  Then, it performs Gibbs sampling to fill
-in the missing data in each copy of the mini-batch using the current CPTs.  These sampled results
+minibatch our sampler forms $m$ copies of the known data.  Then, it performs Gibbs sampling to fill
+in the missing data in each copy of the minibatch using the current CPTs.  These sampled results
 are combined with an adjustable Dirichlet prior and the current CPTs to form a set of discrete
-counts, which form the Dirichlet parameters to update (explicitly sample) the CPTs. 
+counts, which are the Dirichlet parameters to update (via sampling) the CPTs. 
 
-There are several optimizations used to improve performance.  First, Since
-storage allocation is very expensive on GPUs and their memory is
-limited on GPUs (3-12 GB is typical), BIDMach use a matrix caching
-strategy to reuse memory for matrices of the same
-dimensions.
-
-Second Graphical structure and SAME-replicated states for a particular
-color group are fused into large matrices to maximize parallelism and
-hide GPU-kernel overhead.
+There are several optimizations used to improve performance.  First, since storage allocation is
+very expensive on GPUs and their memory is limited (3-12 GB is typical), BIDMach uses a matrix
+caching strategy to reuse memory for matrices of the same dimensions. (This is why minibatches in
+BIDMach need to be the same size.) Second, graphical structure and SAME-replicated states for a
+particular color group are fused into large matrices to maximize parallelism and hide GPU-kernel
+overhead. The sampling process itself is done via a series of matrix multiplication operations.
 
 As mentioned in Section~\ref{sec:related_work}, we further parallelize Gibbs sampling in an
 exact manner via chromatic partitioning. In Bayesian networks, nodes $u$ and $v$ are independent
@@ -225,15 +222,14 @@ conditioned on a set of variables $\mathcal{C}$ if $\mathcal{C}$ includes at lea
 every path connecting $u$ and $v$ in the \emph{moralized graph} of the network, which is the graph
 formed by connecting parents and dropping edge orientations.
 
-Suppose there is a $k$-coloring of the moralized graph such that each vertex is assigned one of $k$
-colors and adjacent vertices have different colors. Denote $\mathcal{V}_c$ the set of variables
+Suppose there is a $k$-coloring of the moralized graph. Let $\mathcal{V}_c$ be the set of variables
 assigned color $c$ where $1 \leq c \leq k$. One can sample sequentially from $\mathcal{V}_1$ to
-$\mathcal{V}_k$, where within each color group, it samples all the variables in parallel. This
-parallel sampler corresponds exactly to the execution of a sequential scan Gibbs sampler for some
-permutation over the variables and will converge to the desired distribution because variables
-within one color group are independent to each other given all the other variables. Finding the
-optimal coloring of a general graph is NP-complete, but efficient heuristics for balanced graph
-coloring perform well in many problems.
+$\mathcal{V}_k$, and within each color group, sample all its variables in parallel. This parallel
+sampler corresponds exactly to the execution of a sequential scan Gibbs sampler for some permutation
+over the variables and will converge to the desired distribution because variables within one color
+group are independent to each other given all the other variables. Finding the optimal coloring of a
+general graph is NP-complete, so we use efficient heuristics~\citep{kubale2004graph} for balanced
+graph coloring, which work well in practice.
 
 
 

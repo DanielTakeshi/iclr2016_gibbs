@@ -45,7 +45,7 @@ used.  Gibbs sampling is one of the most accurate approaches and
 provides unbiased samples from the posterior but it has historically
 been too expensive for large models. In this paper, we present an
 optimized, parallel Gibbs sampler whose performance matches
-approximate methods, and which is several orders of magnitude faster
+approximate methods, and which is at least an order of magnitude faster
 than current Gibbs samplers.  Our Gibbs sampler is GPU-accelerated,
 heavily parallelized, and uses state replication (SAME or State
 Augmented Marginal Estimation) to decrease convergence time. We find
@@ -112,8 +112,8 @@ Bayesian networks. The contributions of this paper are:
 \end{itemize}
 
 We benchmark our sampler versus a state of the art Gibbs sampler,
-JAGS~\citep{JAGS2003}, and find that our Gibbs sampler is multiple
-orders of magnitude faster. The throughput and scalability of the
+JAGS~\citep{JAGS2003}, and find that our Gibbs sampler is at least
+an order of magnitude faster. The throughput and scalability of the
 sampler (nodes processed per second) is competitive with special
 purpose methods while maintaining the accuracy of Gibbs sampling.
 
@@ -249,9 +249,9 @@ uses Gibbs sampling as the primary inference algorithm.
 For all JAGS experiments and for CPU benchmarks for BIDMach, we use a
 single computer with an Intel Core Xeon processor with eight cores and
 2.20 GHz clock speed (E5-2650 Sandy Bridge). The computer has 64 GB of
-CPU RAM. We used a different machine with NVIDIA Titan X GPU for the
-GPU experiments (since the CPU characteristics of this second machine
-do not affect performance while using the GPU).
+CPU RAM. We used a different machine with an NVIDIA Titan X GPU for the
+GPU experiments since the CPU characteristics of this second machine
+do not affect performance while using the GPU.
 
 \subsection{Synthetic ``Koller'' Data}\label{ssec:koller_data}
 
@@ -279,7 +279,7 @@ to benefit more from the extra data replication with SAME parameters $m=5$ and $
 % BIDMach settings: 25k batch size, 200 iterations, 777 seed.  We do get gflops with BIDMach, so we
 % can include them if desired, but the runtime is the more interesting thing we want to compare.
 % Perhaps we should use total seconds, rather than per iteration? It's easier to understand.
-% Also, opts.updateAll = true because we should be updating after each mini-batch.
+% Also, opts.updateAll = true because we should be updating after each minibatch.
 %
 % Here are the BIDMach CPU (not GPU!) results ON BITTER, with extra values if we can get more JAGS results:
 %
@@ -300,8 +300,8 @@ to benefit more from the extra data replication with SAME parameters $m=5$ and $
 % Yeah, a  bit weird that gflops doesn't increase each time ... also, funny how stout is actually
 % faster. That works to our *advantage* here!
 %
-% EDIT: Argh, we may have to re-run this to get times for FOUR mini-batches since that's what I use
-% for Fig 2. Results on stout with mini-batch sizes of 12.5k:
+% EDIT: Argh, we may have to re-run this to get times for FOUR minibatches since that's what I use
+% for Fig 2. Results on stout with minibatch sizes of 12.5k:
 %
 % Time=11.0200 secs, gflops=0.66 (m=1) + 0.598s initialization
 % Time=18.0350 secs, gflops=0.81 (m=2) + 0.612s initialization
@@ -342,7 +342,7 @@ To generate the data, we use the standard technique of forward sampling, where $
 based on the true distributions from~\citet{Koller2009}, which depends on $X_i$'s parents (if any).
 We repeat this to get 50,000 samples, then randomly hide 50\% of the data points. The goal is to
 apply Gibbs sampling to estimate the CPTs that generated the data. Note that BIDMach can handle
-millions of samples but we use only 50,000 for benchmarking with JAGS.
+millions of samples, but due to limitations of JAGS, we use only 50,000 for benchmarking.
 
 To evaluate our Gibbs sampler, we compute the average KL Divergences of all the distributions in the
 set of CPTs, denoted as $KL_{\rm avg}$.  For two distributions $p(x)$ and $q(x)$, the KL divergence
@@ -365,7 +365,7 @@ random number in the sampled CPT and its corresponding number in the true CPT fo
 respectively, is 0.0039 and 0.0043. Thus, both BIDMach and JAGS will sample CPTs that are accurate
 to two/three decimal places.
 
-For BIDMach, we tuned the mini-batch size to be 12,500. Using a smaller size means that, for a fixed
+For BIDMach, we tuned the minibatch size to be 12,500. Using a smaller size means that, for a fixed
 number of passes, we tend to get faster convergence, but this often comes with slower runtime per
 iteration. In addition, we observed that increasing $m$ results in CPT estimates that more closely
 match the true CPTs. The red curves (i.e., $m=1$) for Figures~\ref{fig:kl_bidmach}
@@ -374,7 +374,7 @@ blue curves, with the difference more noticeable for JAGS. Also, going from $m=5
 have a negligible benefit.
 
 We further benchmark the speed of our CPU Gibbs sampler with JAGS on this data. For a fair
-comparison, we keep our mini-batch size to be 12,500 to match the runs from
+comparison, we keep our minibatch size to be 12,500 to match the runs from
 Figure~\ref{fig:kl_bidmach}.  Table~\ref{tab:bidmach_jags_koller} shows the total runtime on the
 data with different $m$ for 200 passes. We used total runtime because the JAGS API does not enable
 us to separate the initialization time from the updating/sampling time. (JAGS spends a substantial
@@ -382,6 +382,9 @@ amount of time initializing here since it needs to form a graph, but BIDMach use
 spends less than one second in initialization.) The results demonstrate that BIDMach is almost four
 times faster than JAGS on the original data, and when the SAME parameter increases, the gap widens
 (up to a factor of nine with $m=20$).
+
+
+
 
 \subsection{Dynamic Learning Maps ``MOOC'' Data}\label{ssec:mooc_data}
 
@@ -396,11 +399,11 @@ times faster than JAGS on the original data, and when the SAME parameter increas
 % in 7-8 iterations, while it seems like we take roughly 3-3.5 times that much. When we initialize
 % with a smoother prior, we tend to get convergence in about 2-2.5 times as many iterations (which
 % one can argue we should be using anyway).
-%   (3) Also consider the batch size. We are using 2184 so we have two mini-batches. More frequent
+%   (3) Also consider the batch size. We are using 2184 so we have two minibatches. More frequent
 % updates with smaller batch sizes can get the convergence down to about 1.5-2 times as many
 % iterations, but at an unacceptable extra time cost (i.e., the time would go up by double if we
 % halve the batch size, but the convergence time is not halved when we do that), so we felt from
-% informal tuning that two mini-batches was appropriate.
+% informal tuning that two minibatches was appropriate.
 %   (4) Finally, we can tune the SAME parameter. With a smooth prior (adding 10 to the starting
 % CPT), and also with SAME = 20, and a batch size of 500, I was able to get convergence in 10
 % iterations, roughly matching JAGS. We should say that in reality, the cost tradeoff is somewhat
@@ -469,9 +472,10 @@ has is three).
 Figures~\ref{fig:kl_bidmach_mooc} and~\ref{fig:kl_jags_mooc} plot the $KL_{\rm avg}$ for BIDMach and
 JAGS, respectively on four different levels of sparsity (note again the log scale). As expected,
 BIDMach and JAGS converge to roughly the same $KL_{\rm avg}$. Furthermore, ``denser'' data allows
-the Gibbs sampler to get closer to the true CPTs. BIDMach and JAGS start at different $KL_{\rm avg}$
-values due to different initializations; JAGS tends to initialize at $50-50$, roughly matching the
-real CPTs, while BIDMach initializes randomly.
+the Gibbs sampler to get closer to the true CPTs. Note that BIDMach and JAGS start at different
+$KL_{\rm avg}$ values due to different initializations (BIDMach initializes randomly, while JAGS
+tends to start with ``even'' $0.5,0.5$ distributions), and the JAGS curve increases for extremely
+sparse data because the initialization point happens to be better than to what it converges.
 
 We also analyze the tradeoffs involved in increasing the SAME factor $m$. While increasing $m$
 intuitively (and theoretically) should lead to faster convergence to higher quality parameter
@@ -484,19 +488,18 @@ $m=5$ results in similar results, and the $m=20$ curve indicates that higher $m$
 beneficial.  We ran the experiment for Figure~\ref{fig:mooc_kl} for 300 seconds and the longer-term
 trend was that the $KL_{\rm avg}$ values tended to remain at their 50-second values.
 
-In addition to measuring distance between predicted and actual parameters, we evaluate
-the sampler also using its accuracy at predicting missing labels.  We divide the original
-data into a training and testing batch so that 80\% of the known data is in training. The training
-set is used to update the CPTs. During the testing phase, we sample $n$ times using the current CPTs
-without updating them. For each (correct) test state, this yields an unbiased estimate of the correct state
+In addition to measuring distance between predicted and actual parameters, we also evaluate the
+sampler using its accuracy at predicting missing labels.  We divide the original data into a
+training and testing batch so that 80\% of the known data is in training. The training set is used
+to update the CPTs. During the testing phase, we sample $n$ times using the current CPTs without
+updating them. For each (correct) test state, this yields an unbiased estimate of the correct state
 probability. 
 
 % Ach what went wrong? Can we fix this. Otherwise we have an invalid test set
+
 % The training and testing data have 62.8\% and 57.6\% of known data points in the positive class,
 % respectively. Due to this imbalance, we do not use raw accuracy as a predictor and instead turn to
-We use Receiver Operating Characteristic (ROC) curve to estimate the predictors effectiveness.
-Figure~\ref{fig:mooc_accuracy} shows the ROC curves obtained after 10 passes and 100 passes through the data. 
-After 100 passes, the ROC has an AUC of 0.65741. 
+
 % that's disturbing. 
 % we tested at other points, such as 1000 passes (AUC of 0.63792), but did not find any curve with an AUC exceeding 0.65741, possibly due to overfitting
 % after 100 passes. Figure~\ref{fig:mooc_accuracy} also has five labeled dots, from 40\% to 80\%.
@@ -505,13 +508,23 @@ After 100 passes, the ROC has an AUC of 0.65741.
 % 50\% of our samples as positive (out of 500, meaning we need at least 250). The 0\% decision
 % threshold (not shown) would correspond to the point $(1,1)$.
 
+We use the Receiver Operating Characteristic (ROC) curve to estimate the predictor's effectiveness.
+Figure~\ref{fig:mooc_accuracy} shows the ROC curves obtained after 10 passes and 100 passes through
+the data.  After 100 passes, the ROC has an AUC of 0.65741.  Figure~\ref{fig:mooc_accuracy} also has
+five labeled points, from 40\% to 80\%.  These indicate different decision point cutoffs. For
+instance, the point labeled at 50\% is the point on the ROC curve that corresponds to the estimator
+that will pick a state to be positive if at least 50\% of its $n$ sampled values were positive. Thus,
+the 0\% decision threshold (not shown) would correspond to the point $(1,1)$.
+
+
+
 
 
 \section{Speed and Scalability of Our Sampler on Large Data}\label{sec:scaling_large_data}
 
 % BIDMach (CPU) vs JAGS for the Real MOOC data *replicated*, with SAME=1.
 % Batch size: we'll use 2184 (approx 4367/2) to be a fair comparison with previous table with
-% Koller, because we usually like to have more than one mini-batch.
+% Koller, because we usually like to have more than one minibatch.
 %
 % Here are the BIDMach CPU (not GPU!) results on BITTER:
 %
@@ -564,7 +577,7 @@ JAGS Total Time (sec)        & 975.2 & 2749.0 & 5830.0 & 18815.0 & 34309.0 & OOM
 % This should be in another section. We might consider splitting this in two if we have space. For
 % both of these, I chose the largest batch size that we could do m = 50.
 %
-% Koller Data = (5 x 1,000,000)-dimensional, mini-batch size = 50,000, iterations = 200, seed = 777.
+% Koller Data = (5 x 1,000,000)-dimensional, minibatch size = 50,000, iterations = 200, seed = 777.
 % This is with the sliding, rectangular window of samples, which is *slower* than the moving
 % average,  hence we'll get slower gflops. Before, with complete truncation (but an incorrect
 % graphical model, technically speaking) we were getting 13.90 for m = 50.
@@ -584,7 +597,7 @@ JAGS Total Time (sec)        & 975.2 & 2749.0 & 5830.0 & 18815.0 & 34309.0 & OOM
 % think because putback requires extra memory or something. So I'm doing 5x, which lets me increase
 % the batch size to 400. More advanced GPUs in the future will allow us to run this faster.
 
-% Settings: mini-batch size = 400, SAME is the variable. 200 iterations and 777 seed as usual.
+% Settings: minibatch size = 400, SAME is the variable. 200 iterations and 777 seed as usual.
 % Total runtimes were:
 %
 % Time=133.2460 secs, gflops=1.65 (m=1)
@@ -642,41 +655,37 @@ Time (sec) / Iteration (30x MOOC) & 2.440 & 2.940 & 4.181 & 6.313   \\
 \end{table}
 
 We now discuss the extent to which BIDMach (and JAGS) can scale up to larger datasets in order to
-identify the limits of current software. We were unable to obtain anything larger than the MOOC data
-from~(\ref{ssec:mooc_data}), so we formed ``larger datasets'' by replicating the MOOC data
-horizontally: we took the data matrix and made $n$ copies to get a $(334 \times 4367n)$-dimensional
-data matrix. In Table~\ref{tab:bidmach_jags_realmooc}, we report the time per iteration for BIDMach
-and JAGS on a variety of replicated data, from the original data (1x) to data replicated 40 times
-(40x). For our sampler, we used the same tunable settings (e.g, mini-batch size) as we did in
+identify the limits of current software. To enable us to obtain arbitrarily large datasets, we
+replicated the MOOC data (from~(\ref{ssec:mooc_data})) horizontally: we took the data matrix and
+made $n$ copies to get a $(334 \times 4367n)$-dimensional data matrix. In
+Table~\ref{tab:bidmach_jags_realmooc}, we report the time per iteration for BIDMach and JAGS on a
+variety of replicated data, from the original data (1x) to data replicated 40 times (40x). For our
+sampler, we used the same tunable settings (e.g, minibatch size) as we did in
 Figure~\ref{fig:second_set}, to keep our benchmarks consistent. Just as in
 Table~\ref{tab:bidmach_jags_koller}, we report total runtime for 200 iterations.
 
-The results indicate that BIDMach holds a clear speed advantage over JAGS, though one must interpret
-the results carefully. From Figure~\ref{fig:second_set}, we see that, while BIDMach and JAGS both
-eventually converge to similar $KL_{\rm avg}$ values, our sampler takes roughly three times as many
-iterations to reach convergence (this is most easily observed on the 25\% data). We can reduce the
-number of iterations for BIDMach to reach convergence by reducing the mini-batch size, but our
-informal experiments indicated that doing so would result in unacceptable time increases.
+The results indicate that BIDMach holds a clear speed advantage over JAGS (for both the CPU and
+GPU), though one must interpret the results carefully. From Figure~\ref{fig:second_set}, we see
+that, while BIDMach and JAGS both eventually converge to similar $KL_{\rm avg}$ values, our sampler
+takes roughly three times as many iterations to reach convergence (this is most easily observed on
+the 25\% data).
 
 Therefore, to determine BIDMach's speed improvements, one would need to divide the JAGS time by
 three (roughly). Despite this caveat, our sampler still has a huge performance advantage. With the
-original data, BIDMach's advantage is a factor of $(975.2/3)/39.5 \approx 8.23$, and the gap widens
-with more data (for 20x, we have an advantage of $(34309.0/3)/701.4\approx 16.31$). We emphasize
-that this result is with the CPU only. The GPU version, especially on larger data (e.g., the 20x
-data) typically results in another order of magnitude improvement. In terms of memory usage, BIDMach
-also outperforms JAGS. BIDMach structures data in matrices, whereas JAGS internally forms a graph.
-For the 40x data, JAGS ran out of memory on our 64 CPU RAM machine, whereas BIDMach only used up
-11.4\% of the RAM.
+original data, BIDMach's advantage is a factor of $(975.2/3)/11.2 \approx 29.0$ (with the GPU), and
+the gap widens with more data (for 20x, we have an advantage of $(34309.0/3)/183.8\approx 66.2$).
+In terms of memory usage, BIDMach also outperforms JAGS. BIDMach structures data in matrices,
+whereas JAGS internally forms a graph.  For the 40x data, JAGS ran out of memory on our 64 GB CPU
+RAM machine, whereas BIDMach used up only 11.4\% of the CPU RAM.
 
 It is also worthy to investigate the impact of the SAME parameter $m$, in terms of runtime \emph{and
 throughput}, which is measured in GigaFlops (gflops), a billion floating point operations per
-second. As the SAME parameter increases, it increases both the throughput (good) and runtime (bad)
-by increasing the number of data points in our computations. The results from~\citep{SAME2015}
-suggest that increasing $m$ for small values will increase throughput while not costing too much in
-runtime.  As one increases $m$ beyond a certain data-dependent value, then SAME ``saturates'' the
-algorithm and results in stagnant throughput while significantly increasing runtime.
-Figure~\ref{fig:mooc_kl} also raises the question as to whether one really needs a large $m$ in the
-first place.
+second. As the SAME parameter increases, it increases both the throughput and runtime by increasing
+the number of data points in our computations. The results from~\citep{SAME2015} suggest that
+increasing $m$ for small values will increase throughput while not costing too much in runtime.  As
+one increases $m$ beyond a certain data-dependent value, then SAME ``saturates'' the algorithm and
+results in stagnant throughput while significantly increasing runtime.  Figure~\ref{fig:mooc_kl}
+also raises the question as to whether one really needs a large $m$ in the first place.
 
 Table~\ref{tab:tradeoff} reports the performance of BIDMach's GPU version (only) on two expanded
 datasets with varying $m$. One is the Koller data from~(\ref{ssec:koller_data}), with 50\% of the
@@ -686,9 +695,11 @@ data (especially the 30x MOOC data), and that increasing $m$ further is a logica
 
 Finally, we point out that the runtimes in all tables in this paper are listed are in seconds, and
 even with large $m$ and a large replication factor, we have barely scratched the limit of our
-sampler. In fact, the primary limiting factor of our sampler is not the data itself, but the memory
-of the GPU. As we get better and faster GPUs, the performance of our sampler will improve and we
-will be able to run it on larger and larger datasets.
+sampler. To test the limit of our GPU sampler, we ran it on 300x replicated MOOC data. Our sampler
+completed 200 iterations in 1726.1 seconds with a gflops of 7.59.  In fact, the primary limiting
+factor of our sampler is not the size of the data itself, but the memory of the GPU; the 300x data
+used up almost all of the 12GB of GPU RAM. As we get better and faster GPUs, the performance of our
+sampler will improve and we will be able to run it on larger and larger datasets.
 
 
 

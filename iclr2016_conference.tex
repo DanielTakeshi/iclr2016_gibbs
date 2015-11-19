@@ -341,7 +341,7 @@ JAGS Total Time (sec)    & 42.0  & 98.2  & 281.2 & 535.0  & 1037.6 \\
 \end{center}
 \end{table}
 
-We first use synthetic data generated from a toy Bayesian network to show an example of correctness
+We first use synthetic data generated from a small Bayesian network to check correctness
 and the use of SAME. The network has five variables: $X_0 = {\rm Intelligence}$, $X_1 =
 {\rm Difficulty},$ $X_2 = {\rm SAT}$, $X_3 = {\rm Grade}$, and $X_4 = {\rm Letter}$. The directed
 edges are $\mathcal{E} = \{(X_0, X_2), (X_0, X_3), (X_1,X_3), (X_3,X_4)\}$, where $(X_i,X_j)$ means
@@ -498,25 +498,26 @@ $m=5$ results in similar results, and the $m=20$ curve indicates that higher $m$
 beneficial.  We ran the experiment for Figure~\ref{fig:mooc_kl} for 300 seconds and the longer-term
 trend was that the $KL_{\rm avg}$ values tended to remain at their 50-second values.
 
-The second way we evaluate our sampler is with prediction accuracy. We divide the original
+In addition to measuring distance between predicted and actual parameters, we evaluate
+the sampler also using its accuracy at predicting missing labels.  We divide the original
 data into a training and testing batch so that 80\% of the known data is in training. The training
-set is for updating the CPTs. During the testing batch, we sample 500 times using the current CPTs
-(but \emph{without updating} them). The sampled values are either 0 or 1, as this is a binary
-prediction task, and we assign ``1'' to be a ``positive/true'' sample. For each of the known test
-points, we compute the number of 1s sampled. Letting this value be $n$, our prediction that a point
-is positive is $n/500$.
+set is used to update the CPTs. During the testing phase, we sample $n$ times using the current CPTs
+without updating them. For each (correct) test state, this yields an unbiased estimate of the correct state
+probability. 
 
-The training and testing data have 62.8\% and 57.6\% of known data points in the positive class,
-respectively. Due to this imbalance, we do not use raw accuracy as a predictor and instead turn to
-the Receiver Operating Characteristic (ROC) curve. Figure~\ref{fig:mooc_accuracy} shows the ROC
-curves obtained after 10 passes and 100 passes through the data. After 100 passes, the ROC has an
-AUC of 0.65741. This is our best result; we tested at other points, such as 1000 passes (AUC of
-0.63792), but did not find any curve with an AUC exceeding 0.65741, possibly due to overfitting
-after 100 passes. Figure~\ref{fig:mooc_accuracy} also has five labeled dots, from 40\% to 80\%.
-These indicate different decision point cutoffs. For instance, the point labeled at 50\% is the
-point on the ROC curve that corresponds to the decision threshold being positive if we have at least
-50\% of our samples as positive (out of 500, meaning we need at least 250). The 0\% decision
-threshold (not shown) would correspond to the point $(1,1)$.
+% Ach what went wrong? Can we fix this. Otherwise we have an invalid test set
+% The training and testing data have 62.8\% and 57.6\% of known data points in the positive class,
+% respectively. Due to this imbalance, we do not use raw accuracy as a predictor and instead turn to
+We use Receiver Operating Characteristic (ROC) curve to estimate the predictors effectiveness.
+Figure~\ref{fig:mooc_accuracy} shows the ROC curves obtained after 10 passes and 100 passes through the data. 
+After 100 passes, the ROC has an AUC of 0.65741. 
+% that's disturbing. 
+% we tested at other points, such as 1000 passes (AUC of 0.63792), but did not find any curve with an AUC exceeding 0.65741, possibly due to overfitting
+% after 100 passes. Figure~\ref{fig:mooc_accuracy} also has five labeled dots, from 40\% to 80\%.
+% These indicate different decision point cutoffs. For instance, the point labeled at 50\% is the
+% point on the ROC curve that corresponds to the decision threshold being positive if we have at least
+% 50\% of our samples as positive (out of 500, meaning we need at least 250). The 0\% decision
+% threshold (not shown) would correspond to the point $(1,1)$.
 
 
 
@@ -696,11 +697,13 @@ will be able to run it on larger and larger datasets.
 
 \section{Conclusions}\label{sec:conclusions}
 
-We conclude that our Gibbs sampler is much faster than the state of the art (JAGS) and can be
-applied to data with hundreds of binary variables. We also suggest that SAME can be beneficial for
-Gibbs sampling, and that SAME Gibbs sampling should be the go-to method for researchers who wish to
-perform inference on (discrete) Bayesian networks. Future work will explore the application of our
-sampler to a wider class of real-world datasets.
+We conclude that our Gibbs sampler is much faster than the state of
+the art (JAGS) and can be applied to data with hundreds of discrete
+variables and millions on instances. We also suggest that SAME can be
+beneficial for Gibbs sampling, and that SAME Gibbs sampling should be
+the go-to method for researchers who wish to perform inference on
+(discrete) Bayesian networks. Future work will explore the application
+of our sampler to a wider class of real-world datasets.
 
 
 \subsubsection*{Acknowledgments}

@@ -223,32 +223,30 @@ We benchmark our code on a nation-wide examination dataset, which contains the a
 
 %------------------------------------------------
 
-In order to show the performance of our sampler in the limit, we replicate the data to increase its size. Table 1 records the runtime (CPU) per iteration for both BIDMach and JAGS, which reveals that our sampler has much shorter runtime than JAGS even without using GPU. 
+In order to show the performance of our sampler in the limit, we replicate the data to increase its size. Table 1 records the runtime (CPU) of 200 iterations for both BIDMach and JAGS, which reveals that our sampler has much shorter runtime than JAGS even without using GPU. 
 
 \begin{center}
 \begin{tabular}{ |c|c|c|c|c|c|c| } 
 \hline
                   & 1x    & 2x    & 5x    & 10x   & 20x   & 40x   \\
 \hline \hline
-BIDMach Time(sec)/Iter & 0.182 & 0.375 & 0.931 & 1.792 & 3.501 & 7.181 \\ 
-JAGS Time(sec)/Iter    & 4.876 & 13.745 & 29.150 & 94.075 & 171.545 & OOM \\
+BIDMach Time(sec) & 39.5 & 76.1 & 187.3 & 359.6 & 701.4 & 1437.4 \\ 
+JAGS Time(sec)    & 975.2 & 2749.0 & 5830.0 & 18815.0 & 34309.0 & OOM \\
 \hline
 \end{tabular}
 \captionof{table}{BIDMach (CPU) vs. JAGS Runtime on (Replicated) Real Data}
 \end{center}
 
-Table 2 records the BIDMach runtime (GPU) and GigaFlops, which indicates the time and gflops tradeoff.
+Table 2 records the BIDMach runtime (GPU) and GigaFlops, which indicates the time and gflops tradeoff with 30x replicated MOOC data.
 
 \begin{center}
-\begin{tabular}{ |c|c|c|c|c|c|c|c| } 
+\begin{tabular}{ |c|c|c|c|c| } 
 \hline
-               & $m=1$ & $m=5$ & $m=10$ & $m=20$ & $m=30$ & $m=40$ & $m=50$  \\
+               & $m=1$ & $m=2$ & $m=5$ & $m=10$   \\
 \hline \hline
-GigaFlops (K)  & 2.38  & 6.98  & 9.08   & 11.00  & 11.70  & 12.27  & 12.35   \\ 
-Time/Iter (K)  & 0.307 & 0.523 & 0.804  & 1.328  & 1.872  & 2.380  & 2.957   \\
-\hline 
-GigaFlops (RM) & 1.65  & 4.58  & 7.08   & 9.69   & 10.92  & 11.62  & 12.02   \\ 
-Time/Iter (RM) & 0.666 & 1.192 & 1.541  & 2.252  & 2.998  & 3.753  & 4.536   \\
+
+GigaFlops (RM) & 2.69  & 4.46  & 7.83   & 10.37    \\ 
+Time(sec)/Iter (RM) & 2.440 & 2.940 & 4.181  & 6.313     \\
 \hline
 \end{tabular}
 \captionof{table}{BIDMach (GPU) Runtime vs. GigaFlops on Large Data}

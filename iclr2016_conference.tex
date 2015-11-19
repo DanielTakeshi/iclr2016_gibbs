@@ -419,10 +419,9 @@ speed advantage of our sampler is more apparent, which is expected since our sam
 scalable.
 
 \textbf{Daniel: run statistical significance tests on the $KL_{\rm avg}$ stuff. Also, check that the
-tolerance is 0.005 and quantify it a bit better to match intuition.}
-
-\textbf{Daniel: I think we need to describe how we implemented SAME in JAGS. We also need to really
-make it clear that runtimes in JAGS *include* initialization.}
+tolerance is 0.005 and quantify it a bit better to match intuition. I think we need to describe how
+we implemented SAME in JAGS. We also need to really make it clear that runtimes in JAGS *include*
+initialization.}
 
 \subsection{Dynamic Learning Maps ``MOOC'' Data}\label{ssec:mooc_data}
 
@@ -547,10 +546,10 @@ threshold (not shown) would correspond to the point $(1,1)$.
 
 
 
-\section{BIDMach on Large Data}\label{sec:scaling_large_data}
+\section{Speed and Scalability of BIDMach on Large Data}\label{sec:scaling_large_data}
 
 % BIDMach (CPU) vs JAGS for the Real MOOC data *replicated*, with SAME=1.
-% Batch size: we'll use 2184 (approx 4367/2) to be a fair comparision with previous table with
+% Batch size: we'll use 2184 (approx 4367/2) to be a fair comparison with previous table with
 % Koller, because we usually like to have more than one mini-batch.
 %
 % Here are the BIDMach CPU (not GPU!) results on BITTER:
@@ -569,9 +568,6 @@ threshold (not shown) would correspond to the point $(1,1)$.
 % Time=358.4780 secs, gflops=1.22 (10x)
 % Time=700.2980 secs, gflops=1.25 (20x)
 % Time=1436.2930 secs, gflops=1.22 (40x)
-%
-% It takes a while with 20x, and absurdly long with 100x ... remember, the batch sizes are the same.
-% Note: I suppose I should run this with 40% data as well...
 %
 % Notes on JAGS: we tried with 100x, but it crashed (ran out of memory) on stout, after almost 30
 % minutes. And actually, 40% crashed as well. But on stout, BIDMach only uses 11.4% of the memory
@@ -648,9 +644,9 @@ JAGS Time(sec) / Iter    & 4.876 & 13.745 & 29.150 & 94.075 & 171.545 & OOM   \\
 % New table. The Koller data is similar, but the BIDMach data is different.  We're using 30 TIMES
 % the data, with a batch size of 1000. For SAME = 10, this uses up 95% of the GPU memory. Times:
 %
-%
-%
-%
+% Time=488.0840 secs, gflops=2.69 (m=1)
+% Time=587.9970 secs, gflops=4.46 (m=2)
+% Time=836.1830 secs, gflops=7.83 (m=5)
 % Time=1262.6890 secs, gflops=10.37 (m=10)
 %
 \begin{table}[t]
@@ -664,50 +660,60 @@ JAGS Time(sec) / Iter    & 4.876 & 13.745 & 29.150 & 94.075 & 171.545 & OOM   \\
 GigaFlops (Koller, 1M)         & 2.38  & 4.07  &  6.98  &  9.08  \\ 
 Time(sec) / Iter (Koller, 1M)  & 0.307 & 0.359 &  0.523 &  0.804 \\
 \hline
-GigaFlops (Replicated MOOC)        &  &  &   & 10.37   \\ 
-Time(sec) / Iter (Replicated MOOC) &  &  &   &    \\
+GigaFlops (Replicated MOOC)        & 2.69  & 4.46  & 7.83  & 10.37   \\ 
+Time(sec) / Iter (Replicated MOOC) & 2.440 & 2.940 & 4.181 & 6.313   \\
 \hline
 \end{tabular}
 \end{center}
 \end{table}
 
-We now discuss the extent to which BIDMach can scale up to larger datasets, as it would be useful to
-identify the limits of our code. We were unable to obtain any larger real datasets than the MOOC
-data from~(\ref{ssec:mooc_data}), so we formed ``larger datasets'' by replicating the MOOC data
-horizontally. That is, we took the data matrix and made $n$ copies to get a $(334\times
-4367n)$-dimensional data matrix. In Table~\ref{tab:bidmach_jags_realmooc}, we We first compare
-BIDMach and JAGS on replicated
+We now discuss the extent to which BIDMach (and JAGS) can scale up to larger datasets in order to
+identify the limits of current software. We were unable to obtain anything larger than the MOOC data
+from~(\ref{ssec:mooc_data}), so we formed ``larger datasets'' by replicating the MOOC data
+horizontally. That is, we took the data matrix and made $n$ copies to get a $(334 \times
+4367n)$-dimensional data matrix. In Table~\ref{tab:bidmach_jags_realmooc}, we report the time per
+iteration for BIDMach and JAGS on a variety of replicated data, from the original data (1x) to data
+replicated 40 times (40x). For BIDMach, we used the same tunable settings (e.g, mini-batch size) as
+we did in Figure~\ref{fig:second_set}, to keep our comparison fair.
 
+The results indicate that BIDMach holds a clear speed advantage over JAGS, though one must interpret
+the results carefully. From Figure~\ref{fig:second_set}, we see that, while BIDMach and JAGS both
+eventually converge to similar $KL_{\rm avg}$ values, BIDMach takes roughly three times as many
+iterations to reach convergence (this is most easily observed on the 25\% data). It is possible to
+speed the convergence of BIDMach on the basis of iterations (by reducing the mini-batch size) but
+our informal experiments indicated that doing so would result in unacceptable time increases.
 
+Therefore, to determine BIDMach's speed improvements, one would need to divide the JAGS time by
+three (roughly). Despite this caveat, BIDMach still has a huge performance advantage. With the
+original data, BIDMach's advantage is $(4.876/3)/0.182 \approx 8.93$, nearly an order of magnitude
+faster, and the gap widens with more data (for 20x, we have an advantage of
+$(171.545/3)/3.501\approx 16.33$). We emphasize that this result is with the CPU only version of
+BIDMach. The GPU version of BIDMach, especially on larger data (e.g., the 20x data) can run 5-10
+times faster. In terms of memory usage, BIDMach also outperforms JAGS. BIDMach structures data in
+matrices, whereas JAGS internally forms a graph. For the 40x data, JAGS ran out of memory on our 64
+CPU RAM machine, whereas BIDMach only used up 11.4\% of the RAM.
 
+It is also worthy to investigate the impact of the SAME parameter $m$, in terms of runtime \emph{and
+throughput}, which is measured in GigaFlops (gflops), a billion floating point operations per
+second. As the SAME parameter increases, it increases both the throughput (good) and runtime (bad)
+by increasing the number of data points in our computations. The results from~\citep{SAME2015}
+suggest that increasing $m$ for small values will increase throughput while not costing too much in
+runtime.  As one increases $m$ beyond a certain data-dependent value, then SAME ``saturates'' the
+algorithm and results in stagnant throughput while significantly increasing runtime.
+Figure~\ref{fig:mooc_kl} also raises the question as to whether one really needs a large $m$ in the
+first place.
 
+Table~\ref{tab:tradeoff} reports the performance of BIDMach's GPU version (only) on two expanded
+datasets with varying $m$. One is the Koller data from~(\ref{ssec:koller_data}), with 50\% of the
+data known versus missing, but with \emph{one million} cases. The other is 30x replicated MOOC data.
+Table~\ref{tab:tradeoff} reports that BIDMach gets a healthy amount of throughput from the expanded
+data (especially the 30x MOOC data).
 
-
-We now discuss the impact of the SAME parameter in terms of runtime and throughput. We measure the
-throughput and speed of our Gibbs sampler in terms of GigaFlops (gflops), a billion floating point
-operations per second. As the SAME parameter increases, it increases both the throughput (good) and
-runtime (bad) by increasing the number of data points in our computations. The results
-from~\citep{SAME2015} suggest that increasing $m$ for small values will increase throughput while
-not costing too much in runtime.  As one increases $m$ beyond a certain data-dependent value, then
-SAME ``saturates'' the algorithm and results in stagnant throughput while significantly increasing
-runtime. It follows that a reasonable objective for an experimenter is to run the Gibbs sampler on
-data with varying values of $m$, and identify the point where further increases in $m$ start having
-an unfavorable runtime and throughput tradeoff.
-
-As an example, we used the Koller data from~(\ref{ssec:koller_data}), with 50\% of the data known
-versus missing, but with \emph{one million} cases, beyond the feasible datasets of standard Gibbs
-samplers. We ran the Gibbs sampler for 200 iterations on this data with a batch size of 50,000.
-Table~\ref{tab:tradeoff} shows the time and gflops of the Gibbs sampler using different values of
-$m$.  One can see that increasing $m$ for $m < 30$ results in steady gflops increases but
-\emph{without} a substantial increase in time. Then SAME saturates the algorithm and the runtime
-increases while the gflops stalls, reinforcing the conclusions from~\citep{SAME2015} and argues for
-the importance of testing with a variety of $m$ values.
-
-Notice that the runtimes listed are in seconds, and even with $m=50$, 200 iterations takes less than
-10 minutes to complete --- we have barely scratched the limit of our sampler. In fact, one of the
-main things that limits our sampler is the memory of GPUs, since we need to shrink the batch size
-with large $m$. As memory on GPUs becomes cheaper, we will be able to run Gibbs sampling and perform
-graphical model inference on larger datasets.
+The runtimes in all tables in this paper are listed are in seconds, and even with large $m$ and a
+large replication factor, we have barely scratched the limit of our sampler. In fact, the primary
+limiting factor of our sampler is not the data itself, but the memory of the GPU. As GPU memory
+becomes cheaper, the performance of our sampler will improve and we will be able to run it on larger
+and larger datasets.
 
 
 

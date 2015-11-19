@@ -44,10 +44,7 @@ exponential time in general, a variety of approximate methods are
 used.  Gibbs sampling is one of the most accurate approaches and
 provides unbiased samples from the posterior but it has historically
 been too expensive for large models. In this paper, we present an
-optimized, parallel Gibbs sampler whose performance matches
-approximate methods, and which is at least an order of magnitude faster
-than current Gibbs samplers.  Our Gibbs sampler is GPU-accelerated,
-heavily parallelized, and uses state replication (SAME or State
+optimized, parallel Gibbs sampler augmented with state replication (SAME or State
 Augmented Marginal Estimation) to decrease convergence time. We find
 that SAME can improve the quality of parameter estimates while accelerating
 convergence.  Experiments on both synthetic and real data
@@ -121,7 +118,7 @@ purpose methods while maintaining the accuracy of Gibbs sampling.
 \section{Related Work}\label{sec:related_work}
 
 The problem of Bayesian inference for graphical models is  well-studied (\citet{Koller2009}
-and~\citet{Wainwright2008} covers recent approximate and MCMC methods). Gibbs sampling has proved to
+and~\citet{Wainwright2008} cover recent approximate and MCMC methods). Gibbs sampling has proved to
 be one of the most important practical techniques for large models; collapsed samplers are widely
 used for LDA and related models~\citep{Griffiths_Steyvers}. In addition, parallelism has been
 improved using color groups~\citep{Gonzalez2011}, and approximate, uncoordinated parallelism has
@@ -148,7 +145,7 @@ models.
 
 \section{Fast Parallel SAME Gibbs Sampling}\label{sec:same}
 
-SAME is a variant of MCMC where one artificially replicates latent state to create distributions that
+SAME is a variant of MCMC where one artificially replicates latent states to create distributions that
 concentrate themselves on the global modes~\citep{SAME2002}. It is an efficient way of performing
 MAP estimation in high-dimensional spaces when needing to integrate out a large number of variables.
 Given a distribution $P(X,Z\mid \Theta)$, to estimate the most likely $\Theta$ based on the data
@@ -227,9 +224,9 @@ assigned color $c$ where $1 \leq c \leq k$. One can sample sequentially from $\m
 $\mathcal{V}_k$, and within each color group, sample all its variables in parallel. This parallel
 sampler corresponds exactly to the execution of a sequential scan Gibbs sampler for some permutation
 over the variables and will converge to the desired distribution because variables within one color
-group are independent to each other given all the other variables. Finding the optimal coloring of a
-general graph is NP-complete, so we use efficient heuristics~\citep{kubale2004graph} for balanced
-graph coloring, which work well in practice.
+group are independent given all the other variables. Finding the optimal coloring of a general graph
+is NP-complete, so we use efficient heuristics~\citep{kubale2004graph} for balanced graph coloring,
+which work well in practice.
 
 
 
@@ -378,7 +375,7 @@ comparison, we keep our minibatch size to be 12,500 to match the runs from
 Figure~\ref{fig:kl_bidmach}.  Table~\ref{tab:bidmach_jags_koller} shows the total runtime on the
 data with different $m$ for 200 passes. We used total runtime because the JAGS API does not enable
 us to separate the initialization time from the updating/sampling time. (JAGS spends a substantial
-amount of time initializing here since it needs to form a graph, but BIDMach uses matrices and
+amount of time initializing since it needs to form a graph, but BIDMach uses matrices and
 spends less than one second in initialization.) The results demonstrate that BIDMach is almost four
 times faster than JAGS on the original data, and when the SAME parameter increases, the gap widens
 (up to a factor of nine with $m=20$).
@@ -440,7 +437,7 @@ with different sparsity levels (these must be viewed in color).}
 \end{subfigure}%
 \begin{subfigure}{.5\textwidth}
   \centering
-  \includegraphics[width=0.9\textwidth]{fig_bidmach_real_mooc_roc_curve_v2}
+  \includegraphics[width=0.9\textwidth]{fig_bidmach_real_mooc_roc_curve_v3}
   \caption{MOOC data ROC curve.}
   \label{fig:mooc_accuracy}
 \end{subfigure}
@@ -457,8 +454,8 @@ are 4367 students and 319 questions. Each of the questions is derived from a set
 concepts. We encode questions and concepts as variables and describe their relationships with a
 Bayesian network from the DLM data. (The 15 concepts are latent variables across all students.) Each
 question is a variable with a very high missing value rate.  Our corresponding data matrix, which
-has dimensions $(334\times 4367)$, has a 2.2\% sparsity level. The inference task is to learn the
-CPTs of the Bayesian network from this extremely sparse data.
+has dimensions $(334\times 4367)$, has a 2.2\% density level. The inference task is to learn the
+CPTs of the Bayesian network from this extremely sparse data. All variables are binary.
 
 We evaluate our sampler using two methods. The first involves running it on the original data until
 convergence. Then we use the resulting estimated set of CPTs and sample from that via forward
@@ -471,10 +468,10 @@ has is three).
 
 Figures~\ref{fig:kl_bidmach_mooc} and~\ref{fig:kl_jags_mooc} plot the $KL_{\rm avg}$ for BIDMach and
 JAGS, respectively on four different levels of sparsity (note again the log scale). As expected,
-BIDMach and JAGS converge to roughly the same $KL_{\rm avg}$. Furthermore, ``denser'' data allows
+BIDMach and JAGS converge to roughly the same $KL_{\rm avg}$. Furthermore, denser data allows
 the Gibbs sampler to get closer to the true CPTs. Note that BIDMach and JAGS start at different
 $KL_{\rm avg}$ values due to different initializations (BIDMach initializes randomly, while JAGS
-tends to start with ``even'' $0.5,0.5$ distributions), and the JAGS curve increases for extremely
+tends to start with ``even'' $(0.5,0.5)$ distributions), and the JAGS curve increases for extremely
 sparse data because the initialization point happens to be better than to what it converges.
 
 We also analyze the tradeoffs involved in increasing the SAME factor $m$. While increasing $m$
@@ -489,11 +486,11 @@ beneficial.  We ran the experiment for Figure~\ref{fig:mooc_kl} for 300 seconds 
 trend was that the $KL_{\rm avg}$ values tended to remain at their 50-second values.
 
 In addition to measuring distance between predicted and actual parameters, we also evaluate the
-sampler using its accuracy at predicting missing labels.  We divide the original data into a
+sampler using its accuracy at predicting missing labels.  We randomly split the original data into a
 training and testing batch so that 80\% of the known data is in training. The training set is used
 to update the CPTs. During the testing phase, we sample $n$ times using the current CPTs without
 updating them. For each (correct) test state, this yields an unbiased estimate of the correct state
-probability. 
+probability (note that this is a binary classification problem).
 
 % Ach what went wrong? Can we fix this. Otherwise we have an invalid test set
 
@@ -508,13 +505,18 @@ probability.
 % 50\% of our samples as positive (out of 500, meaning we need at least 250). The 0\% decision
 % threshold (not shown) would correspond to the point $(1,1)$.
 
-We use the Receiver Operating Characteristic (ROC) curve to estimate the predictor's effectiveness.
-Figure~\ref{fig:mooc_accuracy} shows the ROC curves obtained after 10 passes and 100 passes through
-the data.  After 100 passes, the ROC has an AUC of 0.65741.  Figure~\ref{fig:mooc_accuracy} also has
-five labeled points, from 40\% to 80\%.  These indicate different decision point cutoffs. For
-instance, the point labeled at 50\% is the point on the ROC curve that corresponds to the estimator
-that will pick a state to be positive if at least 50\% of its $n$ sampled values were positive. Thus,
-the 0\% decision threshold (not shown) would correspond to the point $(1,1)$.
+The training and testing data have 61.9\% and 61.3\% of known data points in the positive class,
+respectively.  Due to this imbalance, we do not use raw accuracy, but instead use Receiver Operating
+Characteristic (ROC) curves to estimate the predictor's effectiveness.
+Figure~\ref{fig:mooc_accuracy} shows the ROC curves obtained after 10, 50, and 100 passes through
+the data, with increasing AUCs of 0.58722, 0.66388, and 0.68639, respectively,  indicating that our
+sampler is effective on this extremely sparse data.
+
+%After 100 passes, the ROC has an AUC of 0.65741.  Figure~\ref{fig:mooc_accuracy} also has
+%five labeled points, from 40\% to 80\%.  These indicate different decision point cutoffs. For
+%instance, the point labeled at 50\% is the point on the ROC curve that corresponds to the estimator
+%that will pick a state to be positive if at least 50\% of its $n$ sampled values were positive. Thus,
+%the 0\% decision threshold (not shown) would correspond to the point $(1,1)$.
 
 
 
@@ -655,14 +657,13 @@ Time (sec) / Iteration (30x MOOC) & 2.440 & 2.940 & 4.181 & 6.313   \\
 \end{table}
 
 We now discuss the extent to which BIDMach (and JAGS) can scale up to larger datasets in order to
-identify the limits of current software. To enable us to obtain arbitrarily large datasets, we
-replicated the MOOC data (from~(\ref{ssec:mooc_data})) horizontally: we took the data matrix and
-made $n$ copies to get a $(334 \times 4367n)$-dimensional data matrix. In
-Table~\ref{tab:bidmach_jags_realmooc}, we report the time per iteration for BIDMach and JAGS on a
-variety of replicated data, from the original data (1x) to data replicated 40 times (40x). For our
-sampler, we used the same tunable settings (e.g, minibatch size) as we did in
-Figure~\ref{fig:second_set}, to keep our benchmarks consistent. Just as in
-Table~\ref{tab:bidmach_jags_koller}, we report total runtime for 200 iterations.
+identify the limits of current software. To obtain arbitrarily large datasets, we replicated the
+MOOC data (from~(\ref{ssec:mooc_data})) horizontally: we took the data matrix and made $n$ copies to
+get a $(334 \times 4367n)$-dimensional data matrix. In Table~\ref{tab:bidmach_jags_realmooc}, we
+report the total runtime for 200 iterations for BIDMach and JAGS on a variety of replicated data,
+from the original data (1x) to data replicated 40 times (40x). For our sampler, we used the same
+tunable settings (e.g, minibatch size) as we did in Figure~\ref{fig:second_set}, to keep our
+benchmarks consistent.
 
 The results indicate that BIDMach holds a clear speed advantage over JAGS (for both the CPU and
 GPU), though one must interpret the results carefully. From Figure~\ref{fig:second_set}, we see
@@ -670,8 +671,8 @@ that, while BIDMach and JAGS both eventually converge to similar $KL_{\rm avg}$ 
 takes roughly three times as many iterations to reach convergence (this is most easily observed on
 the 25\% data).
 
-Therefore, to determine BIDMach's speed improvements, one would need to divide the JAGS time by
-three (roughly). Despite this caveat, our sampler still has a huge performance advantage. With the
+Therefore, to determine BIDMach's speed advantages, one would need to divide the JAGS time by
+three (roughly). Despite this caveat, our sampler is still substantially faster. With the
 original data, BIDMach's advantage is a factor of $(975.2/3)/11.2 \approx 29.0$ (with the GPU), and
 the gap widens with more data (for 20x, we have an advantage of $(34309.0/3)/183.8\approx 66.2$).
 In terms of memory usage, BIDMach also outperforms JAGS. BIDMach structures data in matrices,
@@ -695,7 +696,7 @@ data (especially the 30x MOOC data), and that increasing $m$ further is a logica
 
 Finally, we point out that the runtimes in all tables in this paper are listed are in seconds, and
 even with large $m$ and a large replication factor, we have barely scratched the limit of our
-sampler. To test the limit of our GPU sampler, we ran it on 300x replicated MOOC data. Our sampler
+sampler. To test the limit of our GPU sampler, we ran it on 300x replicated MOOC data with $m=1$. Our sampler
 completed 200 iterations in 1726.1 seconds with a gflops of 7.59.  In fact, the primary limiting
 factor of our sampler is not the size of the data itself, but the memory of the GPU; the 300x data
 used up almost all of the 12GB of GPU RAM. As we get better and faster GPUs, the performance of our
@@ -707,7 +708,7 @@ sampler will improve and we will be able to run it on larger and larger datasets
 
 We conclude that our Gibbs sampler is much faster than the state of
 the art (JAGS) and can be applied to data with hundreds of discrete
-variables and millions on instances. We also suggest that SAME can be
+variables and millions of instances. We also suggest that SAME can be
 beneficial for Gibbs sampling, and that SAME Gibbs sampling should be
 the go-to method for researchers who wish to perform inference on
 (discrete) Bayesian networks. Future work will explore the application

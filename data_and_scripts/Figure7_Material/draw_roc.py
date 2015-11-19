@@ -4,7 +4,6 @@
 This will draw my ROC curves.
 
 
-
 Example after pass=10
 
 Our thresholds: 50,100,150,200,250,300,350,400,450
@@ -94,7 +93,22 @@ xcoords100 = [0.80283, 0.59115, 0.31771, 0.17634, 0.069568]
 ycoords100 = [0.89973, 0.75765, 0.53552, 0.38251, 0.236070]
 
 plt.figure()
+data_010 = np.loadtxt('rocNEW10.txt')
+data_050 = np.loadtxt('rocNEW50.txt')
+data_100 = np.loadtxt('rocNEW100.txt')
+plt.plot([i/100.0 for i in range(0,100+1)], data_010, 'r-', linewidth=4.0, label='10 Passes (AUC = 0.58722)')
+plt.plot([i/100.0 for i in range(0,100+1)], data_050, 'y-', linewidth=4.0, label='50 Passes (AUC = 0.66388)')
+plt.plot([i/100.0 for i in range(0,100+1)], data_100, 'b-', linewidth=4.0, label='100 Passes (AUC = 0.68639)')
+plt.plot([0,1], [0,1], color='k', linestyle='-', linewidth=3)
+plt.legend(loc='lower right', borderpad=1, scatterpoints=1)
+plt.title('BIDMach ROC (Real MOOC)', fontsize='xx-large')
+plt.xlabel('False Positive Rate', fontsize='x-large')
+plt.xlim([0,1])
+plt.ylabel('True Positive Rate', fontsize='x-large')
+plt.ylim([0,1])
+plt.savefig('test.png')
 
+'''
 # Don't forget the BIDMach data which fills in the ROC curves.
 data_010 = np.loadtxt('roc_results_10.txt')
 data_100 = np.loadtxt('roc_results_100.txt')
@@ -125,4 +139,5 @@ plt.xlim([0,1])
 plt.ylabel('True Positive Rate', fontsize='x-large')
 plt.ylim([0,1])
 plt.savefig('test.png')
+'''
 

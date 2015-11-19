@@ -88,7 +88,7 @@ data include Expectation-Maximization~\citep{EMpaper} and variations
 of gradient ascent~\citep{Thiesson95}.  Parameter estimation using
 these methods marginalizing over missing states which typically
 dominates performances. Using Monte-Carlo methods for marginalization
-leads to the MC-EM methods \cite{MC-EM}.
+leads to the MC-EM methods~\citep{MC-EM}.
 
 For parameter estimation with a Gibbs sampler, we sample both latent
 states and parameters from $P(Z,\Theta|\mathcal{D})$.  For the case of
@@ -123,35 +123,30 @@ purpose methods while maintaining the accuracy of Gibbs sampling.
 
 \section{Related Work}\label{sec:related_work}
 
-The problem of Bayesian inference for graphical models is  well-studied (\citet{Koller2009}) and \citet{Wainwright2008} covers
-recent approximate and MCMC methods. Gibbs sampling has proved to be one of the most important practical
-techniques for large models. Collapsed samplers are widely used for LDA and related models \cite{Griffiths_Steyvers},
-parallelism have been improved using color groups~\citep{Gonzalez2011}, and approximate, uncoordinated parallelism has been
-shown to give good results in practice~\citep{Johnson2013}.  Gibbs sampling has been applied
-to large-scale databases in~\citep{Zhang2013}.
+The problem of Bayesian inference for graphical models is  well-studied (~\citet{Koller2009}
+and~\citet{Wainwright2008} covers recent approximate and MCMC methods). Gibbs sampling has proved to
+be one of the most important practical techniques for large models. Collapsed samplers are widely
+used for LDA and related models~\citep{Griffiths_Steyvers}, parallelism have been improved using
+color groups~\citep{Gonzalez2011}, and approximate, uncoordinated parallelism has been shown to give
+good results in practice~\citep{Johnson2013}.  Gibbs sampling has been applied to large-scale
+databases in~\citep{Zhang2013}.
 % guys, you should compare your throughput with that paper. 
 
-Recently Graphics Processing Units (GPUs) have proved valuable for
-deep learning, and are used in most toolkits including Theano
-\citep{Theano2012}, CAFFE ~\citep{jia2014caffe} and Torch
-\cite{Torch}.  The Augur probabilistic programming
-language~\citep{Augur2014}, which generates inference code for
-Bayesian networks, demonstrates the importance of combining GPU code
-with extra parallelism introduced from exploiting conditional
-independence assumptions.
+Recently, Graphics Processing Units (GPUs) have proved valuable for deep learning, and are used in
+most toolkits including Theano \citep{Theano2012}, CAFFE ~\citep{jia2014caffe} and Torch
+\citep{Torch}. The Augur probabilistic programming language~\citep{Augur2014}, which generates
+inference code for Bayesian networks, demonstrates the importance of combining GPU code with extra
+parallelism introduced from exploiting conditional independence assumptions.
 % Why is augur discussed here? 
 
-The result most directly related to our paper, as briefly mentioned in
-Section~\ref{sec:intro}, is one that shows how the addition of SAME to
-a GPU-accelerated Gibbs sampler can be very fast for Latent Dirichlet
-Allocation and the Chinese Restaurant Process~\citep{SAME2015}. In
-that paper, they explored the application of SAME to graphical model
-inference on modern hardware, and showed that combining SAME with
-factored sample representation (or approximation) gives throughput
-competitive with the fastest symbolic methods, but with potentially
-better quality. We extend that result by implementing a
-general-purpose Gibbs sampler that can be applied to arbitrary
-discrete graphical models.
+The result most directly related to our paper, as briefly mentioned in Section~\ref{sec:intro}, is
+one that shows how the addition of SAME to a GPU-accelerated Gibbs sampler can be very fast for
+Latent Dirichlet Allocation and the Chinese Restaurant Process~\citep{SAME2015}. In that paper, they
+explored the application of SAME to graphical model inference on modern hardware, and showed that
+combining SAME with factored sample representation (or approximation) gives throughput competitive
+with the fastest symbolic methods, but with potentially better quality. We extend that result by
+implementing a general-purpose Gibbs sampler that can be applied to arbitrary discrete graphical
+models.
 
 
 
@@ -547,6 +542,16 @@ After 100 passes, the ROC has an AUC of 0.65741.
 % Notes on JAGS: we tried with 100x, but it crashed (ran out of memory) on stout, after almost 30
 % minutes. And actually, 40% crashed as well. But on stout, BIDMach only uses 11.4% of the memory
 % with 40% of the data.
+%
+% GPU times on bitter:
+%
+% Time=9.2280 secs, gflops=4.74 (1x) + 1.985 init
+% Time=19.1550 secs, gflops=4.56 (2x) + 2.007 init
+% Time=46.0210 secs, gflops=4.75 (5x) + 2.095 init
+% Time=90.9390 secs, gflops=4.80 (10x) + 1.937 init
+% Time=181.8290 secs, gflops=4.80 (20x) + 2.019 init
+% Time=363.7390 secs, gflops=4.80 (40x) + 2.127 init
+%
 \begin{table}[t]
 \small
 \caption{BIDMach (CPU) vs. JAGS Runtime on (Replicated) Real MOOC Data}
@@ -554,10 +559,11 @@ After 100 passes, the ROC has an AUC of 0.65741.
 \begin{center}
 \begin{tabular}{ |c|c|c|c|c|c|c| } 
 \hline
-                         & 1x    & 2x     & 5x     & 10x     & 20x     & 40x    \\
+                             & 1x    & 2x     & 5x     & 10x     & 20x     & 40x    \\
 \hline \hline
-BIDMach Total Time (sec) & 39.5  & 76.1   & 187.3  & 359.6   & 701.4   & 1437.4 \\ 
-JAGS Total Time (sec)    & 975.2 & 2749.0 & 5830.0 & 18815.0 & 34309.0 & OOM    \\
+GPU BIDMach Total Time (sec) & 11.2  & 21.2   & 48.1   & 92.9    & 183.8   & 365.9  \\ 
+CPU BIDMach Total Time (sec) & 39.5  & 76.1   & 187.3  & 359.6   & 701.4   & 1437.4 \\ 
+JAGS Total Time (sec)        & 975.2 & 2749.0 & 5830.0 & 18815.0 & 34309.0 & OOM    \\
 \hline
 \end{tabular}
 \end{center}

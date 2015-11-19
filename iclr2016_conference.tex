@@ -96,14 +96,12 @@ $\Theta$ so that the posterior is also a set of Dirichlets.
 
 While Gibbs sampling is commonly used in machine learning, it is a very broad technique that may not
 be able to match the performance of special-purpose inference algorithms without extensive
-fine-tuning or using complicated variations~\citep{Murphy2012}. \textbf{Daniel: I am not sure if I
-am explaining this last sentence well enough. Murphy's book has some explanation, but not much.} In
-a recent result,~\citet{SAME2015} showed that by combining the State Augmented Monte Carlo (SAME)
-technique~\citep{SAME2002} with Gibbs sampling, one can get fast, high quality parameter estimates
-for discrete graphical models, but they only applied it to two specific models that do not have
-mutual dependencies between discrete states.  In this paper, we build upon that result by
-presenting a SAME Gibbs sampler for general discrete Bayesian networks. To be precise, the
-novelty and aspects of our Gibbs sampler is that
+fine-tuning or using complicated variations. In a recent result,~\citet{SAME2015} showed that by
+combining the State Augmented Monte Carlo (SAME) technique~\citep{SAME2002} with Gibbs sampling, one
+can get fast, high quality parameter estimates for discrete graphical models, but they only applied
+it to two specific models that do not have mutual dependencies between discrete states.  In this
+paper, we build upon that result by presenting a SAME Gibbs sampler for general discrete Bayesian
+networks. To be precise, the novelty and aspects of our Gibbs sampler is that
 
 \begin{itemize}[noitemsep]
     \item our sampler uses an adjustable SAME parameter to replicate data, causing the Gibbs sampler
@@ -341,15 +339,16 @@ to benefit more from the extra data replication with SAME parameters $m=5$ and $
 % EDIT: Argh, we may have to re-run this to get times for FOUR mini-batches since that's what I use
 % for Fig 2. Results on stout with mini-batch sizes of 12.5k:
 %
-% Time=11.0200 secs, gflops=0.66 (m=1)
-% Time=18.0350 secs, gflops=0.81 (m=2)
-% Time=33.0970 secs, gflops=1.10 (m=5)
-% Time=62.2550 secs, gflops=1.17 (m=10)
-% Time=115.3720 secs, gflops=1.27 (m=20)
+% Time=11.0200 secs, gflops=0.66 (m=1) + 0.598s initialization
+% Time=18.0350 secs, gflops=0.81 (m=2) + 0.612s initialization
+% Time=33.0970 secs, gflops=1.10 (m=5) + 0.631s initialization
+% Time=62.2550 secs, gflops=1.17 (m=10) + 0.619s initialization
+% Time=115.3720 secs, gflops=1.27 (m=20) + 0.660s initialization
 %
 % Make sure we mention in the paper that we're deliberately handicapping ourselves. EDIT: wait, wow,
 % 12500 can even be faster in some cases? Yeah, CPU runtime is tricky, but these are ballparks anyway.
 \begin{table}[t]
+\small
 \caption{BIDMach (CPU) vs. JAGS Runtime on Koller Data}
 \label{tab:bidmach_jags_koller}
 \begin{center}
@@ -357,8 +356,8 @@ to benefit more from the extra data replication with SAME parameters $m=5$ and $
 \hline
                          & $m=1$ & $m=2$ & $m=5$ & $m=10$ & $m=20$ \\
 \hline \hline
-BIDMach Time(sec) / Iter & 0.055 & 0.090 & 0.165 & 0.311  & 0.577  \\ 
-JAGS Time(sec) / Iter    & 0.210 & 0.491 & 1.406 & 2.675  & 5.188  \\
+BIDMach Total Time (sec) & 11.6  & 18.6  & 33.7  & 62.9   & 116.0  \\ 
+JAGS Total Time (sec)    & 42.0  & 98.2  & 281.2 & 535.0  & 1037.6 \\
 \hline
 \end{tabular}
 \end{center}
@@ -376,53 +375,49 @@ of~\citet{Koller2009}. Due to the name of the author, we call this the ``Koller'
 distinguish it from the MOOC data we use in~(\ref{ssec:mooc_data}).
 
 To generate the data, we use the standard technique of forward sampling, where $X_i$ gets sampled
-based on the true distributions from~\citet{Koller2009}, which depends on the parents of $X_i$ (if
-any). We repeat this to get 50,000 samples, so the data is a $(5\times 50,000)$-dimensional matrix.
-Then, we randomly hide 50\% of the elements to simulate missing data. The objective is to use Gibbs
-sampling to estimate the set of CPTs, and see how close they match the true ones. BIDMach can handle
-millions of samples but we use only 50,000 for the sake of benchmarking with JAGS.
+based on the true distributions from~\citet{Koller2009}, which depends on $X_i$'s parents (if any).
+We repeat this to get 50,000 samples, then randomly hide 50\% of the data points. The goal is to
+apply Gibbs sampling to estimate the CPTs that generated the data. Note that BIDMach can handle
+millions of samples but we use only 50,000 for benchmarking with JAGS.
 
-To evaluate the ``accuracy'' of our Gibbs sampler, we compute the average KL Divergences of all the
-distributions in the set of CPTs, denoted as $KL_{\rm avg}$.  For two distributions $p(x)$ and
-$q(x)$, the KL divergence is $\sum_x p(x) \log(p(x)/q(x))$, summing over $x$ such that $q(x) > 0$.
-In the Koller data, there are eleven probability distributions that form the set of CPTs. For
-example, $X_4$ ``contributes'' three distributions: $\Pr(X_4 \mid X_3 = 0), \Pr(X_4 \mid X_3 = 1)$,
-and $\Pr(X_4 \mid X_3 = 2)$, where $X_3$ (the parent) is fixed. For this network, we have $KL_{\rm
-avg} = \frac{1}{11} \sum_{i=1}^{11} p_i(x) \log(p_i(x)/q_i(x))$, where $q_i$ is the distribution our
-sampler estimates and $i$ is some arbitrary indexing notation. We do not use the KL Divergence of
-the full joint distribution $P(X_1,X_2,X_3,X_4,X_5)$ since with high-dimensional data (e.g., the
-MOOC data in~(\ref{ssec:mooc_data})), computing the full joint is intractable and we wish to
-facilitate comparisons across different datasets.
+To evaluate our Gibbs sampler, we compute the average KL Divergences of all the distributions in the
+set of CPTs, denoted as $KL_{\rm avg}$.  For two distributions $p(x)$ and $q(x)$, the KL divergence
+is $\sum_x p(x) \log(p(x)/q(x))$, summing over $x$ such that $q(x) > 0$.  In the Koller data, there
+are eleven probability distributions that form the set of CPTs. For example, $X_4$ ``contributes''
+three distributions: $\Pr(X_4 \mid X_3 = 0), \Pr(X_4 \mid X_3 = 1)$, and $\Pr(X_4 \mid X_3 = 2)$,
+where $X_3$ (the parent) is fixed. For this network, we have $KL_{\rm avg} = \frac{1}{11}
+\sum_{i=1}^{11} p_i(x) \log(p_i(x)/q_i(x))$, where $q_i$ is the distribution our sampler estimates
+and $i$ is some arbitrary indexing notation. We do not use the KL Divergence of the full joint
+distribution $P(X_1,X_2,X_3,X_4,X_5)$ since with high-dimensional data (e.g., the MOOC data
+in~(\ref{ssec:mooc_data})), computing the full joint is intractable and we wish to facilitate
+comparisons across different datasets.
 
 Figures~\ref{fig:kl_bidmach} and~\ref{fig:kl_jags} plot the $KL_{\rm avg}$ metric for the student
-data using BIDMach and JAGS, respectively (note the log scale), with three SAME factors. The plots
+data using BIDMach and JAGS, respectively with three SAME factors (note the log scale). The plots
 indicate that the $KL_{\rm avg}$ for BIDMach and JAGS reach roughly the same values, with a slight
 advantage to JAGS, though this is amplified because of the log scale. In practice, the difference
-between BIDMach and JAGS is indistinguishable to humans, and both versions are able to get to the
-true CPTs to within a tolerance of 0.005. Both versions converge to the true distributions in about
-ten passes. For BIDMach, we tuned the mini-batch size to be 12,500, so there are four mini-batches
-in all; using fewer mini-batches tends to result in slower convergence in terms of iterations (but
-results in faster time per iteration).
+would be indistinguishable to humans. For instance, with $m=1$, the average difference between a
+random number in the sampled CPT and its corresponding number in the true CPT for BIDMach and JAGS,
+respectively, is 0.0039 and 0.0043. Thus, both BIDMach and JAGS will sample CPTs that are accurate
+to two/three decimal places.
 
-In addition, we observe that increasing $m$ results in CPT estimates that more closely match the
-true CPTs. The red curves (i.e., $m=1$) for Figures~\ref{fig:kl_bidmach} and~\ref{fig:kl_jags}
-generally correspond to worse $KL_{\rm avg}$ than the respective yellow and blue curves, with the
-difference more noticeable for JAGS. The increase from $m=1$ to $m=5$ has a much larger relative
-improvement than the increase from $m=5$ to $m=10$ (again, more noticeable for JAGS), consistent
-with our observations of diminishing returns.
+For BIDMach, we tuned the mini-batch size to be 12,500. Using a smaller size means that, for a fixed
+number of passes, we tend to get faster convergence, but this often comes with slower runtime per
+iteration. In addition, we observed that increasing $m$ results in CPT estimates that more closely
+match the true CPTs. The red curves (i.e., $m=1$) for Figures~\ref{fig:kl_bidmach}
+and~\ref{fig:kl_jags} generally correspond to worse $KL_{\rm avg}$ than the respective yellow and
+blue curves, with the difference more noticeable for JAGS. Also, going from $m=5$ to $m=10$ seems to
+have a negligible benefit.
 
 We further benchmark the speed of our CPU Gibbs sampler with JAGS on this data. For a fair
-comparison, we keep our batch size to be 12,500 to match the runs from Figure~\ref{fig:kl_bidmach}.
-Table~\ref{tab:bidmach_jags_koller} shows that on a per-iteration basis, BIDMach is about 3-4 times
-faster than JAGS on the original data with $m=1$ (i.e., no replication). When SAME increases, the
-speed advantage of our sampler is more apparent, which is expected since our sampler is highly 
-scalable.
-
-\textbf{Daniel: run statistical significance tests on the $KL_{\rm avg}$ stuff. Also, check that the
-tolerance is 0.005 and quantify it a bit better to match intuition.}
-
-\textbf{Daniel: I think we need to describe how we implemented SAME in JAGS. We also need to really
-make it clear that runtimes in JAGS *include* initialization.}
+comparison, we keep our mini-batch size to be 12,500 to match the runs from
+Figure~\ref{fig:kl_bidmach}.  Table~\ref{tab:bidmach_jags_koller} shows the total runtime on the
+data with different $m$. We used total runtime because the JAGS API does not enable us to separate
+the initialization time from the updating/sampling time. (JAGS spends a substantial amount of time
+initializing here since it needs to form a graph, but BIDMach uses matrices and spends less than one
+second in initialization.) The results demonstrate that BIDMach is almost four times faster than
+JAGS on the original data, and when the SAME parameter increases, the gap widens (up to a factor of
+nine with $m=20$).
 
 \subsection{Dynamic Learning Maps ``MOOC'' Data}\label{ssec:mooc_data}
 
@@ -468,6 +463,25 @@ with different sparsity levels (these must be viewed in color).}
 \label{fig:second_set}
 \end{figure}
 
+\begin{figure}[t]
+\centering
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=0.9\textwidth]{fig_kltime_tradeoff_mooc}
+  \caption{The $KL_{\rm avg}$ from BIDMach.}
+  \label{fig:mooc_kl}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=0.9\textwidth]{fig_bidmach_real_mooc_roc_curve_v2}
+  \caption{MOOC data ROC curve.}
+  \label{fig:mooc_accuracy}
+\end{subfigure}
+\caption{Some more results ($KL_{\rm avg}$ and ROCs) of our sampler on Synthetic/Real MOOC data.}
+\label{fig:third_set}
+\end{figure}
+
+
 We now benchmark our code on a Bayesian network with a nation-wide examination dataset from the
 Dynamic Learning Maps (DLM) project\footnote{URL: \url{http://dynamiclearningmaps.org/}. There is no
 official paper reference for this data.}. The data contains the assessment (correct or not) of
@@ -476,7 +490,7 @@ are 4367 students and 319 questions. Each of the questions is derived from a set
 concepts. We encode questions and concepts as variables and describe their relationships with a
 Bayesian network from the DLM data. (The 15 concepts are latent variables across all students.) Each
 question is a variable with a very high missing value rate.  Our corresponding data matrix, which
-has dimensions $(334\times 4367)$, has a 2.2\% sparsity level.The inference task is to learn the
+has dimensions $(334\times 4367)$, has a 2.2\% sparsity level. The inference task is to learn the
 CPTs of the Bayesian network from this extremely sparse data.
 
 We evaluate our sampler using two methods. The first involves running it on the original data until
@@ -514,40 +528,24 @@ binary prediction task, and we assign ``1'' to be a ``positive/true'' sample. Fo
 test points, we compute the number of 1s sampled. Letting this value be $n$, our prediction that a
 point is positive is $n/500$.
 
-In the training data, 62.8\% of the known data points are positive, (That value is 57.6\% for the
-testing data.) Due to this imbalance, we do not use raw accuracy as a predictor and instead turn to
-the Receiver Operating Characteristic curve. Fig~\ref{fig:mooc_accuracy} shows the ROC curve.
-
-\textbf{Daniel: OK, I updated the ROC plot. I should also mention that I ran this for 1000 passes,
-and the AUC for that is 0.63792, so I did not include that. (It might be overfitting, or that might
-be the theoretical limit.) Also, I'll need to explain what I mean by the percentage points on the
-red circles.}
-
-\begin{figure}[t]
-\centering
-\begin{subfigure}{.5\textwidth}
-  \centering
-  \includegraphics[width=0.9\textwidth]{fig_kltime_tradeoff_mooc}
-  \caption{The $KL_{\rm avg}$ from BIDMach.}
-  \label{fig:mooc_kl}
-\end{subfigure}%
-\begin{subfigure}{.5\textwidth}
-  \centering
-  \includegraphics[width=0.9\textwidth]{fig_bidmach_real_mooc_roc_curve_v2}
-  \caption{MOOC data ROC curve.}
-  \label{fig:mooc_accuracy}
-\end{subfigure}
-\caption{A more in-depth look at our sampler on Synthetic and Real MOOC data.}
-\label{fig:third_set}
-\end{figure}
+The training and testing data have 62.8\% and 57.6\% of known data points in the positive class,
+respectively. Due to this imbalance, we do not use raw accuracy as a predictor and instead turn to
+the Receiver Operating Characteristic (ROC) curve. Figure~\ref{fig:mooc_accuracy} shows the ROC
+curves obtained after 10 passes and 100 passes through the data. After 100 passes, the ROC has an
+AUC of 0.65741. This is our best result; we tested at other points, such as 1000 passes (AUC of
+0.63792), but did not find any curve with an AUC exceeding 0.65741, possibly due to overfitting
+after 100 passes. Figure~\ref{fig:mooc_accuracy} also has five labeled dots, from 40\% to 80\%.
+These indicate different decision point cutoffs. For instance, the point labeled at 50\% is the
+point on the ROC curve that corresponds to the decision threshold being positive if we have at least
+50\% of our samples as positive (out of 500, meaning we need at least 250). The 0\% decision
+threshold (not shown) would correspond to the point $(1,1)$.
 
 
 
-
-\section{Scaling BIDMach to Larger Data}\label{sec:scaling_large_data}
+\section{Speed and Scalability of BIDMach on Large Data}\label{sec:scaling_large_data}
 
 % BIDMach (CPU) vs JAGS for the Real MOOC data *replicated*, with SAME=1.
-% Batch size: we'll use 2184 (approx 4367/2) to be a fair comparision with previous table with
+% Batch size: we'll use 2184 (approx 4367/2) to be a fair comparison with previous table with
 % Koller, because we usually like to have more than one mini-batch.
 %
 % Here are the BIDMach CPU (not GPU!) results on BITTER:
@@ -560,68 +558,32 @@ red circles.}
 % 
 % Here are the CPU BIDMach times on STOUT with the same settings, which is what we report:
 %
-% Time=38.4290 secs, gflops=1.14 (1x)
-% Time=75.0240 secs, gflops=1.17 (2x)
-% Time=186.2360 secs, gflops=1.17 (5x)
-% Time=358.4780 secs, gflops=1.22 (10x)
-% Time=700.2980 secs, gflops=1.25 (20x)
-% Time=1436.2930 secs, gflops=1.22 (40x)
-%
-% It takes a while with 20x, and absurdly long with 100x ... remember, the batch sizes are the same.
-% Note: I suppose I should run this with 40% data as well...
+% Time=38.4290 secs, gflops=1.14 (1x) + 1.06s initialization
+% Time=75.0240 secs, gflops=1.17 (2x) + 1.061s initialization
+% Time=186.2360 secs, gflops=1.17 (5x) + 1.066s initialization
+% Time=358.4780 secs, gflops=1.22 (10x) + 1.125s initialization
+% Time=700.2980 secs, gflops=1.25 (20x) + 1.092s initialization
+% Time=1436.2930 secs, gflops=1.22 (40x) + 1.115s initialization
 %
 % Notes on JAGS: we tried with 100x, but it crashed (ran out of memory) on stout, after almost 30
 % minutes. And actually, 40% crashed as well. But on stout, BIDMach only uses 11.4% of the memory
 % with 40% of the data.
 \begin{table}[t]
+\small
 \caption{BIDMach (CPU) vs. JAGS Runtime on (Replicated) Real MOOC Data}
 \label{tab:bidmach_jags_realmooc}
 \begin{center}
 \begin{tabular}{ |c|c|c|c|c|c|c| } 
 \hline
-                         & 1x    & 2x     & 5x     & 10x    & 20x     & 40x   \\
+                         & 1x    & 2x     & 5x     & 10x     & 20x     & 40x    \\
 \hline \hline
-BIDMach Time(sec) / Iter & 0.182 & 0.375  & 0.931  & 1.792  & 3.501   & 7.181 \\ 
-JAGS Time(sec) / Iter    & 4.876 & 13.745 & 29.150 & 94.075 & 171.545 & OOM   \\
+BIDMach Total Time (sec) & 39.5  & 76.1   & 187.3  & 359.6   & 701.4   & 1437.4 \\ 
+JAGS Total Time (sec)    & 975.2 & 2749.0 & 5830.0 & 18815.0 & 34309.0 & OOM    \\
 \hline
 \end{tabular}
 \end{center}
 \end{table}
 
-
-We now discuss the impact of the SAME parameter in terms of runtime and throughput. We measure the
-throughput and speed of our Gibbs sampler in terms of GigaFlops (gflops), a billion floating point
-operations per second. It is possible to compute reasonable estimates of the maximum gflops
-attainable for a computer. Therefore, in order for us to claim that the Gibbs sampler is as
-optimized as it could be, we should argue that it attains gflops values that are close to the
-theoretical limit, indicating that further improvement is unlikely beyond simply upgrading the
-hardware.
-
-\textbf{Daniel: We should compute the theoretical gflops limit.}
-
-As the SAME parameter increases, it increases both the throughput (good) and runtime (bad) by
-increasing the number of data points in our computations. The results from~\citep{SAME2015} suggest
-that increasing $m$ for small values will increase throughput while not costing too much in runtime.
-As one increases $m$ beyond a certain data-dependent value, then SAME ``saturates'' the algorithm
-and results in stagnant throughput while significantly increasing runtime. It follows that a
-reasonable objective for an experimenter is to run the Gibbs sampler on data with varying values of
-$m$, and identify the point where further increases in $m$ start having an unfavorable runtime and
-throughput tradeoff.
-
-As an example, we used the Koller data from~(\ref{ssec:koller_data}), with 50\% of the data known
-versus missing, but with \emph{one million} cases, beyond the feasible datasets of standard Gibbs
-samplers. We ran the Gibbs sampler for 200 iterations on this data with a batch size of 50,000.
-Table~\ref{tab:tradeoff} shows the time and gflops of the Gibbs sampler using different values of
-$m$.  One can see that increasing $m$ for $m < 30$ results in steady gflops increases but
-\emph{without} a substantial increase in time. Then SAME saturates the algorithm and the runtime
-increases while the gflops stalls, reinforcing the conclusions from~\citep{SAME2015} and argues for
-the importance of testing with a variety of $m$ values.
-
-Notice that the runtimes listed are in seconds, and even with $m=50$, 200 iterations takes less than
-10 minutes to complete --- we have barely scratched the limit of our sampler. In fact, one of the
-main things that limits our sampler is the memory of GPUs, since we need to shrink the batch size
-with large $m$. As memory on GPUs becomes cheaper, we will be able to run Gibbs sampling and perform
-graphical model inference on larger datasets.
 
 % This should be in another section. We might consider splitting this in two if we have space. For
 % both of these, I chose the largest batch size that we could do m = 50.
@@ -632,6 +594,7 @@ graphical model inference on larger datasets.
 % graphical model, technically speaking) we were getting 13.90 for m = 50.
 % Final statistics from BIDMach:
 % Time=61.4750 secs, gflops=2.38 (m=1)
+% Time=71.8440 secs, gflops=4.07 (m=2)
 % Time=104.6140 secs, gflops=6.98 (m=5)
 % Time=160.8270 secs, gflops=9.08 (m=10)
 % Time=265.6820 secs, gflops=11.00 (m=20)
@@ -656,24 +619,101 @@ graphical model inference on larger datasets.
 % Time=750.6940 secs, gflops=11.62 (m=40)
 % Time=907.2790 secs, gflops=12.02 (m=50)
 %
-% Now for the actual table itself:
+% Now for the actual table itself EDIT this was the old table. I have a new one now.
+%\begin{table}[t]
+%\caption{BIDMach (GPU) Runtime vs. GigaFlops on Large Data}
+%\label{tab:tradeoff}
+%\begin{center}
+%\begin{tabular}{ |c|c|c|c|c|c|c|c| } 
+%\hline
+%               & $m=1$ & $m=5$ & $m=10$ & $m=20$ & $m=30$ & $m=40$ & $m=50$  \\
+%\hline \hline
+%GigaFlops (K)  & 2.38  & 6.98  & 9.08   & 11.00  & 11.70  & 12.27  & 12.35   \\ 
+%Time/Iter (K)  & 0.307 & 0.523 & 0.804  & 1.328  & 1.872  & 2.380  & 2.957   \\
+%\hline 
+%GigaFlops (RM) & 1.65  & 4.58  & 7.08   & 9.69   & 10.92  & 11.62  & 12.02   \\ 
+%Time/Iter (RM) & 0.666 & 1.192 & 1.541  & 2.252  & 2.998  & 3.753  & 4.536   \\
+%\hline
+%\end{tabular}
+%\end{center}
+%\end{table}
+ 
+% New table. The Koller data is similar, but the BIDMach data is different.  We're using 30 TIMES
+% the data, with a batch size of 1000. For SAME = 10, this uses up 95% of the GPU memory. Times:
+%
+% Time=488.0840 secs, gflops=2.69 (m=1)
+% Time=587.9970 secs, gflops=4.46 (m=2)
+% Time=836.1830 secs, gflops=7.83 (m=5)
+% Time=1262.6890 secs, gflops=10.37 (m=10)
+%
 \begin{table}[t]
-\caption{BIDMach (GPU) Runtime vs. GigaFlops on Large Data}
+\small
+\caption{BIDMach (GPU) Runtime Per Iteration and GigaFlops on Large Data}
 \label{tab:tradeoff}
 \begin{center}
-\begin{tabular}{ |c|c|c|c|c|c|c|c| } 
+\begin{tabular}{ |c|c|c|c|c|c| } 
 \hline
-               & $m=1$ & $m=5$ & $m=10$ & $m=20$ & $m=30$ & $m=40$ & $m=50$  \\
+               & $m=1$ & $m=2$ & $m=5$ & $m=10$ \\
 \hline \hline
-GigaFlops (K)  & 2.38  & 6.98  & 9.08   & 11.00  & 11.70  & 12.27  & 12.35   \\ 
-Time/Iter (K)  & 0.307 & 0.523 & 0.804  & 1.328  & 1.872  & 2.380  & 2.957   \\
-\hline 
-GigaFlops (RM) & 1.65  & 4.58  & 7.08   & 9.69   & 10.92  & 11.62  & 12.02   \\ 
-Time/Iter (RM) & 0.666 & 1.192 & 1.541  & 2.252  & 2.998  & 3.753  & 4.536   \\
+GigaFlops (Koller, 1M)               & 2.38  & 4.07  &  6.98  &  9.08  \\ 
+Time (sec) / Iteration (Koller, 1M)  & 0.307 & 0.359 &  0.523 &  0.804 \\
+\hline
+GigaFlops (30x MOOC)              & 2.69  & 4.46  & 7.83  & 10.37   \\ 
+Time (sec) / Iteration (30x MOOC) & 2.440 & 2.940 & 4.181 & 6.313   \\
 \hline
 \end{tabular}
 \end{center}
 \end{table}
+
+We now discuss the extent to which BIDMach (and JAGS) can scale up to larger datasets in order to
+identify the limits of current software. We were unable to obtain anything larger than the MOOC data
+from~(\ref{ssec:mooc_data}), so we formed ``larger datasets'' by replicating the MOOC data
+horizontally. That is, we took the data matrix and made $n$ copies to get a $(334 \times
+4367n)$-dimensional data matrix. In Table~\ref{tab:bidmach_jags_realmooc}, we report the time per
+iteration for BIDMach and JAGS on a variety of replicated data, from the original data (1x) to data
+replicated 40 times (40x). For BIDMach, we used the same tunable settings (e.g, mini-batch size) as
+we did in Figure~\ref{fig:second_set}, to keep our comparison fair.
+
+The results indicate that BIDMach holds a clear speed advantage over JAGS, though one must interpret
+the results carefully. From Figure~\ref{fig:second_set}, we see that, while BIDMach and JAGS both
+eventually converge to similar $KL_{\rm avg}$ values, BIDMach takes roughly three times as many
+iterations to reach convergence (this is most easily observed on the 25\% data). It is possible to
+speed the convergence of BIDMach on the basis of iterations (by reducing the mini-batch size) but
+our informal experiments indicated that doing so would result in unacceptable time increases.
+
+Therefore, to determine BIDMach's speed improvements, one would need to divide the JAGS time by
+three (roughly). Despite this caveat, BIDMach still has a huge performance advantage. With the
+original data, BIDMach's advantage is $(4.876/3)/0.182 \approx 8.93$, nearly an order of magnitude
+faster, and the gap widens with more data (for 20x, we have an advantage of
+$(171.545/3)/3.501\approx 16.33$). We emphasize that this result is with the CPU only version of
+BIDMach. The GPU version of BIDMach, especially on larger data (e.g., the 20x data) can run 5-10
+times faster. In terms of memory usage, BIDMach also outperforms JAGS. BIDMach structures data in
+matrices, whereas JAGS internally forms a graph. For the 40x data, JAGS ran out of memory on our 64
+CPU RAM machine, whereas BIDMach only used up 11.4\% of the RAM.
+
+It is also worthy to investigate the impact of the SAME parameter $m$, in terms of runtime \emph{and
+throughput}, which is measured in GigaFlops (gflops), a billion floating point operations per
+second. As the SAME parameter increases, it increases both the throughput (good) and runtime (bad)
+by increasing the number of data points in our computations. The results from~\citep{SAME2015}
+suggest that increasing $m$ for small values will increase throughput while not costing too much in
+runtime.  As one increases $m$ beyond a certain data-dependent value, then SAME ``saturates'' the
+algorithm and results in stagnant throughput while significantly increasing runtime.
+Figure~\ref{fig:mooc_kl} also raises the question as to whether one really needs a large $m$ in the
+first place.
+
+Table~\ref{tab:tradeoff} reports the performance of BIDMach's GPU version (only) on two expanded
+datasets with varying $m$. One is the Koller data from~(\ref{ssec:koller_data}), with 50\% of the
+data known versus missing, but with \emph{one million} cases. The other is 30x replicated MOOC data.
+Table~\ref{tab:tradeoff} reports that BIDMach gets a healthy amount of throughput from the expanded
+data (especially the 30x MOOC data).
+
+The runtimes in all tables in this paper are listed are in seconds, and even with large $m$ and a
+large replication factor, we have barely scratched the limit of our sampler. In fact, the primary
+limiting factor of our sampler is not the data itself, but the memory of the GPU. As GPU memory
+becomes cheaper, the performance of our sampler will improve and we will be able to run it on larger
+and larger datasets.
+
+
 
 \section{Conclusions}\label{sec:conclusions}
 
